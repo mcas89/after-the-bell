@@ -1,0 +1,106 @@
+import { useGLTF } from '@react-three/drei'
+import { useLayoutEffect, useMemo } from 'react'
+import * as THREE from 'three'
+import { setFurnitureFootprint } from '../data/furniture'
+
+type Props = {
+  url: string
+  position: [number, number, number]
+  rotationY?: number
+  targetHeight?: number
+  targetWidth?: number
+  kind?: 'desk' | 'teacher'
+  anchor?: 'floor' | 'center'
+  pickable?: boolean
+}
+
+const fits = new Map<
+  string,
+  { scale: number; offset: THREE.Vector3; width: number; depth: number }
+>()
+const box = new THREE.Box3()
+const size = new THREE.Vector3()
+const center = new THREE.Vector3()
+
+function measure(
+  scene: THREE.Object3D,
+  targetHeight: number | undefined,
+  targetWidth: number | undefined,
+  url: string,
+  anchor: 'floor' | 'center',
+) {
+  const key = `${url}:${anchor}:${targetHeight ?? 0}:${targetWidth ?? 0}`
+  const cached = fits.get(key)
+  if (cached) return cached
+
+  box.setFromObject(scene)
+  box.getSize(size)
+  box.getCenter(center)
+  const hScale = targetHeight ? targetHeight / Math.max(size.y, 0.001) : Number.POSITIVE_INFINITY
+  const wScale = targetWidth ? targetWidth / Math.max(size.x, 0.001) : Number.POSITIVE_INFINITY
+  const scale = Number.isFinite(Math.min(hScale, wScale)) ? Math.min(hScale, wScale) : 1
+  const offsetY = anchor === 'floor' ? -box.min.y : -center.y
+  const fit = {
+    scale,
+    offset: new THREE.Vector3(-center.x, offsetY, -center.z),
+    width: size.x * scale,
+    depth: size.z * scale,
+  }
+  fits.set(key, fit)
+  return fit
+}
+
+export function FurnitureModel({
+  url,
+  position,
+  rotationY = 0,
+  targetHeight,
+  targetWidth,
+  kind,
+  anchor = 'floor',
+  pickable = true,
+}: Props) {
+  const gltf = useGLTF(url)
+  const scene = useMemo(() => {
+    const cloned = gltf.scene.clone(true)
+    cloned.traverse((obj) => {
+      obj.castShadow = true
+      obj.receiveShadow = true
+      if (!pickable) obj.raycast = () => {}
+    })
+    return cloned
+  }, [gltf, pickable])
+
+  const fit = useMemo(
+    () => measure(gltf.scene, targetHeight, targetWidth, url, anchor),
+    [gltf.scene, targetHeight, targetWidth, url, anchor],
+  )
+
+  useLayoutEffect(() => {
+    if (kind) setFurnitureFootprint(kind, fit.width, fit.depth)
+  }, [fit, kind])
+
+  return (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <group scale={fit.scale}>
+        <primitive object={scene} position={fit.offset} />
+      </group>
+    </group>
+  )
+}
+
+useGLTF.preload('/carteira_escola.glb')
+useGLTF.preload('/mesa_professor.glb')
+useGLTF.preload('/janela.glb')
+useGLTF.preload('/mochila_aberta.glb')
+useGLTF.preload('/mochila_fechada.glb')
+useGLTF.preload('/refrigerante1.glb')
+useGLTF.preload('/refrigerante2.glb')
+useGLTF.preload('/prontuarios.glb')
+useGLTF.preload('/livros_pilhado.glb')
+useGLTF.preload('/bloco_folhas.glb')
+useGLTF.preload('/armario_fechado.glb')
+useGLTF.preload('/armario_aberto.glb')
+useGLTF.preload('/canetas.glb')
+useGLTF.preload('/folhas%20jogadas.glb')
+useGLTF.preload('/chave.glb')

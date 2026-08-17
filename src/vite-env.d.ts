@@ -1,0 +1,11 @@
+/// <reference types="vite/client" />
+
+interface Window {
+  discoverClue?: (id: string) => boolean
+  updateClue?: (
+    id: string,
+    patch: { title?: string; description?: string; stage?: number },
+  ) => boolean
+  collectItem?: (id: string) => boolean
+  resetSave?: () => void
+}

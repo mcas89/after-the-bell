@@ -1,0 +1,189 @@
+import { useFrame, useThree } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import * as THREE from 'three'
+import { computeInspectShot } from './computeInspectShot'
+import { getExamineRecord, getExamineRecords, getNearbyExamineIds } from './examineRegistry'
+import { setExamineHighlight } from './highlight'
+import { pickExamineId } from './pickExamine'
+import { useExamineStore } from './useExamineStore'
+import { examineHoldSeconds } from '../data/examineContent'
+import { duckMusic, holdAmbient, playSfx, SFX } from '../audio/mixer'
+import { playerMotion } from '../player/playerMotion'
+import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
+import { isHallLockerId } from '../hallway/lockers'
+import { useGameStore } from '../state/useGameStore'
+
+const lightPos = new THREE.Vector3()
+const box = new THREE.Box3()
+
+function beginInspect(
+  id: string,
+  camera: THREE.Camera,
+  inspectId: { current: string | null },
+  holdLeft: { current: number },
+) {
+  const record = getExamineRecord(id)
+  if (!record) return
+  useExamineStore.getState().inspect(id)
+  inspectId.current = id
+  holdLeft.current = examineHoldSeconds(id)
+  if (isHallLockerId(id)) return
+
+  const shot = computeInspectShot(record, camera)
+  const store = useGameStore.getState()
+  store.setCameraMode('examine')
+  store.setCameraOverride(shot)
+  const holdMs = holdLeft.current > 0 ? holdLeft.current * 1000 + 280 : 4800
+  holdAmbient(holdMs)
+  duckMusic(0.55, 1200)
+}
+
+function syncHighlights(hoveredId: string | null, examiningId: string | null, nearbyIds: string[]) {
+  const nearby = new Set(nearbyIds)
+  for (const record of getExamineRecords()) {
+    if (examiningId === record.id) setExamineHighlight(record.object, 'focus')
+    else if (hoveredId === record.id) setExamineHighlight(record.object, 'hover')
+    else if (nearby.has(record.id)) setExamineHighlight(record.object, 'near')
+    else setExamineHighlight(record.object, 'off')
+  }
+}
+
+export function ExamineDirector() {
+  const lightRef = useRef<THREE.PointLight>(null)
+  const lightStrength = useRef(0)
+  const inspectId = useRef<string | null>(null)
+  const holdLeft = useRef(-1)
+  const pointer = useRef({ x: 0, y: 0, inside: false })
+  const { camera, gl } = useThree()
+
+  useEffect(() => {
+    const el = gl.domElement
+
+    const onMove = (event: PointerEvent) => {
+      pointer.current.x = event.clientX
+      pointer.current.y = event.clientY
+      pointer.current.inside = true
+    }
+
+    const onLeave = () => {
+      pointer.current.inside = false
+    }
+
+    const onPointer = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      const game = useGameStore.getState()
+      if (!game.prologueDone || game.interactionState !== 'gameplay') return
+      if (isPhoneOpen(usePhoneStore.getState().ui)) return
+
+      const examine = useExamineStore.getState()
+      const nearby = getNearbyExamineIds(playerMotion.x, playerMotion.z)
+      examine.setNearby(nearby)
+      const id =
+        pickExamineId(event.clientX, event.clientY, camera, el, nearby) ??
+        (examine.hoveredId && nearby.includes(examine.hoveredId) ? examine.hoveredId : null)
+      if (!id) return
+      event.preventDefault()
+      playSfx(SFX.clickItem, 0.45)
+      beginInspect(id, camera, inspectId, holdLeft)
+    }
+
+    const onContext = (event: MouseEvent) => {
+      if (useGameStore.getState().interactionState !== 'examining-object') return
+      event.preventDefault()
+      useExamineStore.getState().stopInspect()
+    }
+
+    el.addEventListener('pointermove', onMove)
+    el.addEventListener('pointerleave', onLeave)
+    el.addEventListener('pointerdown', onPointer)
+    el.addEventListener('contextmenu', onContext)
+    el.style.cursor = 'default'
+    return () => {
+      el.style.cursor = 'default'
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerleave', onLeave)
+      el.removeEventListener('pointerdown', onPointer)
+      el.removeEventListener('contextmenu', onContext)
+    }
+  }, [camera, gl])
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.code !== 'Escape') return
+      if (useGameStore.getState().interactionState !== 'examining-object') return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      useExamineStore.getState().stopInspect()
+    }
+
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [])
+
+  useFrame((_, delta) => {
+    const game = useGameStore.getState()
+    const examine = useExamineStore.getState()
+    const dt = Math.min(delta, 0.05)
+    const inspecting = game.interactionState === 'examining-object'
+    const canPick =
+      game.prologueDone && game.interactionState === 'gameplay' && !isPhoneOpen(usePhoneStore.getState().ui)
+
+    const nearby = canPick ? getNearbyExamineIds(playerMotion.x, playerMotion.z) : inspecting ? examine.nearbyIds : []
+    if (canPick || !inspecting) examine.setNearby(nearby)
+
+    const hovered =
+      canPick && pointer.current.inside
+        ? pickExamineId(pointer.current.x, pointer.current.y, camera, gl.domElement, nearby)
+        : null
+    examine.setHovered(hovered)
+
+    gl.domElement.style.cursor = hovered ? 'pointer' : 'default'
+
+    syncHighlights(hovered, examine.examiningId, canPick ? nearby : [])
+
+    if (inspecting && examine.examiningId) {
+      const locker = isHallLockerId(examine.examiningId)
+      if (inspectId.current !== examine.examiningId) {
+        beginInspect(examine.examiningId, camera, inspectId, holdLeft)
+      }
+      if (!locker) {
+        const record = getExamineRecord(examine.examiningId)
+        if (record) {
+          box.setFromObject(record.object)
+          box.getCenter(lightPos)
+          lightPos.lerp(camera.position, 0.22)
+          lightPos.y += 0.18
+        }
+        if (holdLeft.current > 0) {
+          holdLeft.current -= dt
+          if (holdLeft.current <= 0) useExamineStore.getState().stopInspect()
+        }
+      }
+    } else if (inspectId.current) {
+      inspectId.current = null
+      holdLeft.current = -1
+      const store = useGameStore.getState()
+      store.setCameraMode('explore')
+      store.setCameraOverride(null)
+    }
+
+    const wantLight = inspecting && examine.examiningId && !isHallLockerId(examine.examiningId) ? 1 : 0
+    lightStrength.current = THREE.MathUtils.damp(lightStrength.current, wantLight, 5.5, dt)
+    const lamp = lightRef.current
+    if (lamp) {
+      lamp.position.copy(lightPos)
+      lamp.intensity = lightStrength.current * 0.55
+    }
+  })
+
+  return (
+    <pointLight
+      ref={lightRef}
+      color="#efe4d2"
+      intensity={0}
+      distance={2.15}
+      decay={2}
+      castShadow={false}
+    />
+  )
+}

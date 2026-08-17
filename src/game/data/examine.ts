@@ -1,0 +1,78 @@
+export type ExamineTuning = {
+  radius: number
+  pick?: 'small' | 'large'
+  pickRadius?: number
+  examineDistance?: number
+  examineOffset?: [number, number, number]
+  examineTargetOffset?: [number, number, number]
+  examineFacing?: [number, number, number]
+  fov?: number
+}
+
+const lockerShot: ExamineTuning = {
+  radius: 2.45,
+  pick: 'small',
+  pickRadius: 0.28,
+  examineDistance: 1.32,
+  examineFacing: [1, 0, 0],
+  examineTargetOffset: [0.08, 0.28, 0],
+  examineOffset: [0, 0.12, 0],
+  fov: 34,
+}
+
+export const EXAMINE_ITEMS: Record<string, ExamineTuning> = {
+  'mochila-fechada': { radius: 2.35, pick: 'small', pickRadius: 0.32 },
+  'mochila-aberta': { radius: 2.35, pick: 'small', pickRadius: 0.3 },
+  'refrigerante-1': { radius: 2.25, pick: 'small', pickRadius: 0.16 },
+  'refrigerante-2': { radius: 2.25, pick: 'small', pickRadius: 0.16 },
+  prontuario: { radius: 2.3, pick: 'small', pickRadius: 0.2, examineDistance: 0.55 },
+  'livros-professor': { radius: 2.3, pick: 'small', pickRadius: 0.22, examineDistance: 0.7 },
+  'canetas-professor': { radius: 2.25, pick: 'small', pickRadius: 0.16, examineDistance: 0.38 },
+  'bloco-folhas': { radius: 2.3, pick: 'small', pickRadius: 0.22, examineDistance: 0.48 },
+  'canetas-carteira': { radius: 2.25, pick: 'small', pickRadius: 0.16, examineDistance: 0.38 },
+  'folhas-chao': { radius: 2.35, pick: 'small', pickRadius: 0.34, examineDistance: 0.58 },
+  'armario-livros': { radius: 2.5, pick: 'large', examineDistance: 1.2 },
+  mural: { radius: 2.65, pick: 'large', examineDistance: 1.45 },
+  relogio: { radius: 3.1, pick: 'small', pickRadius: 0.22, examineDistance: 0.72, fov: 34 },
+  'quadro-negro': { radius: 3.15, pick: 'large', examineDistance: 2.05, fov: 40 },
+  'janela-1': { radius: 2.45, pick: 'large', pickRadius: 0.42, examineDistance: 1.6 },
+  'janela-2': { radius: 2.45, pick: 'large', pickRadius: 0.42, examineDistance: 1.6 },
+  'janela-3': { radius: 2.45, pick: 'large', pickRadius: 0.42, examineDistance: 1.6 },
+  porta: { radius: 2.45, pick: 'large', examineDistance: 1.8 },
+  chave: {
+    radius: 2.35,
+    pick: 'small',
+    pickRadius: 0.14,
+    examineDistance: 0.38,
+    examineOffset: [0, 0.14, 0],
+    fov: 30,
+  },
+  'hall-clock': { radius: 3.2, pick: 'small', pickRadius: 0.34, examineDistance: 0.7, fov: 34 },
+  'hall-window': { radius: 2.6, pick: 'large', examineDistance: 1.5 },
+  'hall-window-side-1': { radius: 2.45, pick: 'large', pickRadius: 0.42, examineDistance: 1.6 },
+  'hall-window-side-2': { radius: 2.45, pick: 'large', pickRadius: 0.42, examineDistance: 1.6 },
+  'hall-passage': { radius: 2.6, pick: 'large', examineDistance: 1.7 },
+  'hall-door-11': { radius: 2.3, pick: 'large', examineDistance: 1.4 },
+  'hall-door-12': { radius: 2.3, pick: 'large', examineDistance: 1.4 },
+  'hall-door-13': { radius: 2.3, pick: 'large', examineDistance: 1.4 },
+  'hall-door-14': { radius: 2.3, pick: 'large', examineDistance: 1.4 },
+  'hall-mural': { radius: 2.5, pick: 'large', examineDistance: 1.35 },
+  'hall-fountain': { radius: 2.2, pick: 'small', pickRadius: 0.28, examineDistance: 0.7 },
+  'hall-locker-0': lockerShot,
+  'hall-locker-1': lockerShot,
+  'hall-locker-2': lockerShot,
+  'hall-locker-3': lockerShot,
+  'hall-locker-4': lockerShot,
+  'hall-locker-5': lockerShot,
+  'hall-locker-6': lockerShot,
+  'hall-locker-7': lockerShot,
+  'hall-locker-8': lockerShot,
+  'hall-locker-9': lockerShot,
+  'side-door-11': { radius: 2.3, pick: 'large', examineDistance: 1.5 },
+  'side-door-12': { radius: 2.3, pick: 'large', examineDistance: 1.5 },
+  'side-door-14': { radius: 2.3, pick: 'large', examineDistance: 1.5 },
+}
+
+export function isExaminableId(id: string) {
+  return id in EXAMINE_ITEMS
+}

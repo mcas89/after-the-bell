@@ -1,0 +1,277 @@
+.hud-tools {
+  position: fixed;
+  right: 1.15rem;
+  top: 1.1rem;
+  z-index: 24;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+  pointer-events: none;
+}
+
+.hud-tools-icons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  pointer-events: auto;
+}
+
+.hud-tools > .phone-notice {
+  pointer-events: auto;
+}
+
+.fragments-dock {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  padding: 0;
+  border: 1px solid rgba(214, 204, 188, 0.18);
+  border-radius: 0.8rem;
+  background: rgba(8, 10, 14, 0.78);
+  color: rgba(236, 228, 216, 0.9);
+  cursor: pointer;
+}
+
+.fragments-dock:hover {
+  background: rgba(18, 20, 26, 0.92);
+  border-color: rgba(214, 204, 188, 0.38);
+}
+
+.fragments-dock.is-pulse {
+  animation: fragment-blink 1.6s ease-in-out;
+}
+
+.fragments-dock.is-pulse .fragments-dock-icon {
+  animation: fragment-glyph-blink 1.6s ease-in-out;
+}
+
+.fragments-dock-icon {
+  width: 1.28rem;
+  height: 1.28rem;
+}
+
+.fragments-unread {
+  position: absolute;
+  top: 0.38rem;
+  right: 0.38rem;
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 50%;
+  background: rgba(214, 204, 188, 0.88);
+  box-shadow: 0 0 6px rgba(214, 204, 188, 0.35);
+}
+
+.fragments-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 26;
+  background: rgba(4, 6, 10, 0.46);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: auto;
+  cursor: default;
+}
+
+.fragments-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 27;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.fragments-panel {
+  width: min(38rem, 88vw);
+  max-height: min(32rem, 78vh);
+  display: flex;
+  flex-direction: column;
+  padding: 1.15rem 1.2rem 1.25rem;
+  border: 1px solid rgba(214, 204, 188, 0.14);
+  background: rgba(10, 12, 16, 0.94);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5);
+  color: rgba(236, 228, 216, 0.92);
+  cursor: default;
+}
+
+.fragments-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.fragments-head p {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(200, 196, 188, 0.58);
+}
+
+.fragments-close {
+  border: 0;
+  background: transparent;
+  color: rgba(200, 196, 188, 0.55);
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fragments-empty,
+.fragments-hint {
+  margin: 1.4rem 0 0.4rem;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(200, 196, 188, 0.62);
+}
+
+.fragments-body {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.42fr) 1fr;
+  gap: 1rem 1.2rem;
+  min-height: 12rem;
+  overflow: hidden;
+}
+
+.fragments-list {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  border-right: 1px solid rgba(214, 204, 188, 0.1);
+}
+
+.fragments-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.55rem 0.7rem 0.55rem 0;
+  border: 0;
+  background: transparent;
+  color: rgba(200, 196, 188, 0.78);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fragments-item strong {
+  font-weight: 500;
+}
+
+.fragments-item:hover,
+.fragments-item.is-selected {
+  color: rgba(236, 228, 216, 0.96);
+}
+
+.fragments-item.is-unread strong {
+  color: rgba(236, 228, 216, 0.95);
+}
+
+.fragments-item-dot {
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 50%;
+  background: rgba(214, 204, 188, 0.8);
+}
+
+.fragments-detail {
+  overflow: auto;
+}
+
+.fragments-detail h2 {
+  margin: 0 0 0.55rem;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.fragments-detail p {
+  margin: 0;
+  line-height: 1.55;
+  color: rgba(200, 196, 188, 0.82);
+}
+
+.fragment-toast {
+  position: fixed;
+  right: 1.15rem;
+  top: 4.55rem;
+  z-index: 30;
+  width: min(16.5rem, 72vw);
+  padding: 0.8rem 0.95rem;
+  border-left: 3px solid rgba(214, 204, 188, 0.7);
+  background: rgba(10, 12, 16, 0.9);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.fragment-toast span {
+  display: block;
+  margin-bottom: 0.22rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(200, 196, 188, 0.52);
+}
+
+.fragment-toast strong {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(236, 228, 216, 0.95);
+}
+
+@keyframes fragment-blink {
+  0%,
+  100% {
+    border-color: rgba(214, 204, 188, 0.18);
+    box-shadow: none;
+  }
+  15%,
+  45%,
+  75% {
+    border-color: rgba(236, 228, 216, 0.85);
+    box-shadow: 0 0 16px rgba(214, 204, 188, 0.4);
+    background: rgba(28, 30, 36, 0.95);
+  }
+  30%,
+  60% {
+    border-color: rgba(214, 204, 188, 0.18);
+    box-shadow: none;
+  }
+}
+
+@keyframes fragment-glyph-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  15%,
+  45%,
+  75% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(236, 228, 216, 0.85));
+  }
+  30%,
+  60% {
+    opacity: 0.15;
+  }
+}
+
+@media (max-width: 640px) {
+  .fragments-body {
+    grid-template-columns: 1fr;
+  }
+
+  .fragments-list {
+    border-right: 0;
+    border-bottom: 1px solid rgba(214, 204, 188, 0.1);
+    max-height: 8.5rem;
+  }
+}
