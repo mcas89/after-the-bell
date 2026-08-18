@@ -5,6 +5,7 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { hasDarkHallClues } from '../hallway/darkProgress'
 import { ITEM_IDS } from './items'
 import { useInventoryStore } from '../state/useInventoryStore'
+import { useGameStore } from '../state/useGameStore'
 
 export type SheetKind =
   | 'bloco'
@@ -147,6 +148,9 @@ const SHARED: Record<string, ExamineEntry> = {
   'lobby-counter': {
     line: 'Balcão da diretoria. Ninguém.',
   },
+  'lobby-switch': {
+    line: 'Interruptor.',
+  },
   'side-door-11': {
     line: 'O corredor está do outro lado.',
   },
@@ -183,7 +187,8 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Portaria. Externa. Alunos. Nada.',
   },
   'teachers-flashlight': {
-    line: 'Sem pilhas. Não serve.',
+    line: 'Pesada. Sem pilhas.',
+    collectibleId: 'item-flashlight',
   },
   'teachers-table': {
     line: 'Ronda das 22h. Assinaram e foram embora. As chaves foram junto.',
@@ -275,15 +280,43 @@ export function getExamineEntry(id: string): ExamineEntry | null {
       ? { line: 'Uma passagem. Dá pra seguir.' }
       : { line: 'Está muito escuro. Não consigo ir pra lá.' }
   }
+  if (key === 'teachers-cabinet') {
+    const taken =
+      useInventoryStore.getState().has(ITEM_IDS.flashlight) ||
+      useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
+    return taken
+      ? { line: 'Ganchos vazios.' }
+      : { line: 'Ganchos vazios. Embaixo, uma lanterna.', collectibleId: ITEM_IDS.flashlight }
+  }
+  if (key === 'teachers-flashlight') {
+    const taken =
+      useInventoryStore.getState().has(ITEM_IDS.flashlight) ||
+      useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
+    return taken
+      ? { line: 'Não tem mais nada.' }
+      : { line: 'Pesada. Sem pilhas.', collectibleId: ITEM_IDS.flashlight }
+  }
+  if (key === 'lobby-switch') {
+    return useGameStore.getState().flags.lobbyLights
+      ? { line: 'A luz voltou. Pouca.' }
+      : { line: 'Interruptor.' }
+  }
   if (key === 'quadro-negro' && useInventoryStore.getState().has(ITEM_IDS.officeKey)) {
     return { ...SHARED[key], line: 'Ganhei uma chave nova. Foi para o inventário.' }
   }
   const locker = getHallLocker(key)
   if (locker) {
     if (useLockerPinStore.getState().isOpen(locker.id)) {
-      return locker.kind === 'livia'
-        ? { line: 'Cadernos. Uma foto virada. Meu moletom.' }
-        : { line: 'Quase vazio.' }
+      if (locker.kind === 'livia') return { line: 'Cadernos. Uma foto virada. Meu moletom.' }
+      if (locker.kind === 'marina') {
+        const taken =
+          useInventoryStore.getState().has(ITEM_IDS.batteries) ||
+          useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
+        return taken
+          ? { line: 'Quase vazio.' }
+          : { line: 'Pilhas. Alguém deixou.', collectibleId: ITEM_IDS.batteries }
+      }
+      return { line: 'Quase vazio.' }
     }
     if (locker.kind === 'livia') return { line: 'Meu armário.' }
     if (locker.kind === 'marina') return { line: 'Não tem nome. Só o número.' }

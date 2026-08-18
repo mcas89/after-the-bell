@@ -175,6 +175,9 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
 }
 
 function LockerInside({ name, kind }: { name: string; kind: 'livia' | 'marina' | 'other' }) {
+  const hasBatteries = useInventoryStore(
+    (s) => s.has(ITEM_IDS.batteries) || s.has(ITEM_IDS.flashlightLit),
+  )
   return (
     <div className="locker-inside">
       {kind === 'marina' ? null : <p className="locker-inside-name">{name}</p>}
@@ -194,6 +197,21 @@ function LockerInside({ name, kind }: { name: string; kind: 'livia' | 'marina' |
               <span className="locker-item is-scrap" aria-hidden>
                 <span className="locker-scrap-num">0305-2011</span>
               </span>
+            </div>
+          </>
+        ) : kind === 'marina' ? (
+          <>
+            <div className="locker-inside-shelf" />
+            <div className="locker-inside-mid">
+              <span className="locker-item is-hook" />
+            </div>
+            <div className="locker-inside-floor">
+              {hasBatteries ? null : (
+                <>
+                  <span className="locker-item is-battery" />
+                  <span className="locker-item is-battery is-plus" />
+                </>
+              )}
             </div>
           </>
         ) : (
@@ -321,6 +339,7 @@ function FlashlightCloseup() {
 function TeachersCabinet() {
   const detailId = useExamineStore((s) => s.detailId)
   const inspectDetail = useExamineStore((s) => s.inspectDetail)
+  const taken = useInventoryStore((s) => s.has(ITEM_IDS.flashlight) || s.has(ITEM_IDS.flashlightLit))
 
   if (detailId === 'teachers-flashlight') return <FlashlightCloseup />
 
@@ -341,15 +360,17 @@ function TeachersCabinet() {
           ))}
         </div>
         <div className="cabinet-shelf">
-          <button
-            className="cabinet-flashlight"
-            type="button"
-            aria-label="Lanterna"
-            onClick={() => inspectDetail('teachers-flashlight')}
-          >
-            <span className="cabinet-flash-body" />
-            <span className="cabinet-flash-head" />
-          </button>
+          {taken ? null : (
+            <button
+              className="cabinet-flashlight"
+              type="button"
+              aria-label="Lanterna"
+              onClick={() => inspectDetail('teachers-flashlight')}
+            >
+              <span className="cabinet-flash-body" />
+              <span className="cabinet-flash-head" />
+            </button>
+          )}
         </div>
       </div>
     </div>

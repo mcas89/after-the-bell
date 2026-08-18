@@ -6,6 +6,7 @@ import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { refreshControlLock } from '../systems/controlLock'
 import { InventoryOverlay, InventoryToast } from './InventoryOverlay'
+import { toggleFlashlight } from './flashlight'
 import './collectItem'
 import './inventory.css'
 
@@ -30,12 +31,20 @@ export function InventorySystem() {
 
       if (event.code === 'KeyF') {
         if (game.interactionState !== 'examining-object') return
-        const examiningId = useExamineStore.getState().examiningId
-        const collectibleId = examiningId ? getExamineEntry(examiningId)?.collectibleId : undefined
+        const examine = useExamineStore.getState()
+        const looking = examine.detailId ?? examine.examiningId
+        const collectibleId = looking ? getExamineEntry(looking)?.collectibleId : undefined
         if (!collectibleId || inventory.has(collectibleId)) return
         event.preventDefault()
         inventory.collect(collectibleId)
         useExamineStore.getState().stopInspect()
+        return
+      }
+
+      if (event.code === 'KeyL') {
+        if (game.interactionState !== 'gameplay' && game.interactionState !== 'viewing-inventory') return
+        event.preventDefault()
+        toggleFlashlight()
         return
       }
 

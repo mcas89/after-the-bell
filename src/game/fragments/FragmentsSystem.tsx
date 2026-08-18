@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { InventoryDock } from '../inventory/InventoryDock'
+import { FlashlightDock, InventoryDock } from '../inventory/InventoryDock'
 import { PhoneDock, PhoneNotice } from '../phone/PhoneNotice'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { useGameStore } from '../state/useGameStore'
@@ -62,6 +62,7 @@ export function FragmentsSystem() {
             <PhoneDock />
             <FragmentsDock />
             <InventoryDock />
+            <FlashlightDock />
           </div>
           <PhoneNotice />
         </div>

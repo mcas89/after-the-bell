@@ -12,7 +12,8 @@ import { playerMotion } from '../player/playerMotion'
 import { useGameStore } from '../state/useGameStore'
 import { ITEM_IDS } from '../data/items'
 import { useInventoryStore } from '../state/useInventoryStore'
-import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
+import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance, nearLobbySwitch } from './lobbyLayout'
+import { lobbyCanSee, lobbyLightsOn, tryFlipLobbySwitch } from '../inventory/flashlight'
 
 const DARK_LINE = 'Está muito escuro. Não consigo ir pra lá.'
 const COLD_LINE = 'Não consigo atravessar. Está muito escuro e gelado.'
@@ -85,7 +86,10 @@ function tryLobbyDoor(px: number, pz: number) {
 
 function lobbyPrompt(x: number, z: number) {
   if (nearLobbyEntrance(x, z)) return 'E voltar'
-  if (LOBBY_DOOR_LIST.some((door) => nearLobbyDoor(x, z, door))) return 'E abrir'
+  if (nearLobbySwitch(x, z) && lobbyCanSee()) {
+    return lobbyLightsOn() ? 'E olhar' : 'E ligar'
+  }
+  if (lobbyCanSee() && LOBBY_DOOR_LIST.some((door) => nearLobbyDoor(x, z, door))) return 'E abrir'
   return null
 }
 
@@ -161,7 +165,12 @@ export function RoomTravel() {
           requestMapTravel('hallway', 'from-passage')
           return
         }
-        if (tryLobbyDoor(x, z)) {
+        if (nearLobbySwitch(x, z) && lobbyCanSee()) {
+          cool.current = 0.8
+          tryFlipLobbySwitch()
+          return
+        }
+        if (lobbyCanSee() && tryLobbyDoor(x, z)) {
           cool.current = 0.8
         }
         return

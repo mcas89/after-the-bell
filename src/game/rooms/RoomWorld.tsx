@@ -14,11 +14,15 @@ import { SideClassroom } from './SideClassroom'
 import { TeachersRoom } from './TeachersRoom'
 import { RoomTravel } from './RoomTravel'
 import { hasDarkHallClues } from '../hallway/darkProgress'
+import { FlashlightBeam } from '../inventory/FlashlightBeam'
+import { FLASHLIGHT_ON, LOBBY_LIGHTS } from '../inventory/flashlight'
 import { useFragmentsStore } from '../state/useFragmentsStore'
 
 function RoomFog() {
   const room = useGameStore((s) => s.currentRoom)
   const hallOpen = useFragmentsStore((s) => hasDarkHallClues(s.entries))
+  const lobbyLit = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
+  const torch = useGameStore((s) => Boolean(s.flags[FLASHLIGHT_ON]))
   const { scene, gl } = useThree()
 
   useLayoutEffect(() => {
@@ -30,10 +34,10 @@ function RoomFog() {
     gl.setClearColor(color, 1)
     if (fog) {
       fog.color.set(color)
-      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : passage ? 8.2 : 6.4
-      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : passage ? 22 : 14.2
+      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : passage && lobbyLit ? 7.4 : passage && torch ? 1.15 : passage ? 0.5 : 6.4
+      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : passage && lobbyLit ? 18 : passage && torch ? 8.2 : passage ? 3.4 : 14.2
     }
-  }, [gl, hallOpen, room, scene])
+  }, [gl, hallOpen, lobbyLit, room, scene, torch])
 
   return null
 }
@@ -44,6 +48,7 @@ export function RoomWorld() {
   return (
     <>
       <RoomFog />
+      <FlashlightBeam />
       <WindowTerror />
       {room === 'classroom1' ? (
         <>

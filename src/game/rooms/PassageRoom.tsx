@@ -1,14 +1,17 @@
-import { Suspense, useLayoutEffect } from 'react'
+import { Suspense, useEffect, useLayoutEffect } from 'react'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
+import { FLASHLIGHT_ON, LOBBY_LIGHTS, speakPassageDark } from '../inventory/flashlight'
+import { useGameStore } from '../state/useGameStore'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import {
   LOBBY,
   LOBBY_COUNTER,
   LOBBY_DOORS,
   LOBBY_DOOR_LIST,
+  LOBBY_SWITCH,
   lobbyColliders,
 } from './lobbyLayout'
 
@@ -151,10 +154,42 @@ function OfficeCounter() {
   )
 }
 
+function LobbySwitch() {
+  const lit = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
+  return (
+    <Examinable id="lobby-switch">
+      <group position={[LOBBY_SWITCH.x, LOBBY_SWITCH.y, LOBBY_SWITCH.z]}>
+        <mesh>
+          <boxGeometry args={[0.05, 0.18, 0.12]} />
+          <meshStandardMaterial
+            color="#3a3834"
+            roughness={0.72}
+            emissive={lit ? '#d8c8a0' : '#000000'}
+            emissiveIntensity={lit ? 0.22 : 0}
+          />
+        </mesh>
+        <mesh position={[0.02, 0.02, 0]}>
+          <boxGeometry args={[0.03, 0.06, 0.045]} />
+          <meshStandardMaterial color={lit ? '#c8c0a8' : '#1c1a18'} roughness={0.45} />
+        </mesh>
+      </group>
+    </Examinable>
+  )
+}
+
 export function PassageRoom() {
+  const lit = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
+  const torch = useGameStore((s) => Boolean(s.flags[FLASHLIGHT_ON]))
+  const canSee = lit || torch
+
   useLayoutEffect(() => {
     setRoomColliders('passage', lobbyColliders())
     return () => clearRoomColliders('passage')
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => speakPassageDark(), 720)
+    return () => window.clearTimeout(timer)
   }, [])
 
   const westOpen: Opening[] = [
@@ -168,14 +203,18 @@ export function PassageRoom() {
 
   return (
     <group>
-      <ambientLight intensity={0.15} color="#a8b8c4" />
-      <hemisphereLight args={['#3d5a74', '#0e0c0a', 0.22]} />
-      <pointLight position={[0, 1.7, 0.35]} color={MOON} intensity={0.55} distance={5.4} decay={2} />
+      <ambientLight intensity={lit ? 0.12 : 0.012} color="#a8b8c4" />
+      {lit ? <hemisphereLight args={['#3d5a74', '#0e0c0a', 0.18]} /> : null}
+      <pointLight position={[0, 1.55, 0.22]} color={MOON} intensity={lit ? 0.42 : 0.28} distance={lit ? 5.4 : 3.1} decay={2} />
 
-      <LobbyLight x={-2.15} z={3.15} />
-      <LobbyLight x={2.15} z={3.15} />
-      <LobbyLight x={-2.15} z={7.35} />
-      <LobbyLight x={2.15} z={7.35} />
+      {lit ? (
+        <>
+          <LobbyLight x={-2.15} z={3.15} />
+          <LobbyLight x={2.15} z={3.15} />
+          <LobbyLight x={-2.15} z={7.35} />
+          <LobbyLight x={2.15} z={7.35} />
+        </>
+      ) : null}
 
       <Suspense
         fallback={
@@ -203,21 +242,25 @@ export function PassageRoom() {
         <meshBasicMaterial color="#070b14" />
       </mesh>
 
-      <OfficeCounter />
-
-      {LOBBY_DOOR_LIST.map((door) => (
-        <Examinable key={door.id} id={door.examineId}>
-          <HallwayDoor
-            x={door.x}
-            z={door.z}
-            inward={door.inward}
-            yaw={door.yaw}
-            label={door.label}
-            subtitle={door.subtitle}
-            rattles
-          />
-        </Examinable>
-      ))}
+      {canSee ? (
+        <>
+          <OfficeCounter />
+          <LobbySwitch />
+          {LOBBY_DOOR_LIST.map((door) => (
+            <Examinable key={door.id} id={door.examineId}>
+              <HallwayDoor
+                x={door.x}
+                z={door.z}
+                inward={door.inward}
+                yaw={door.yaw}
+                label={door.label}
+                subtitle={door.subtitle}
+                rattles
+              />
+            </Examinable>
+          ))}
+        </>
+      ) : null}
     </group>
   )
 }

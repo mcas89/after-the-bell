@@ -1,6 +1,15 @@
-import { getItemDef, isKeyItem } from '../data/items'
+import { canCombineFlashlight, getItemDef, isKeyItem, ITEM_IDS } from '../data/items'
 import { useInventoryStore } from '../state/useInventoryStore'
-import { KeyGlyph } from './InventoryDock'
+import { BatteryGlyph, FlashlightGlyph, KeyGlyph } from './InventoryDock'
+import { combineFlashlight } from './flashlight'
+
+function ItemGlyph({ id, className }: { id: string; className?: string }) {
+  if (isKeyItem(id)) return <KeyGlyph className={className} />
+  if (id === ITEM_IDS.batteries) return <BatteryGlyph className={className} />
+  if (id === ITEM_IDS.flashlight) return <FlashlightGlyph className={className} />
+  if (id === ITEM_IDS.flashlightLit) return <FlashlightGlyph className={className} lit />
+  return null
+}
 
 export function InventoryOverlay() {
   const open = useInventoryStore((s) => s.open)
@@ -9,6 +18,7 @@ export function InventoryOverlay() {
   const select = useInventoryStore((s) => s.select)
   const closeInventory = useInventoryStore((s) => s.closeInventory)
   const selected = selectedId ? getItemDef(selectedId) : null
+  const canJoin = canCombineFlashlight(items)
 
   if (!open) return null
 
@@ -38,7 +48,7 @@ export function InventoryOverlay() {
                         type="button"
                         onClick={() => select(id)}
                       >
-                        {isKeyItem(item.id) ? <KeyGlyph /> : null}
+                        <ItemGlyph id={item.id} />
                         <strong>{item.title}</strong>
                       </button>
                     </li>
@@ -48,11 +58,15 @@ export function InventoryOverlay() {
               <article className="inventory-detail">
                 {selected ? (
                   <>
-                    {isKeyItem(selected.id) ? (
-                      <KeyGlyph className="inventory-detail-icon" />
-                    ) : null}
+                    <ItemGlyph id={selected.id} className="inventory-detail-icon" />
                     <h2>{selected.title}</h2>
                     <p>{selected.description}</p>
+                    {canJoin &&
+                    (selected.id === ITEM_IDS.batteries || selected.id === ITEM_IDS.flashlight) ? (
+                      <button className="inventory-join" type="button" onClick={combineFlashlight}>
+                        Juntar
+                      </button>
+                    ) : null}
                   </>
                 ) : (
                   <p className="inventory-hint">Escolha um objeto.</p>

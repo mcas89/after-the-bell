@@ -96,7 +96,7 @@ export function endGirlScare() {
 export function HallwayDirector() {
   const primed = useRef(false)
   const originAt = useRef(0)
-  const facingFor = useRef(0)
+  const walkedToward = useRef(0)
   const clockHandled = useRef(false)
 
   useFrame((_, delta) => {
@@ -105,17 +105,13 @@ export function HallwayDirector() {
 
     if (game.currentRoom !== 'hallway') {
       primed.current = false
-      facingFor.current = 0
+      walkedToward.current = 0
       if (game.interactionState === 'girl-glimpse') endGirlScare()
       else if (hall.girlVisible) hall.hideGirl()
       return
     }
 
     if (!hall.enteredCorridor) hall.markEntered()
-
-    if (!hall.seenMysteriousGirl && !hall.girlVisible && game.interactionState !== 'girl-glimpse') {
-      hall.showGirl()
-    }
 
     if (!primed.current) {
       originAt.current = performance.now()
@@ -137,10 +133,12 @@ export function HallwayDirector() {
       performance.now() - originAt.current > 500
 
     if (canScare && facingTheGirl()) {
-      facingFor.current += delta
-      if (facingFor.current > 0.7) beginGirlScare()
-    } else if (game.interactionState === 'gameplay') {
-      facingFor.current = 0
+      if (playerMotion.analog > 0.22) {
+        walkedToward.current += Math.max(playerMotion.speed, playerMotion.analog * 1.4) * delta
+      }
+      if (walkedToward.current > 2.2) beginGirlScare()
+    } else if (game.interactionState === 'gameplay' && !facingTheGirl()) {
+      walkedToward.current = 0
     }
 
     if (examining === 'hall-clock' && !clockHandled.current && !clockUpdated()) {

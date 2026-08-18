@@ -100,6 +100,12 @@ export const LOBBY_COUNTER = {
   halfZ: 1.18,
 } as const
 
+export const LOBBY_SWITCH = {
+  x: -LOBBY.halfX + 0.07,
+  y: 1.22,
+  z: 5.1,
+} as const
+
 export const LOBBY_DOOR_LIST = Object.values(LOBBY_DOORS)
 
 export function nearLobbyDoor(px: number, pz: number, door: LobbyDoorDef, reach = 1.55) {
@@ -111,6 +117,10 @@ export function nearLobbyDoor(px: number, pz: number, door: LobbyDoorDef, reach 
 
 export function nearLobbyEntrance(px: number, pz: number) {
   return pz < 1.55 && Math.abs(px) < 1.22
+}
+
+export function nearLobbySwitch(px: number, pz: number) {
+  return Math.hypot(px - LOBBY_SWITCH.x, pz - LOBBY_SWITCH.z) <= 1.4
 }
 
 function doorBlock(door: LobbyDoorDef): Aabb {

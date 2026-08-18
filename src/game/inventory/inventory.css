@@ -172,6 +172,25 @@
   color: rgba(200, 196, 188, 0.82);
 }
 
+.inventory-join {
+  margin-top: 1rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid rgba(214, 204, 188, 0.28);
+  border-radius: 0.45rem;
+  background: transparent;
+  color: rgba(236, 228, 216, 0.92);
+  font: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.inventory-join:hover {
+  border-color: rgba(214, 204, 188, 0.55);
+  background: rgba(28, 30, 36, 0.8);
+}
+
 .inventory-toast {
   position: fixed;
   left: 1.15rem;
