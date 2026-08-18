@@ -14,6 +14,7 @@ import { ClassroomDoor } from '../door/ClassroomDoor'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { DOOR } from '../door/doorLayout'
 import { Examinable } from '../examine/Examinable'
+import { HangmanChalk } from '../examine/HangmanBoard'
 import { WrittenSurfaces } from '../examine/WrittenSurfaces'
 import { getWrittenTexture } from '../examine/paperTextures'
 import { playerMotion } from '../player/playerMotion'
@@ -104,6 +105,9 @@ function Clock() {
   )
 }
 
+const MOON = '#c8dcf2'
+const BAG_LIGHT: [number, number, number] = [-3.62, 0.1, -3.06]
+
 function NightOutside() {
   return (
     <group position={[-width / 2 - 0.85, 0, 0]}>
@@ -111,13 +115,13 @@ function NightOutside() {
         <planeGeometry args={[depth + 3, 6]} />
         <meshBasicMaterial color="#070b14" />
       </mesh>
-      <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.05, 2.55, -1.35]}>
-        <circleGeometry args={[0.28, 28]} />
-        <meshBasicMaterial color="#e7eef8" />
+      <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.08, 2.62, -1.92]}>
+        <circleGeometry args={[0.32, 28]} />
+        <meshBasicMaterial color="#eef4fb" />
       </mesh>
-      <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.04, 2.55, -1.35]}>
-        <circleGeometry args={[0.55, 28]} />
-        <meshBasicMaterial color="#9bb4d4" transparent opacity={0.12} />
+      <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.06, 2.62, -1.92]}>
+        <circleGeometry args={[0.72, 28]} />
+        <meshBasicMaterial color="#9bb4d4" transparent opacity={0.16} />
       </mesh>
     </group>
   )
@@ -130,11 +134,11 @@ function WallWithWindows() {
 
   return (
     <group>
-      <mesh position={[x, SILL / 2, 0]} receiveShadow>
+      <mesh position={[x, SILL / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[wallT, SILL, depth]} />
         <meshStandardMaterial {...wallMat} />
       </mesh>
-      <mesh position={[x, SILL + WIN_H + topH / 2, 0]} receiveShadow>
+      <mesh position={[x, SILL + WIN_H + topH / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[wallT, topH, depth]} />
         <meshStandardMaterial {...wallMat} />
       </mesh>
@@ -144,7 +148,7 @@ function WallWithWindows() {
         const span = b - a
         if (span < 0.08) return null
         return (
-          <mesh key={`p-${i}`} position={[x, SILL + WIN_H / 2, (a + b) / 2]} receiveShadow>
+          <mesh key={`p-${i}`} position={[x, SILL + WIN_H / 2, (a + b) / 2]} castShadow receiveShadow>
             <boxGeometry args={[wallT, WIN_H, span]} />
             <meshStandardMaterial {...wallMat} />
           </mesh>
@@ -186,32 +190,62 @@ function WallWithDoor() {
 function ClassroomLights() {
   const ambient = useRef<THREE.AmbientLight>(null)
   const hemi = useRef<THREE.HemisphereLight>(null)
-  const dir = useRef<THREE.DirectionalLight>(null)
+  const moonDir = useRef<THREE.DirectionalLight>(null)
+  const moonKey = useRef<THREE.SpotLight>(null)
+  const moonWash = useRef<THREE.SpotLight>(null)
   const ceiling = useRef<THREE.PointLight>(null)
+  const fluoA = useRef<THREE.PointLight>(null)
+  const fluoB = useRef<THREE.PointLight>(null)
   const desk = useRef<THREE.PointLight>(null)
+  const bounce = useRef<THREE.PointLight>(null)
   const windows = useRef<(THREE.PointLight | null)[]>([])
+  const warm = useRef(useGameStore.getState().flags.hangmanFriends ? 1 : 0)
 
-  useFrame(() => {
-    const k = lightMul()
-    if (ambient.current) ambient.current.intensity = 0.12 * k
-    if (hemi.current) hemi.current.intensity = 0.16 * k
-    if (dir.current) dir.current.intensity = 0.52 * k
-    if (ceiling.current) ceiling.current.intensity = 0.1 * k
-    if (desk.current) desk.current.intensity = 0.82 * k
-    for (const lamp of windows.current) {
-      if (lamp) lamp.intensity = 0.44 * k
+  useLayoutEffect(() => {
+    if (moonKey.current) {
+      moonKey.current.target.position.set(...BAG_LIGHT)
+      moonKey.current.target.updateMatrixWorld()
     }
+    if (moonWash.current) {
+      moonWash.current.target.position.set(-1.7, 0.35, -0.15)
+      moonWash.current.target.updateMatrixWorld()
+    }
+    if (moonDir.current) {
+      moonDir.current.target.position.set(-2.55, 0.18, -2.35)
+      moonDir.current.target.updateMatrixWorld()
+    }
+  }, [])
+
+  useFrame((_, delta) => {
+    const k = lightMul()
+    const want = useGameStore.getState().flags.hangmanFriends ? 1 : 0
+    warm.current = THREE.MathUtils.damp(warm.current, want, 1.8, Math.min(delta, 0.05))
+    const lift = warm.current
+    if (ambient.current) ambient.current.intensity = (0.1 + 0.11 * lift) * k
+    if (hemi.current) hemi.current.intensity = (0.2 + 0.09 * lift) * k
+    if (moonDir.current) moonDir.current.intensity = 0.4 * k
+    if (moonKey.current) moonKey.current.intensity = 7.1 * k
+    if (moonWash.current) moonWash.current.intensity = 3.8 * k
+    if (ceiling.current) ceiling.current.intensity = (0.08 + 0.46 * lift) * k
+    if (fluoA.current) fluoA.current.intensity = 0.7 * lift * k
+    if (fluoB.current) fluoB.current.intensity = 0.55 * lift * k
+    if (desk.current) desk.current.intensity = (0.78 + 0.16 * lift) * k
+    if (bounce.current) bounce.current.intensity = 1.12 * k
+    windows.current.forEach((lamp, i) => {
+      if (!lamp) return
+      lamp.intensity = (WINDOW_Z[i] < -1 ? 0.95 : 0.38) * k
+    })
   })
 
   return (
     <>
-      <ambientLight ref={ambient} intensity={0.12} color="#a8927c" />
-      <hemisphereLight ref={hemi} args={['#2e4258', '#120f0c', 0.16]} />
+      <ambientLight ref={ambient} intensity={0.1} color="#7c8a9c" />
+      <hemisphereLight ref={hemi} args={['#3d5a74', '#0e0c0a', 0.2]} />
       <directionalLight
-        ref={dir}
-        position={[-7, 4.2, 0.4]}
-        intensity={0.52}
-        color="#8eaccc"
+        ref={moonDir}
+        position={[-7.15, 3.95, -2.05]}
+        intensity={0.4}
+        color="#9bb8d4"
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.00035}
@@ -223,20 +257,64 @@ function ClassroomLights() {
         shadow-camera-top={8}
         shadow-camera-bottom={-8}
       />
-      <pointLight ref={ceiling} position={[0, 2.7, 0.3]} color="#c4b9a6" intensity={0.1} distance={7.2} decay={2} />
-      <pointLight ref={desk} position={[0.25, 1.05, -2.45]} color="#ffc48a" intensity={0.82} distance={3.35} decay={2} />
+      <spotLight
+        ref={moonKey}
+        position={[-5.22, 2.38, -1.78]}
+        intensity={7.1}
+        color={MOON}
+        angle={0.58}
+        penumbra={0.74}
+        distance={8.6}
+        decay={1.65}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-bias={-0.00028}
+        shadow-normalBias={0.03}
+      />
+      <spotLight
+        ref={moonWash}
+        position={[-5.35, 2.62, 0.2]}
+        intensity={3.8}
+        color="#a7c2dc"
+        angle={0.92}
+        penumbra={0.8}
+        distance={11}
+        decay={1.8}
+      />
+      <pointLight ref={ceiling} position={[0, 2.7, 0.3]} color="#c4b9a6" intensity={0.08} distance={7.2} decay={2} />
+      <pointLight ref={fluoA} position={[-1.65, 2.68, -1.15]} color="#efe6d0" intensity={0} distance={6.4} decay={2} />
+      <pointLight ref={fluoB} position={[1.55, 2.66, 1.05]} color="#e4dcc8" intensity={0} distance={6.1} decay={2} />
+      <pointLight ref={desk} position={[0.25, 1.05, -2.45]} color="#ffc48a" intensity={0.78} distance={3.35} decay={2} />
+      <pointLight
+        ref={bounce}
+        position={[-3.55, 0.38, -2.94]}
+        color="#b9d0e6"
+        intensity={1.12}
+        distance={2.85}
+        decay={2}
+      />
       {WINDOW_Z.map((z, i) => (
-        <pointLight
-          key={`wlight-${z}`}
-          ref={(node) => {
-            windows.current[i] = node
-          }}
-          position={[-width / 2 + 0.28, 1.52, z]}
-          color="#7fa3c6"
-          intensity={0.44}
-          distance={3.9}
-          decay={2}
-        />
+        <group key={`wlight-${z}`}>
+          <pointLight
+            ref={(node) => {
+              windows.current[i] = node
+            }}
+            position={[-width / 2 + 0.38, 1.5, z]}
+            color={z < -1 ? MOON : '#8eacc8'}
+            intensity={z < -1 ? 0.95 : 0.38}
+            distance={z < -1 ? 4.8 : 3.5}
+            decay={2}
+          />
+          <mesh position={[-width / 2 - 0.03, SILL + WIN_H / 2, z]} rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[WINDOW_HALF * 2 - 0.1, WIN_H - 0.12]} />
+            <meshBasicMaterial
+              color="#c5d6ea"
+              transparent
+              opacity={z < -1 ? 0.2 : 0.11}
+              depthWrite={false}
+            />
+          </mesh>
+        </group>
       ))}
     </>
   )
@@ -469,6 +547,7 @@ export function ClassroomPlaceholder() {
             emissiveIntensity={0.22}
           />
         </mesh>
+        <HangmanChalk />
       </Examinable>
 
       <EmergencyLight />

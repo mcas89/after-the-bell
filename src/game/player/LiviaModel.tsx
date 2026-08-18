@@ -75,14 +75,19 @@ export function LiviaModel() {
     leanSide.current = THREE.MathUtils.damp(leanSide.current, sideTarget, 4.8, delta)
     lookYaw.current = THREE.MathUtils.damp(lookYaw.current, lookTarget, 3.4, delta)
 
-    nudgeBone(pose, VRMHumanBoneName.Spine, leanFwd.current, 0, leanSide.current)
-    nudgeBone(pose, VRMHumanBoneName.Chest, leanFwd.current * 0.45, 0, leanSide.current * 0.4)
+    const flinch = playerMotion.flinch
+    if (flinch > 0.01) {
+      playerMotion.flinch = Math.max(0, flinch - delta * 1.85)
+    }
+    nudgeBone(pose, VRMHumanBoneName.Hips, -0.06 * flinch, 0, 0)
+    nudgeBone(pose, VRMHumanBoneName.Spine, leanFwd.current - 0.14 * flinch, 0, leanSide.current)
+    nudgeBone(pose, VRMHumanBoneName.Chest, leanFwd.current * 0.45 - 0.08 * flinch, 0, leanSide.current * 0.4)
     nudgeBone(
       pose,
       VRMHumanBoneName.Head,
-      -leanFwd.current * 0.4,
+      -leanFwd.current * 0.4 - 0.28 * flinch,
       lookYaw.current,
-      -leanSide.current * 0.25,
+      -leanSide.current * 0.25 + 0.1 * flinch,
     )
 
     vrm.humanoid.resetNormalizedPose()

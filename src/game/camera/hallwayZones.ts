@@ -163,6 +163,17 @@ export function blendHallwayCamera(z: number, lookAhead: number, side = 0): Hall
   }
 }
 
+export function silhouetteLongShot(playerZ: number, girlZ: number, fov = 24): HallwayShot {
+  const gz = girlZ > 8 ? girlZ : HALL_PROPS.girlStand
+  const camZ = clamp(playerZ - 0.62, HALL.minZ + 0.42, gz - 7.6)
+  return {
+    position: [0.02, 1.14, camZ],
+    lookAt: [0.05, 1.3, gz],
+    fov,
+    damp: 7.2,
+  }
+}
+
 export function frameLivia(
   shot: HallwayShot,
   px: number,

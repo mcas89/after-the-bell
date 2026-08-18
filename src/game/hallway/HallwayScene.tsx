@@ -6,14 +6,111 @@ import { Examinable } from '../examine/Examinable'
 import { clearRoomColliders, setRoomColliders } from '../rooms/roomColliders'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { HallwayDoor } from './HallwayDoor'
-import { HALL, HALL_DOORS, HALL_PROPS } from './hallwayLayout'
-import { HALL_LOCKERS, hallwayLockerZs, LOCKER_WALL_X } from './lockers'
+import { HALL, HALL_DOORS, HALL_MURALS, HALL_PROPS } from './hallwayLayout'
+import { hasDarkHallClues } from './darkProgress'
+import { HALL_LOCKERS, hallwayLockerZs, lockerPlateName, LOCKER_WALL_X } from './lockers'
+import { useHallwayStore } from './useHallwayStore'
 import { useLockerPinStore } from './useLockerPin'
+import { getHallBoardTexture } from '../examine/paperTextures'
+import { useFragmentsStore } from '../state/useFragmentsStore'
 
 const wall = { color: '#2c2926', roughness: 0.94 }
 const BAYS = [2.05, 6.25, 10.45, 14.65, 18.85]
 
 type Opening = { z: number; half: number }
+
+function clockAngle(hours: number, minutes: number, kind: 'hour' | 'minute') {
+  const turn =
+    kind === 'minute' ? minutes / 60 : (hours % 12) / 12 + minutes / 60 / 12
+  return Math.PI / 2 - turn * Math.PI * 2
+}
+
+function ClockHand({
+  angle,
+  length,
+  width,
+  color,
+  z,
+}: {
+  angle: number
+  length: number
+  width: number
+  color: string
+  z: number
+}) {
+  return (
+    <mesh
+      rotation={[0, 0, angle]}
+      position={[(Math.cos(angle) * length) / 2, (Math.sin(angle) * length) / 2, z]}
+    >
+      <boxGeometry args={[length, width, 0.008]} />
+      <meshBasicMaterial color={color} />
+    </mesh>
+  )
+}
+
+function HallClock({ map }: { map: THREE.CanvasTexture | null }) {
+  const hourAngle = clockAngle(3, 17, 'hour')
+  const minuteAngle = clockAngle(3, 17, 'minute')
+  const { x, y, z } = HALL_PROPS.clock
+  return (
+    <Examinable id="hall-clock">
+      <group position={[x, y, z]} rotation={[0, -Math.PI / 2, 0]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.012]}>
+          <cylinderGeometry args={[0.33, 0.345, 0.036, 28]} />
+          <meshStandardMaterial color="#1a1816" roughness={0.55} metalness={0.2} />
+        </mesh>
+        <mesh position={[0, 0, 0.008]}>
+          <circleGeometry args={[0.3, 32]} />
+          <meshStandardMaterial map={map} color="#d8d0c4" roughness={0.7} />
+        </mesh>
+        <ClockHand angle={hourAngle} length={0.14} width={0.022} color="#2b2420" z={0.02} />
+        <ClockHand angle={minuteAngle} length={0.21} width={0.014} color="#3a332e" z={0.024} />
+        <mesh position={[0, 0, 0.028]}>
+          <circleGeometry args={[0.018, 16]} />
+          <meshBasicMaterial color="#1c1814" />
+        </mesh>
+      </group>
+    </Examinable>
+  )
+}
+
+function HallMural({
+  id,
+  z,
+  y,
+  w,
+  h,
+  kind,
+}: (typeof HALL_MURALS)[number]) {
+  const map = useMemo(() => getHallBoardTexture(kind), [kind])
+  return (
+    <Examinable id={id}>
+      <group position={[HALL.halfX - 0.065, y, z]} rotation={[0, -Math.PI / 2, 0]}>
+        <mesh position={[0, 0, -0.025]} receiveShadow>
+          <boxGeometry args={[w + 0.1, h + 0.1, 0.05]} />
+          <meshStandardMaterial color="#5c4634" roughness={0.92} />
+        </mesh>
+        <mesh position={[0, 0, 0.002]}>
+          <planeGeometry args={[w, h]} />
+          <meshStandardMaterial map={map} roughness={0.88} />
+        </mesh>
+        <mesh position={[-w * 0.28, h * 0.18, 0.03]} rotation={[0, 0, 0.12]} castShadow>
+          <planeGeometry args={[0.28, 0.34]} />
+          <meshStandardMaterial color="#efe6d4" roughness={0.82} />
+        </mesh>
+        <mesh position={[w * 0.22, -h * 0.16, 0.028]} rotation={[0, 0, -0.08]} castShadow>
+          <planeGeometry args={[0.32, 0.22]} />
+          <meshStandardMaterial color="#fff3b0" roughness={0.8} />
+        </mesh>
+        <mesh position={[w * 0.32, h * 0.28, 0.032]} rotation={[0, 0, 0.06]}>
+          <circleGeometry args={[0.018, 10]} />
+          <meshBasicMaterial color="#c43c3c" />
+        </mesh>
+      </group>
+    </Examinable>
+  )
+}
 
 function clockFaceTexture() {
   const canvas = document.createElement('canvas')
@@ -295,7 +392,7 @@ function EndWindowWall() {
   )
 }
 
-function lockerPlateTexture(name: string) {
+function lockerPlateTexture(name: string, number: number) {
   const canvas = document.createElement('canvas')
   canvas.width = 512
   canvas.height = 160
@@ -306,24 +403,56 @@ function lockerPlateTexture(name: string) {
   ctx.strokeStyle = '#3a322c'
   ctx.lineWidth = 10
   ctx.strokeRect(8, 8, 496, 144)
-  ctx.fillStyle = '#1c1814'
+  ctx.fillStyle = '#5a4a3a'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  let size = 78
-  ctx.font = `bold ${size}px Georgia, "Times New Roman", serif`
-  while (size > 40 && ctx.measureText(name).width > 440) {
-    size -= 2
+  ctx.font = 'bold 28px Georgia, "Times New Roman", serif'
+  ctx.fillText(String(number), 256, 42)
+  if (!name) {
+    ctx.fillStyle = 'rgba(28, 24, 20, 0.22)'
+    ctx.font = 'bold 54px Georgia, "Times New Roman", serif'
+    ctx.fillText('••••••', 256, 104)
+    ctx.strokeStyle = '#2a221c'
+    ctx.lineCap = 'round'
+    ctx.lineWidth = 7
+    ctx.beginPath()
+    ctx.moveTo(78, 72)
+    ctx.lineTo(434, 128)
+    ctx.moveTo(92, 132)
+    ctx.lineTo(420, 70)
+    ctx.moveTo(70, 98)
+    ctx.lineTo(442, 112)
+    ctx.moveTo(118, 64)
+    ctx.lineTo(388, 138)
+    ctx.moveTo(156, 140)
+    ctx.lineTo(360, 68)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(18, 14, 12, 0.55)'
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    ctx.moveTo(96, 88)
+    ctx.lineTo(400, 120)
+    ctx.moveTo(130, 124)
+    ctx.lineTo(390, 86)
+    ctx.stroke()
+  } else {
+    ctx.fillStyle = '#1c1814'
+    let size = 62
     ctx.font = `bold ${size}px Georgia, "Times New Roman", serif`
+    while (size > 36 && ctx.measureText(name).width > 440) {
+      size -= 2
+      ctx.font = `bold ${size}px Georgia, "Times New Roman", serif`
+    }
+    ctx.fillText(name, 256, 102)
   }
-  ctx.fillText(name, 256, 86)
   const tex = new THREE.CanvasTexture(canvas)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.anisotropy = 8
   return tex
 }
 
-function LockerNamePlate({ name }: { name: string }) {
-  const map = useMemo(() => lockerPlateTexture(name), [name])
+function LockerNamePlate({ name, number }: { name: string; number: number }) {
+  const map = useMemo(() => lockerPlateTexture(name, number), [name, number])
   useEffect(() => () => map?.dispose(), [map])
   if (!map) return null
   return (
@@ -343,9 +472,11 @@ function LockerNamePlate({ name }: { name: string }) {
 function HallLocker({
   locker,
   z,
+  number,
 }: {
   locker: (typeof HALL_LOCKERS)[number]
   z: number
+  number: number
 }) {
   const open = useLockerPinStore((s) => s.openIds.includes(locker.id))
   return (
@@ -362,7 +493,7 @@ function HallLocker({
           <boxGeometry args={[0.36, 1.7, 0.34]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
-        {open ? null : <LockerNamePlate name={locker.name} />}
+        <LockerNamePlate name={lockerPlateName(locker)} number={number} />
       </Examinable>
     </group>
   )
@@ -374,10 +505,51 @@ function HallLockers() {
     <Suspense fallback={null}>
       <group>
         {HALL_LOCKERS.map((locker, index) => (
-          <HallLocker key={locker.id} locker={locker} z={zs[index]} />
+          <HallLocker key={locker.id} locker={locker} z={zs[index]} number={index + 1} />
         ))}
       </group>
     </Suspense>
+  )
+}
+
+function OpenEndPassage() {
+  const z0 = HALL.maxZ
+  const opening = 1.92
+  const pier = (HALL.halfX * 2 - opening) / 2
+
+  return (
+    <group>
+      <mesh position={[-(opening / 2 + pier / 2), HALL.height / 2, z0]} receiveShadow>
+        <boxGeometry args={[pier, HALL.height, 0.14]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[opening / 2 + pier / 2, HALL.height / 2, z0]} receiveShadow>
+        <boxGeometry args={[pier, HALL.height, 0.14]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[0, HALL.doorH + (HALL.height - HALL.doorH) / 2, z0]} receiveShadow>
+        <boxGeometry args={[opening, HALL.height - HALL.doorH, 0.14]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[0, 1.15, z0 + 1.15]}>
+        <planeGeometry args={[HALL.halfX * 2 + 2.4, 5.4]} />
+        <meshBasicMaterial color="#c5d4e4" />
+      </mesh>
+      <mesh position={[0, 0.01, z0 + 0.55]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[opening + 0.35, 1.2]} />
+        <meshStandardMaterial color="#b7a898" roughness={0.82} />
+      </mesh>
+      <pointLight position={[0, 2.05, z0 + 0.35]} color="#efe6d0" intensity={1.35} distance={7.2} decay={2} />
+      <spotLight
+        position={[0, 2.4, z0 + 0.15]}
+        intensity={5.2}
+        color="#c9d8ea"
+        angle={0.7}
+        penumbra={0.72}
+        distance={8.5}
+        decay={1.7}
+      />
+    </group>
   )
 }
 
@@ -444,6 +616,8 @@ function hallSideWalls(): Aabb[] {
 
 export function HallwayScene() {
   const clockMap = useMemo(() => clockFaceTexture(), [])
+  const labOpen = useHallwayStore((s) => s.labDoor === 'open')
+  const hallOpen = useFragmentsStore((s) => hasDarkHallClues(s.entries))
 
   useEffect(() => {
     return () => {
@@ -461,18 +635,23 @@ export function HallwayScene() {
     }))
     const boxes: Aabb[] = [
       { minX: -h, maxX: h, minZ: HALL.minZ - 0.18, maxZ: HALL.minZ + 0.1 },
-      { minX: -h, maxX: h, minZ: HALL_PROPS.darkFrom, maxZ: HALL.maxZ + 0.22 },
+      ...(hallOpen
+        ? [
+            { minX: -h, maxX: -0.96, minZ: HALL.maxZ - 0.1, maxZ: HALL.maxZ + 0.18 },
+            { minX: 0.96, maxX: h, minZ: HALL.maxZ - 0.1, maxZ: HALL.maxZ + 0.18 },
+          ]
+        : [{ minX: -h, maxX: h, minZ: HALL_PROPS.darkFrom, maxZ: HALL.maxZ + 0.22 }]),
       { minX: -h + 0.08, maxX: -h + 0.62, minZ: 16.85, maxZ: 17.85 },
       { minX: h - 0.62, maxX: h - 0.08, minZ: 17.15, maxZ: 17.9 },
       ...hallSideWalls(),
-      doorBlock(HALL_DOORS.room12.z, 1),
+      ...(labOpen ? [] : [doorBlock(HALL_DOORS.room12.z, 1)]),
       doorBlock(HALL_DOORS.room13.z, 1),
       doorBlock(HALL_DOORS.room14.z, 1),
       ...lockers,
     ]
     setRoomColliders('hallway', boxes)
     return () => clearRoomColliders('hallway')
-  }, [])
+  }, [labOpen, hallOpen])
 
   const midZ = (HALL.minZ + HALL.maxZ) / 2
   const len = HALL.maxZ - HALL.minZ
@@ -489,12 +668,18 @@ export function HallwayScene() {
       <hemisphereLight args={['#3a4c58', '#12100e', 0.28]} />
       <pointLight position={[0, 1.75, HALL.minZ + 0.55]} color="#8fb6d6" intensity={1.15} distance={7.4} decay={2} />
       <pointLight position={[0, 2.2, 8.3]} color="#d8c8a8" intensity={0.45} distance={8} decay={2} />
-      <pointLight position={[0.1, 1.25, HALL.maxZ - 1.15]} color="#6a1c1c" intensity={0.22} distance={4.2} decay={2} />
+      <pointLight
+        position={[0.1, 1.25, HALL.maxZ - 1.15]}
+        color={hallOpen ? '#efe6d0' : '#6a1c1c'}
+        intensity={hallOpen ? 1.05 : 0.22}
+        distance={hallOpen ? 6.4 : 4.2}
+        decay={2}
+      />
 
       {BAYS.map((z, i) => (
         <group key={z}>
           <CeilingBay z={z} />
-          <Pendant z={z} dim={i === BAYS.length - 1} />
+          <Pendant z={z} dim={!hallOpen && i === BAYS.length - 1} />
         </group>
       ))}
 
@@ -517,7 +702,7 @@ export function HallwayScene() {
       <HallLockers />
       <WallRun x={HALL.halfX} openings={eastOpen} />
 
-      <DarkEndMist />
+      {hallOpen ? <OpenEndPassage /> : <DarkEndMist />}
 
       <EndWindowWall />
 
@@ -529,41 +714,50 @@ export function HallwayScene() {
       </Examinable>
 
       <Examinable id="hall-door-11">
-        <HallwayDoor x={HALL_DOORS.room11.x} z={HALL_DOORS.room11.z} inward={-1} label="11" open />
+        <HallwayDoor
+          x={HALL_DOORS.room11.x}
+          z={HALL_DOORS.room11.z}
+          inward={-1}
+          label={HALL_DOORS.room11.label}
+          subtitle={HALL_DOORS.room11.subtitle}
+          open
+        />
       </Examinable>
       <Examinable id="hall-door-12">
-        <HallwayDoor x={HALL_DOORS.room12.x} z={HALL_DOORS.room12.z} inward={-1} label="12" />
+        <HallwayDoor
+          x={HALL_DOORS.room12.x}
+          z={HALL_DOORS.room12.z}
+          inward={-1}
+          label={HALL_DOORS.room12.label}
+          subtitle={HALL_DOORS.room12.subtitle}
+          lab
+        />
       </Examinable>
       <Examinable id="hall-door-13">
-        <HallwayDoor x={HALL_DOORS.room13.x} z={HALL_DOORS.room13.z} inward={-1} label="" rattles />
+        <HallwayDoor
+          x={HALL_DOORS.room13.x}
+          z={HALL_DOORS.room13.z}
+          inward={-1}
+          label={HALL_DOORS.room13.label}
+          subtitle={HALL_DOORS.room13.subtitle}
+          rattles
+        />
       </Examinable>
       <Examinable id="hall-door-14">
-        <HallwayDoor x={HALL_DOORS.room14.x} z={HALL_DOORS.room14.z} inward={-1} label="14" />
+        <HallwayDoor
+          x={HALL_DOORS.room14.x}
+          z={HALL_DOORS.room14.z}
+          inward={-1}
+          label={HALL_DOORS.room14.label}
+          subtitle={HALL_DOORS.room14.subtitle}
+          rattles
+        />
       </Examinable>
 
-      <Examinable id="hall-clock">
-        <group position={[HALL_PROPS.clock.x, HALL_PROPS.clock.y, HALL_PROPS.clock.z]}>
-          <mesh rotation={[0, Math.PI / 2, 0]}>
-            <circleGeometry args={[0.32, 32]} />
-            <meshStandardMaterial map={clockMap} roughness={0.45} />
-          </mesh>
-          <mesh rotation={[0, 0, Math.PI / 2 - ((3 % 12) / 12 + 17 / 60 / 12) * Math.PI * 2]} position={[0.03, 0, 0]}>
-            <boxGeometry args={[0.14, 0.02, 0.012]} />
-            <meshBasicMaterial color="#1c1814" />
-          </mesh>
-          <mesh rotation={[0, 0, Math.PI / 2 - (17 / 60) * Math.PI * 2]} position={[0.035, 0, 0]}>
-            <boxGeometry args={[0.2, 0.014, 0.012]} />
-            <meshBasicMaterial color="#2a2420" />
-          </mesh>
-        </group>
-      </Examinable>
-
-      <Examinable id="hall-mural">
-        <mesh position={[HALL_PROPS.mural.x, HALL_PROPS.mural.y, HALL_PROPS.mural.z]} rotation={[0, -Math.PI / 2, 0]}>
-          <planeGeometry args={[1.55, 1.12]} />
-          <meshStandardMaterial color="#8a7a62" roughness={0.92} />
-        </mesh>
-      </Examinable>
+      <HallClock map={clockMap} />
+      {HALL_MURALS.map((board) => (
+        <HallMural key={board.id} {...board} />
+      ))}
 
       <Examinable id="hall-fountain">
         <mesh position={[HALL_PROPS.fountain.x, 0.52, HALL_PROPS.fountain.z]} castShadow>

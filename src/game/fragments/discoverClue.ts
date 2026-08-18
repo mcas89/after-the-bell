@@ -1,8 +1,8 @@
 import { getClueDef } from '../data/clues'
 import { listDiscoveredClues, useFragmentsStore } from '../state/useFragmentsStore'
 
-export function discoverClue(id: string) {
-  return useFragmentsStore.getState().discover(id)
+export function discoverClue(id: string, silent = false) {
+  return useFragmentsStore.getState().discover(id, silent)
 }
 
 export function updateClue(

@@ -12,6 +12,7 @@ export type InteractionState =
   | 'opening-door'
   | 'girl-glimpse'
   | 'map-travel'
+  | 'using-computer'
 
 type GameState = {
   currentRoom: RoomId

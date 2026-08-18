@@ -2,7 +2,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useLayoutEffect, useRef, type RefObject } from 'react'
 import * as THREE from 'three'
 import { CLASSROOM_1, getRoom } from '../data/rooms'
-import { HALL_PROPS } from '../hallway/hallwayLayout'
+import { hallwayStopZ } from '../hallway/hallwayLayout'
+import { useHallwayStore } from '../hallway/useHallwayStore'
 import { getMoveVector } from '../input/moveInput'
 import { moveWithCollision, PLAYER_RADIUS } from '../systems/collision'
 import { clampWithDoor } from '../door/doorLayout'
@@ -115,18 +116,18 @@ export function Player({ groupRef }: Props) {
       group.position.x = next.x
       group.position.z = next.z
 
-      if (room === 'classroom1') {
+      if (room === 'classroom1' || room === 'room12' || room === 'teachers' || room === 'room14') {
         const clamped = clampWithDoor(
           group.position.x,
           group.position.z,
-          useDoorStore.getState().phase === 'open',
+          room === 'classroom1' ? useDoorStore.getState().phase === 'open' : true,
         )
         group.position.x = clamped.x
         group.position.z = clamped.z
       } else {
         const { minX, maxX, minZ, maxZ } = getRoom(room).bounds
         const pad = PLAYER_RADIUS
-        const stopZ = room === 'hallway' ? HALL_PROPS.darkFrom : maxZ
+        const stopZ = room === 'hallway' ? hallwayStopZ(useHallwayStore.getState().seenMysteriousGirl) : maxZ
         group.position.x = Math.min(maxX - pad, Math.max(minX + pad, group.position.x))
         group.position.z = Math.min(stopZ - pad, Math.max(minZ + pad, group.position.z))
       }
@@ -135,15 +136,19 @@ export function Player({ groupRef }: Props) {
       vel.current.x = (group.position.x - prevX) / dt
       vel.current.z = (group.position.z - prevZ) / dt
 
-      if (analog > MOVE_EPS) {
-        yaw.current = dampAngle(
-          yaw.current,
-          Math.atan2(dir.current.x, dir.current.z) + MODEL_YAW,
-          TURN_SPEED,
-          delta,
-        )
-        group.rotation.y = yaw.current
-      }
+    }
+
+    if (playerMotion.faceYaw != null) {
+      yaw.current = dampAngle(yaw.current, playerMotion.faceYaw, 7.6, delta)
+      group.rotation.y = yaw.current
+    } else if (analog > MOVE_EPS && vel.current.lengthSq() > 0.00012) {
+      yaw.current = dampAngle(
+        yaw.current,
+        Math.atan2(dir.current.x, dir.current.z) + MODEL_YAW,
+        TURN_SPEED,
+        delta,
+      )
+      group.rotation.y = yaw.current
     }
 
     let dYaw = yaw.current - prevYaw

@@ -1,4 +1,5 @@
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
+import { useComputerStore } from '../computer/computerStore'
 import { useExamineStore } from '../examine/useExamineStore'
 import { saveManager } from '../state/gameSaveManager'
 import { useFragmentsStore } from '../state/useFragmentsStore'
@@ -19,6 +20,7 @@ export function returnToMenu() {
   const phone = usePhoneStore.getState()
   if (isPhoneOpen(phone.ui)) phone.close()
   if (phone.ui === 'notification') phone.dismissNotice()
+  useComputerStore.getState().close()
 
   saveManager.save()
   game.setCameraOverride(null)
@@ -33,7 +35,7 @@ export function returnToMenu() {
 export function canReturnToMenu() {
   const game = useGameStore.getState()
   if (game.bootScreen !== 'playing' || !game.prologueDone) return false
-  if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel') return false
+  if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel' || game.interactionState === 'using-computer') return false
   if (game.interactionState === 'examining-object') return false
   if (isPhoneOpen(usePhoneStore.getState().ui)) return false
   if (useFragmentsStore.getState().open) return false

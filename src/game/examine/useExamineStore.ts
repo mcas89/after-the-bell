@@ -10,9 +10,11 @@ type ExamineState = {
   nearbyIds: string[]
   hoveredId: string | null
   examiningId: string | null
+  detailId: string | null
   setNearby: (ids: string[]) => void
   setHovered: (id: string | null) => void
   inspect: (id: string) => void
+  inspectDetail: (id: string) => void
   stopInspect: () => void
 }
 
@@ -25,6 +27,7 @@ export const useExamineStore = create<ExamineState>((set, get) => ({
   nearbyIds: [],
   hoveredId: null,
   examiningId: null,
+  detailId: null,
   setNearby: (nearbyIds) => {
     const same =
       nearbyIds.length === get().nearbyIds.length &&
@@ -37,14 +40,23 @@ export const useExamineStore = create<ExamineState>((set, get) => ({
   },
   inspect: (id) => {
     if (useGameStore.getState().interactionState !== 'gameplay') return
-    set({ examiningId: id, hoveredId: null })
+    set({ examiningId: id, hoveredId: null, detailId: null })
     setInteraction('examining-object')
     const fragmentId = getExamineEntry(id)?.fragmentId
     if (fragmentId) discoverClue(fragmentId)
   },
+  inspectDetail: (id) => {
+    if (useGameStore.getState().interactionState !== 'examining-object') return
+    if (get().detailId === id) return
+    set({ detailId: id })
+  },
   stopInspect: () => {
     if (useGameStore.getState().interactionState !== 'examining-object') return
-    set({ examiningId: null, hoveredId: null })
+    if (get().detailId) {
+      set({ detailId: null })
+      return
+    }
+    set({ examiningId: null, hoveredId: null, detailId: null })
     setInteraction('gameplay')
     useFragmentsStore.getState().flushPendingToast()
   },

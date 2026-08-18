@@ -12,6 +12,7 @@ export type RoomId =
   | 'teachers'
   | 'storage'
   | 'backyard'
+  | 'passage'
 
 export type RoomBounds = {
   minX: number
@@ -48,8 +49,15 @@ const SIDE_CLASSROOM: Omit<RoomDef, 'id'> = {
 }
 
 export const ROOM_11: RoomDef = { ...SIDE_CLASSROOM, id: 'room11' }
-export const ROOM_12: RoomDef = { ...SIDE_CLASSROOM, id: 'room12' }
-export const ROOM_14: RoomDef = { ...SIDE_CLASSROOM, id: 'room14' }
+export const ROOM_12: RoomDef = { ...CLASSROOM_1, id: 'room12' }
+export const ROOM_14: RoomDef = { ...CLASSROOM_1, id: 'room14' }
+export const TEACHERS: RoomDef = { ...CLASSROOM_1, id: 'teachers' }
+export const PASSAGE: RoomDef = {
+  id: 'passage',
+  size: { width: 10.4, depth: 10.4, height: 3.05 },
+  spawn: [0, 0, 1.45],
+  bounds: { minX: -5.0, maxX: 5.0, minZ: -0.15, maxZ: 10.0 },
+}
 
 export const ROOMS: Record<RoomId, RoomDef> = {
   classroom1: CLASSROOM_1,
@@ -62,9 +70,10 @@ export const ROOMS: Record<RoomId, RoomDef> = {
   classroom2: { ...SIDE_CLASSROOM, id: 'classroom2' },
   bathroom: { ...SIDE_CLASSROOM, id: 'bathroom' },
   office: { ...SIDE_CLASSROOM, id: 'office' },
-  teachers: { ...SIDE_CLASSROOM, id: 'teachers' },
+  teachers: TEACHERS,
   storage: { ...SIDE_CLASSROOM, id: 'storage' },
   backyard: { ...HALLWAY, id: 'backyard' },
+  passage: PASSAGE,
 }
 
 export function migrateRoomId(id: string): RoomId {

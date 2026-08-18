@@ -14,6 +14,7 @@ import { DebugResetSave } from './DebugResetSave'
 import { ChapterHud } from './ChapterHud'
 import { MapFade } from './MapFade'
 import { useHallwayStore } from '../hallway/useHallwayStore'
+import { ComputerSystem } from '../computer/ComputerSystem'
 
 export function Hud() {
   useKeyboard()
@@ -45,6 +46,7 @@ export function Hud() {
       <PrologueOverlay />
       {prologueDone ? <MenuButton /> : null}
       <PhoneSystem />
+      <ComputerSystem />
       <FragmentsSystem />
       <InventorySystem />
       <ExamineHud />

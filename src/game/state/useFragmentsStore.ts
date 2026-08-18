@@ -21,7 +21,7 @@ type FragmentsState = {
   toast: FragmentToast | null
   pulseAt: number
   pendingToast: FragmentToast | null
-  discover: (id: string) => boolean
+  discover: (id: string, silent?: boolean) => boolean
   update: (id: string, patch: { title?: string; description?: string; stage?: number }) => boolean
   markRead: (id: string) => void
   select: (id: string | null) => void
@@ -63,7 +63,7 @@ export const useFragmentsStore = create<FragmentsState>((set, get) => ({
   toast: null,
   pulseAt: 0,
   pendingToast: null,
-  discover: (id) => {
+  discover: (id, silent = false) => {
     const def = getClueDef(id)
     if (!def || def.kind !== 'fragment') return false
 
@@ -83,7 +83,7 @@ export const useFragmentsStore = create<FragmentsState>((set, get) => ({
     set({ entries })
     syncCollected(entries)
     saveManager.updateClues()
-    if (view) {
+    if (view && !silent) {
       if (useGameStore.getState().interactionState === 'examining-object') {
         set({ pendingToast: { title: view.title } })
       } else {

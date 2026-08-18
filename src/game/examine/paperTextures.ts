@@ -247,9 +247,7 @@ export function chalkboardTexture() {
   ctx.lineTo(1832, 440)
   ctx.stroke()
 
-  ctx.fillStyle = chalk
-  ctx.font = `52px ${HAND}`
-  ctx.fillText('_   _   I   E   _   D   _', 980, 680)
+  wipe(1380, 660, 920, 96, 0.01)
 
   ctx.strokeStyle = mid
   ctx.lineWidth = 2
@@ -302,10 +300,19 @@ export function linedPaperTexture() {
   ctx.stroke()
   ctx.fillStyle = '#1d4a9c'
   ctx.font = `48px ${HAND}`
-  ctx.fillText('L + M', 130, 220)
-  ctx.fillStyle = 'rgba(40, 55, 90, 0.35)'
-  ctx.font = `28px ${HAND}`
-  ctx.fillText('L + M', 400, 860)
+  ctx.fillText('L + M', 130, 168)
+  ctx.fillStyle = '#2a3a68'
+  ctx.font = `26px ${HAND}`
+  ctx.fillText('depois de todos irem a', 118, 248)
+  ctx.fillStyle = '#5a3060'
+  ctx.font = `32px ${HAND}`
+  ctx.fillText('eu nao sei esperar !!!', 118, 310)
+  ctx.font = `26px ${HAND}`
+  ctx.fillText('se precisar o meu e o quinto', 118, 420)
+  ctx.fillText('codigo meu niver', 118, 466)
+  ctx.fillStyle = 'rgba(40, 55, 90, 0.32)'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('L + M', 430, 900)
   return textureFrom(canvas)
 }
 
@@ -467,9 +474,655 @@ export function muralTexture() {
   return textureFrom(canvas)
 }
 
+function corkFill(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = '#c4a06a'
+  ctx.fillRect(0, 0, w, h)
+  ctx.fillStyle = '#b8925c'
+  ctx.fillRect(0, 0, w, h)
+  for (let i = 0; i < 220; i += 1) {
+    ctx.fillStyle = `rgba(72, 48, 24, ${0.05 + Math.random() * 0.1})`
+    ctx.beginPath()
+    ctx.arc(Math.random() * w, Math.random() * h, 0.8 + Math.random() * 2.4, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+function pin(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+  ctx.fillStyle = color
+  ctx.beginPath()
+  ctx.arc(x, y, 7, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'
+  ctx.beginPath()
+  ctx.arc(x - 2, y - 2, 2.2, 0, Math.PI * 2)
+  ctx.fill()
+}
+
+function darkPhoto(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  faces: number,
+) {
+  ctx.fillStyle = '#efe6d4'
+  ctx.fillRect(x - 10, y - 10, w + 20, h + 36)
+  ctx.fillStyle = '#1a2228'
+  ctx.fillRect(x, y, w, h)
+  ctx.fillStyle = '#2a343c'
+  ctx.fillRect(x + 8, y + 8, w - 16, h - 28)
+  ctx.fillStyle = 'rgba(12, 10, 9, 0.7)'
+  for (let i = 0; i < faces; i += 1) {
+    const col = i % 4
+    const row = Math.floor(i / 4)
+    ctx.beginPath()
+    ctx.ellipse(x + 28 + col * ((w - 40) / 3.2), y + 36 + row * 38, 11, 14, 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = 'rgba(18, 16, 14, 0.35)'
+  ctx.fillRect(x, y, w, h)
+}
+
+function hallBoardLost() {
+  const { canvas, ctx } = makeCanvas(1024, 704)
+  corkFill(ctx, 1024, 704)
+  ctx.fillStyle = '#f2ead8'
+  ctx.fillRect(48, 36, 420, 78)
+  ctx.fillStyle = '#6a2424'
+  ctx.font = `bold 36px ${SANS}`
+  ctx.fillText('ACHADOS E PERDIDOS', 68, 88)
+  pin(ctx, 62, 48, '#c43c3c')
+
+  darkPhoto(ctx, 70, 150, 280, 210, 1)
+  ctx.fillStyle = '#5a4a3a'
+  ctx.font = `18px ${SANS}`
+  ctx.fillText('mochila  —  2º B ?', 78, 390)
+  pin(ctx, 82, 158, '#3c6aa8')
+
+  ctx.fillStyle = '#fff3b0'
+  ctx.fillRect(400, 148, 250, 168)
+  ctx.fillStyle = '#333'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('perdi meu estojo', 418, 200)
+  ctx.font = `18px ${HAND}`
+  ctx.fillText('rosa, com gatinho', 418, 236)
+  ctx.fillText('se achar deixa na 11', 418, 272)
+  pin(ctx, 420, 156, '#3c8a4a')
+
+  ctx.fillStyle = '#f7f1e4'
+  ctx.fillRect(680, 40, 300, 210)
+  ctx.fillStyle = '#333'
+  ctx.font = `bold 22px ${PRINT}`
+  ctx.fillText('Campeonato', 710, 90)
+  ctx.font = `18px ${SANS}`
+  ctx.fillText('interclasse  —  vôlei', 710, 128)
+  ctx.fillText('inscrições no mural', 710, 164)
+  ctx.fillStyle = '#8b1e1e'
+  ctx.fillText('faces cortadas', 710, 210)
+  pin(ctx, 696, 52, '#c43c3c')
+
+  ctx.fillStyle = '#e8f0d8'
+  ctx.fillRect(400, 360, 280, 150)
+  ctx.fillStyle = '#2a2420'
+  ctx.font = `20px ${HAND}`
+  ctx.fillText('achei um fone', 424, 420)
+  ctx.fillText('na janela do pátio', 424, 456)
+  pin(ctx, 418, 372, '#d4a018')
+
+  ctx.fillStyle = '#f0e4cc'
+  ctx.fillRect(720, 300, 250, 280)
+  ctx.fillStyle = '#444'
+  ctx.font = `18px ${SANS}`
+  ctx.fillText('chave pequena', 748, 360)
+  ctx.strokeStyle = '#555'
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.arc(820, 430, 22, 0, Math.PI * 2)
+  ctx.moveTo(842, 430)
+  ctx.lineTo(900, 430)
+  ctx.lineTo(900, 448)
+  ctx.stroke()
+  ctx.fillStyle = '#6a5a4a'
+  ctx.font = `16px ${SANS}`
+  ctx.fillText('ninguém reclamou', 748, 520)
+  pin(ctx, 736, 312, '#3c6aa8')
+
+  ctx.fillStyle = '#ffe08a'
+  ctx.fillRect(70, 470, 300, 170)
+  ctx.fillStyle = '#333'
+  ctx.font = `20px ${HAND}`
+  ctx.fillText('M — espera depois', 92, 530)
+  ctx.fillText('não vai sozinha', 92, 572)
+  pin(ctx, 86, 482, '#c43c3c')
+  return textureFrom(canvas)
+}
+
+function hallBoardPhotos() {
+  const { canvas, ctx } = makeCanvas(1024, 704)
+  corkFill(ctx, 1024, 704)
+  ctx.fillStyle = '#f4eee2'
+  ctx.fillRect(36, 28, 280, 64)
+  ctx.fillStyle = '#2a2420'
+  ctx.font = `bold 28px ${SANS}`
+  ctx.fillText('2º B  ·  2025', 56, 70)
+  pin(ctx, 48, 40, '#c43c3c')
+
+  darkPhoto(ctx, 48, 120, 460, 320, 12)
+  ctx.fillStyle = '#6a5a4a'
+  ctx.font = `16px ${SANS}`
+  ctx.fillText('foto da turma. ninguém dá pra reconhecer.', 56, 472)
+  pin(ctx, 62, 132, '#3c6aa8')
+
+  ctx.fillStyle = '#efe6d4'
+  ctx.fillRect(560, 48, 200, 240)
+  ctx.fillStyle = '#243038'
+  ctx.fillRect(576, 64, 168, 168)
+  ctx.fillStyle = 'rgba(10, 8, 8, 0.65)'
+  ctx.beginPath()
+  ctx.ellipse(660, 140, 28, 36, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#5a4a3a'
+  ctx.font = `16px ${SANS}`
+  ctx.fillText('???', 648, 258)
+  pin(ctx, 574, 60, '#d4a018')
+
+  ctx.fillStyle = '#efe6d4'
+  ctx.fillRect(790, 48, 190, 220)
+  ctx.fillStyle = '#1c2428'
+  ctx.fillRect(804, 62, 162, 150)
+  ctx.fillStyle = 'rgba(12, 10, 9, 0.7)'
+  ctx.beginPath()
+  ctx.ellipse(885, 128, 24, 30, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#6a5a4a'
+  ctx.font = `15px ${SANS}`
+  ctx.fillText('intervalo', 830, 242)
+  pin(ctx, 804, 58, '#3c8a4a')
+
+  ctx.fillStyle = '#f7f1e4'
+  ctx.fillRect(540, 330, 440, 150)
+  ctx.fillStyle = '#333'
+  ctx.font = `bold 24px ${PRINT}`
+  ctx.fillText('Campeonato interclasse', 568, 380)
+  ctx.font = `18px ${SANS}`
+  ctx.fillText('As faces do cartaz foram apagadas.', 568, 424)
+  pin(ctx, 556, 342, '#c43c3c')
+
+  ctx.fillStyle = '#fff3b0'
+  ctx.fillRect(48, 520, 320, 140)
+  ctx.fillStyle = '#333'
+  ctx.font = `20px ${HAND}`
+  ctx.fillText('isso era pra ser a gente', 70, 580)
+  ctx.fillText('por que ninguém aparece?', 70, 620)
+  pin(ctx, 64, 532, '#3c6aa8')
+
+  ctx.fillStyle = '#e8e0d0'
+  ctx.fillRect(400, 520, 280, 140)
+  ctx.fillStyle = '#444'
+  ctx.font = `18px ${SANS}`
+  ctx.fillText('14 de outubro', 424, 580)
+  ctx.fillText('sexta  ·  prova', 424, 616)
+  pin(ctx, 416, 532, '#d4a018')
+  return textureFrom(canvas)
+}
+
+function hallBoardNotes() {
+  const { canvas, ctx } = makeCanvas(1024, 704)
+  corkFill(ctx, 1024, 704)
+
+  const slips: Array<[number, number, number, number, string, string, string]> = [
+    [40, 36, 260, 150, '#fff3b0', '#c43c3c', 'prova amanhã\n2º B  mat'],
+    [330, 50, 240, 140, '#e8f0d8', '#3c8a4a', 'não esquece\ndo fone'],
+    [600, 40, 380, 170, '#f7f1e4', '#3c6aa8', 'Reunião de pais\nadiada\nsem nova data'],
+    [50, 220, 300, 180, '#ffe0c8', '#d4a018', 'M espera\ndepois da aula\nna 11'],
+    [380, 230, 280, 170, '#f0e4cc', '#c43c3c', 'quem deixou\na janela aberta?'],
+    [700, 240, 280, 200, '#fff3b0', '#3c8a4a', 'preciso falar\ncom vc\nnão vai embora'],
+    [80, 440, 340, 200, '#f7f1e4', '#3c6aa8', 'o nome está\nrasgado no meio\n________'],
+    [460, 450, 250, 180, '#e8f0d8', '#d4a018', 'horário  07:20\nainda vale?'],
+    [740, 470, 240, 170, '#ffe0c8', '#c43c3c', 'não conta\npra ninguém'],
+  ]
+  for (const [x, y, w, h, paper, head, text] of slips) {
+    ctx.fillStyle = paper
+    ctx.fillRect(x, y, w, h)
+    pin(ctx, x + 16, y + 14, head)
+    ctx.fillStyle = '#2c241c'
+    ctx.font = `22px ${HAND}`
+    const lines = text.split('\n')
+    lines.forEach((line, i) => ctx.fillText(line, x + 22, y + 58 + i * 32))
+  }
+  ctx.fillStyle = 'rgba(20,16,14,0.55)'
+  ctx.fillRect(96, 528, 210, 22)
+  return textureFrom(canvas)
+}
+
+export type HallBoardKind = 'lost' | 'photos' | 'notes'
+
+export function getHallBoardTexture(kind: HallBoardKind) {
+  const key = `hall-board-${kind}`
+  const cached = cache.get(key)
+  if (cached) return cached
+  const texture =
+    kind === 'lost' ? hallBoardLost() : kind === 'photos' ? hallBoardPhotos() : hallBoardNotes()
+  cache.set(key, texture)
+  return texture
+}
+
+function noticeTexture() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  paperFill(ctx, 768, 1024, '#f2ece0')
+  ctx.fillStyle = '#3a3228'
+  ctx.font = `22px ${SANS}`
+  ctx.textAlign = 'center'
+  ctx.fillText('ESCOLA ESTADUAL FRANCIS MILTON', 384, 88)
+  ctx.font = `bold 34px ${PRINT}`
+  ctx.fillText('AVISO INTERNO', 384, 150)
+  ctx.fillStyle = '#6a5a48'
+  ctx.font = `22px ${SANS}`
+  ctx.fillText('Fechamento do prédio', 384, 198)
+  ctx.textAlign = 'left'
+  ctx.fillStyle = '#2a2420'
+  ctx.font = `28px ${PRINT}`
+  ctx.fillText('Horário: 22h00', 88, 310)
+  ctx.font = `26px ${PRINT}`
+  ctx.fillText('Após esse horário o alarme', 88, 390)
+  ctx.fillText('é armado automaticamente.', 88, 432)
+  ctx.fillText('Portas externas trancam', 88, 520)
+  ctx.fillText('por fora.', 88, 562)
+  ctx.fillStyle = '#5a4034'
+  ctx.font = `24px ${PRINT}`
+  ctx.fillText('Não permanecer no prédio.', 88, 680)
+  ctx.fillStyle = 'rgba(90, 50, 40, 0.35)'
+  ctx.font = `20px ${SANS}`
+  ctx.fillText('Direção', 88, 860)
+  return textureFrom(canvas)
+}
+
+function rondaTexture() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  paperFill(ctx, 768, 1024, '#f4eee2')
+  ctx.fillStyle = '#3a3228'
+  ctx.font = `20px ${SANS}`
+  ctx.textAlign = 'center'
+  ctx.fillText('ESCOLA ESTADUAL FRANCIS MILTON', 384, 78)
+  ctx.font = `bold 32px ${PRINT}`
+  ctx.fillText('RONDA DE FECHAMENTO', 384, 128)
+  ctx.fillStyle = '#6a5a48'
+  ctx.font = `22px ${SANS}`
+  ctx.fillText('14 de outubro', 384, 168)
+  ctx.textAlign = 'left'
+  ctx.fillStyle = '#2a2420'
+  ctx.font = `26px ${PRINT}`
+  ctx.fillText('Alarme', 88, 250)
+  ctx.fillText('22:00', 520, 250)
+  ctx.font = `24px ${PRINT}`
+  ctx.fillText('Porta externa A', 88, 340)
+  ctx.fillText('ok', 560, 340)
+  ctx.fillText('Porta externa B', 88, 400)
+  ctx.fillText('ok', 560, 400)
+  ctx.fillText('Portaria — chaves', 88, 460)
+  ctx.fillText('ok', 560, 460)
+  ctx.fillStyle = '#5a4034'
+  ctx.font = `24px ${PRINT}`
+  ctx.fillText('Plantão', 88, 560)
+  ctx.fillText('H. Costa', 400, 560)
+  ctx.fillText('Saída', 88, 620)
+  ctx.fillText('22:04', 400, 620)
+  ctx.strokeStyle = 'rgba(40, 30, 24, 0.55)'
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.moveTo(88, 700)
+  ctx.lineTo(680, 700)
+  ctx.stroke()
+  ctx.fillStyle = '#4a3028'
+  ctx.font = `28px ${HAND}`
+  ctx.fillText('levei as chaves da externa', 88, 770)
+  ctx.fillStyle = 'rgba(90, 50, 40, 0.4)'
+  ctx.font = `20px ${SANS}`
+  ctx.fillText('Não permanecer no prédio.', 88, 920)
+  return textureFrom(canvas)
+}
+
+function teachersBoardTexture() {
+  const { canvas, ctx } = makeCanvas(1024, 512)
+  ctx.fillStyle = '#e8e4d8'
+  ctx.fillRect(0, 0, 1024, 512)
+  ctx.fillStyle = 'rgba(180, 176, 168, 0.35)'
+  ctx.fillRect(40, 60, 280, 90)
+  ctx.fillRect(360, 80, 220, 70)
+  ctx.fillStyle = 'rgba(90, 90, 90, 0.18)'
+  ctx.font = `42px ${SANS}`
+  ctx.fillText('reunião', 70, 120)
+  ctx.fillStyle = 'rgba(60, 70, 90, 0.38)'
+  ctx.font = `64px ${SANS}`
+  ctx.fillText('22h', 780, 430)
+  ctx.strokeStyle = 'rgba(90, 90, 90, 0.12)'
+  ctx.lineWidth = 4
+  ctx.beginPath()
+  ctx.moveTo(80, 200)
+  ctx.lineTo(400, 188)
+  ctx.stroke()
+  return textureFrom(canvas)
+}
+
+export type ArtDrawingId = 'window' | 'vases' | 'hall' | 'tree' | 'faces' | 'shapes'
+
+function artPaper(ctx: CanvasRenderingContext2D, w: number, h: number, tone: string) {
+  paperFill(ctx, w, h, tone)
+  ctx.fillStyle = 'rgba(40, 28, 18, 0.05)'
+  for (let i = 0; i < 28; i += 1) {
+    ctx.fillRect(Math.random() * w, Math.random() * h, 12 + Math.random() * 40, 1)
+  }
+}
+
+function artDrawingWindow() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  artPaper(ctx, 768, 1024, '#e6e0d4')
+  ctx.fillStyle = '#3a342c'
+  ctx.fillRect(0, 0, 768, 1024)
+  ctx.fillStyle = '#4a443c'
+  ctx.fillRect(118, 90, 532, 760)
+  ctx.fillStyle = '#0b1220'
+  ctx.fillRect(168, 140, 432, 660)
+  ctx.fillStyle = '#c9d8ea'
+  ctx.beginPath()
+  ctx.arc(430, 210, 46, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(180, 200, 220, 0.18)'
+  ctx.fillRect(168, 140, 432, 660)
+  ctx.strokeStyle = '#d8d0c4'
+  ctx.lineWidth = 22
+  ctx.strokeRect(168, 140, 432, 660)
+  ctx.beginPath()
+  ctx.moveTo(384, 140)
+  ctx.lineTo(384, 800)
+  ctx.moveTo(168, 430)
+  ctx.lineTo(600, 430)
+  ctx.stroke()
+  ctx.fillStyle = '#0b1220'
+  ctx.beginPath()
+  ctx.moveTo(250, 300)
+  ctx.lineTo(340, 220)
+  ctx.lineTo(390, 360)
+  ctx.closePath()
+  ctx.fill()
+  ctx.beginPath()
+  ctx.moveTo(470, 480)
+  ctx.lineTo(580, 430)
+  ctx.lineTo(560, 620)
+  ctx.lineTo(430, 580)
+  ctx.closePath()
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(236, 240, 246, 0.88)'
+  ctx.lineWidth = 4
+  ctx.beginPath()
+  ctx.moveTo(220, 180)
+  ctx.lineTo(310, 520)
+  ctx.lineTo(200, 740)
+  ctx.moveTo(310, 520)
+  ctx.lineTo(540, 260)
+  ctx.moveTo(310, 520)
+  ctx.lineTo(560, 700)
+  ctx.moveTo(250, 300)
+  ctx.lineTo(470, 480)
+  ctx.moveTo(390, 360)
+  ctx.lineTo(200, 420)
+  ctx.stroke()
+  ctx.fillStyle = 'rgba(236, 232, 220, 0.55)'
+  ctx.font = `34px ${HAND}`
+  ctx.fillText('2º', 196, 186)
+  ctx.fillStyle = 'rgba(236, 232, 220, 0.4)'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('observação  —  janela', 96, 980)
+  return textureFrom(canvas)
+}
+
+function artDrawingVases() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  artPaper(ctx, 768, 1024, '#f2e6d2')
+  ctx.fillStyle = '#d8c4a4'
+  ctx.fillRect(80, 720, 608, 28)
+  ctx.fillStyle = '#6a2428'
+  ctx.beginPath()
+  ctx.ellipse(240, 560, 70, 160, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#2a4a6a'
+  ctx.beginPath()
+  ctx.moveTo(400, 700)
+  ctx.lineTo(360, 430)
+  ctx.lineTo(480, 430)
+  ctx.lineTo(440, 700)
+  ctx.closePath()
+  ctx.fill()
+  ctx.fillStyle = '#c4a050'
+  ctx.beginPath()
+  ctx.ellipse(560, 620, 90, 70, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.strokeStyle = '#3a3228'
+  ctx.lineWidth = 4
+  ctx.strokeRect(80, 80, 608, 840)
+  ctx.fillStyle = 'rgba(50, 40, 30, 0.4)'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('natureza morta  —  2º B', 96, 980)
+  return textureFrom(canvas)
+}
+
+function artDrawingHall() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  artPaper(ctx, 768, 1024, '#e8e0d4')
+  ctx.fillStyle = '#1a222c'
+  ctx.fillRect(0, 0, 768, 420)
+  ctx.fillStyle = '#2a241c'
+  ctx.beginPath()
+  ctx.moveTo(0, 1024)
+  ctx.lineTo(280, 480)
+  ctx.lineTo(488, 480)
+  ctx.lineTo(768, 1024)
+  ctx.closePath()
+  ctx.fill()
+  ctx.fillStyle = '#3a342c'
+  ctx.fillRect(280, 180, 208, 300)
+  ctx.fillStyle = '#0e1218'
+  ctx.fillRect(330, 240, 108, 240)
+  ctx.fillStyle = '#4a6078'
+  ctx.fillRect(120, 300, 70, 110)
+  ctx.fillRect(560, 300, 70, 110)
+  ctx.fillStyle = 'rgba(50, 40, 30, 0.45)'
+  ctx.font = `24px ${HAND}`
+  ctx.fillText('corredor  —  sem ninguém', 88, 980)
+  return textureFrom(canvas)
+}
+
+function artDrawingTree() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  artPaper(ctx, 768, 1024, '#d8dce4')
+  ctx.fillStyle = '#0c1420'
+  ctx.fillRect(0, 0, 768, 640)
+  ctx.fillStyle = '#eef4fb'
+  ctx.beginPath()
+  ctx.arc(560, 180, 54, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#1a2418'
+  ctx.fillRect(0, 620, 768, 404)
+  ctx.fillStyle = '#2a2018'
+  ctx.fillRect(348, 480, 36, 280)
+  ctx.beginPath()
+  ctx.arc(366, 420, 160, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#1a1814'
+  ctx.beginPath()
+  ctx.arc(280, 380, 90, 0, Math.PI * 2)
+  ctx.arc(450, 360, 110, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(50, 40, 30, 0.4)'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('à noite', 96, 980)
+  return textureFrom(canvas)
+}
+
+function artDrawingFaces() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  artPaper(ctx, 768, 1024, '#f0e4d0')
+  const heads: Array<[number, number, number]> = [
+    [220, 280, 90],
+    [520, 300, 80],
+    [370, 620, 110],
+  ]
+  for (const [x, y, r] of heads) {
+    ctx.strokeStyle = '#2c241c'
+    ctx.lineWidth = 6
+    ctx.beginPath()
+    ctx.arc(x, y, r, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(x - r * 0.28, y - r * 0.12, 8, 0, Math.PI * 2)
+    ctx.arc(x + r * 0.28, y - r * 0.12, 8, 0, Math.PI * 2)
+    ctx.fillStyle = '#2c241c'
+    ctx.fill()
+    ctx.beginPath()
+    ctx.moveTo(x - r * 0.22, y + r * 0.28)
+    ctx.quadraticCurveTo(x, y + r * 0.48, x + r * 0.22, y + r * 0.28)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(90, 40, 40, 0.55)'
+    ctx.lineWidth = 10
+    ctx.beginPath()
+    ctx.moveTo(x - r * 0.7, y - r * 0.2)
+    ctx.lineTo(x + r * 0.7, y + r * 0.35)
+    ctx.stroke()
+  }
+  ctx.fillStyle = 'rgba(50, 40, 30, 0.4)'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('retratos  —  não deu', 96, 980)
+  return textureFrom(canvas)
+}
+
+function artDrawingShapes() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  artPaper(ctx, 768, 1024, '#efe8dc')
+  const blocks: Array<[number, number, number, number, string]> = [
+    [90, 120, 220, 280, '#6a2424'],
+    [340, 90, 180, 180, '#2a4a6a'],
+    [540, 160, 140, 240, '#c4a050'],
+    [90, 440, 160, 160, '#3c6a48'],
+    [280, 420, 300, 140, '#4a3c70'],
+    [160, 640, 420, 200, '#8a5a3a'],
+  ]
+  for (const [x, y, w, h, color] of blocks) {
+    ctx.fillStyle = color
+    ctx.globalAlpha = 0.82
+    ctx.fillRect(x, y, w, h)
+  }
+  ctx.globalAlpha = 1
+  ctx.fillStyle = 'rgba(50, 40, 30, 0.4)'
+  ctx.font = `22px ${HAND}`
+  ctx.fillText('composição  —  cor', 96, 980)
+  return textureFrom(canvas)
+}
+
+export function getArtDrawingTexture(id: ArtDrawingId) {
+  const key = `art-${id}`
+  const cached = cache.get(key)
+  if (cached) return cached
+  const texture =
+    id === 'window'
+      ? artDrawingWindow()
+      : id === 'vases'
+        ? artDrawingVases()
+        : id === 'hall'
+          ? artDrawingHall()
+          : id === 'tree'
+            ? artDrawingTree()
+            : id === 'faces'
+              ? artDrawingFaces()
+              : artDrawingShapes()
+  cache.set(key, texture)
+  return texture
+}
+
 const cache = new Map<string, THREE.CanvasTexture>()
 
-export function getWrittenTexture(kind: 'board' | 'bloco' | 'chao' | 'prontuario' | 'mural') {
+function pixoTag(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+  rot: number,
+) {
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.rotate(rot)
+  ctx.font = `bold ${size}px ${SANS}`
+  ctx.strokeStyle = 'rgba(8, 8, 8, 0.55)'
+  ctx.lineWidth = size * 0.12
+  ctx.strokeText(text, 0, 0)
+  ctx.fillStyle = color
+  ctx.fillText(text, 0, 0)
+  ctx.restore()
+}
+
+function pixoFloorTexture() {
+  const { canvas, ctx } = makeCanvas(1024, 1024)
+  ctx.clearRect(0, 0, 1024, 1024)
+  ctx.globalAlpha = 0.82
+  pixoTag(ctx, 'FM', 90, 220, 92, '#d8d8d8', -0.18)
+  pixoTag(ctx, '2B', 640, 180, 70, '#c43c3c', 0.12)
+  pixoTag(ctx, 'XIII', 160, 740, 58, '#e8e0d4', 0.18)
+  pixoTag(ctx, 'SK', 780, 640, 96, '#9aa8b8', -0.08)
+  ctx.strokeStyle = '#d0d4da'
+  ctx.lineWidth = 10
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(120, 420)
+  ctx.quadraticCurveTo(280, 360, 400, 510)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(520, 780)
+  ctx.lineTo(700, 860)
+  ctx.lineTo(670, 790)
+  ctx.stroke()
+  ctx.globalAlpha = 0.35
+  ctx.fillStyle = '#1a1a1a'
+  for (let i = 0; i < 18; i += 1) {
+    ctx.fillRect(40 + Math.random() * 940, 40 + Math.random() * 940, 3, 10 + Math.random() * 22)
+  }
+  const texture = textureFrom(canvas)
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  return texture
+}
+
+export function getPixoFloorTexture() {
+  const cached = cache.get('pixo-floor')
+  if (cached) return cached
+  const texture = pixoFloorTexture()
+  cache.set('pixo-floor', texture)
+  return texture
+}
+
+export function getHangmanChalkTexture(word: 'AMIZADE' | 'FRIENDS' | null) {
+  const key = `hangman-chalk-${word ?? 'blank'}`
+  const cached = cache.get(key)
+  if (cached) return cached
+  const { canvas, ctx } = makeCanvas(1024, 160)
+  ctx.clearRect(0, 0, 1024, 160)
+  ctx.fillStyle = 'rgba(18, 26, 20, 0.55)'
+  ctx.fillRect(24, 28, 976, 108)
+  ctx.fillStyle = 'rgba(236, 232, 220, 0.92)'
+  ctx.font = `58px ${HAND}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const letters = word ? word.split('') : ['_', '_', 'I', '_', '_', 'D', '_']
+  ctx.fillText(letters.join('   '), 512, 84)
+  const texture = textureFrom(canvas)
+  cache.set(key, texture)
+  return texture
+}
+
+export function getWrittenTexture(
+  kind: 'board' | 'bloco' | 'chao' | 'prontuario' | 'mural' | 'aviso' | 'ronda' | 'teachers-board',
+) {
   const cached = cache.get(kind)
   if (cached) return cached
   const texture =
@@ -481,7 +1134,13 @@ export function getWrittenTexture(kind: 'board' | 'bloco' | 'chao' | 'prontuario
           ? floorPaperTexture()
           : kind === 'prontuario'
             ? recordTexture()
-            : muralTexture()
+            : kind === 'aviso'
+              ? noticeTexture()
+              : kind === 'ronda'
+                ? rondaTexture()
+                : kind === 'teachers-board'
+                  ? teachersBoardTexture()
+                  : muralTexture()
   cache.set(kind, texture)
   return texture
 }

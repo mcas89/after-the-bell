@@ -5,17 +5,22 @@ import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { useHallwayStore } from '../hallway/useHallwayStore'
-import { getHallLocker, isHallLockerId } from '../hallway/lockers'
+import { getHallLocker, isHallLockerId, lockerPadLabel } from '../hallway/lockers'
 import { useLockerPinStore } from '../hallway/useLockerPin'
 import { ITEM_IDS } from '../data/items'
 import { HangmanBoard } from './HangmanBoard'
 import { useExamineStore } from './useExamineStore'
+import { LAB_ON_PC_ID } from '../computer/computerStore'
 
 function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>['sheet'] }) {
   if (kind === 'bloco') {
     return (
-      <article className="examine-sheet">
+      <article className="examine-sheet is-bloco">
         <p className="sheet-mark">L + M</p>
+        <p className="sheet-hand">depois de todos irem a</p>
+        <p className="sheet-hand is-yell">eu nao sei esperar !!!</p>
+        <p className="sheet-hand is-m">se precisar o meu e o quinto</p>
+        <p className="sheet-hand is-m">codigo meu niver</p>
       </article>
     )
   }
@@ -40,6 +45,31 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
         </p>
         <p className="sheet-muted">Nº 17 · 2º B</p>
         <p className="sheet-muted">Frequência · notas · ocorrência</p>
+      </article>
+    )
+  }
+  if (kind === 'aviso') {
+    return (
+      <article className="examine-sheet is-file">
+        <h2>Escola Estadual Francis Milton</h2>
+        <p className="sheet-kicker">Aviso interno</p>
+        <p>Fechamento — 22h</p>
+        <p>Alarme armado. Portas trancam por fora.</p>
+        <p className="sheet-muted">Não permanecer no prédio.</p>
+      </article>
+    )
+  }
+  if (kind === 'ronda') {
+    return (
+      <article className="examine-sheet is-file">
+        <h2>Escola Estadual Francis Milton</h2>
+        <p className="sheet-kicker">Ronda de fechamento — 14 de outubro</p>
+        <p>Alarme 22:00</p>
+        <p>Porta externa A · ok</p>
+        <p>Porta externa B · ok</p>
+        <p>Portaria — chaves · ok</p>
+        <p className="sheet-muted">Plantão H. Costa · saída 22:04</p>
+        <p className="sheet-note">levei as chaves da externa</p>
       </article>
     )
   }
@@ -147,7 +177,7 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
 function LockerInside({ name, kind }: { name: string; kind: 'livia' | 'marina' | 'other' }) {
   return (
     <div className="locker-inside">
-      <p className="locker-inside-name">{name}</p>
+      {kind === 'marina' ? null : <p className="locker-inside-name">{name}</p>}
       <div className="locker-inside-box">
         {kind === 'livia' ? (
           <>
@@ -217,7 +247,7 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
   return (
     <div className="locker-pad">
       <div key={shakeAt} className={shakeAt ? 'locker-pad-body is-shake' : 'locker-pad-body'}>
-        <p className="locker-pad-name">{locker.fullName}</p>
+        <p className="locker-pad-name">{lockerPadLabel(locker)}</p>
         {opened ? (
           <p className="locker-pad-hint">{failLine ?? 'Aberto.'}</p>
         ) : (
@@ -250,13 +280,90 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
   )
 }
 
+const CABINET_HOOKS = ['Portaria', 'Externa', 'Alunos'] as const
+
+function FlashlightCloseup() {
+  return (
+    <article className="examine-sheet is-keychain">
+      <svg className="keychain-draw" viewBox="0 0 220 280" role="img" aria-label="Lanterna">
+        <defs>
+          <radialGradient id="fl-room" cx="50%" cy="28%" r="72%">
+            <stop offset="0%" stopColor="#3a342c" />
+            <stop offset="100%" stopColor="#161310" />
+          </radialGradient>
+          <linearGradient id="fl-body" x1="10%" y1="20%" x2="90%" y2="80%">
+            <stop offset="0%" stopColor="#4a4e46" />
+            <stop offset="40%" stopColor="#2a2e28" />
+            <stop offset="100%" stopColor="#1a1c18" />
+          </linearGradient>
+          <linearGradient id="fl-head" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#d0ccc0" />
+            <stop offset="50%" stopColor="#8a8680" />
+            <stop offset="100%" stopColor="#3a3834" />
+          </linearGradient>
+        </defs>
+        <rect width="220" height="280" fill="url(#fl-room)" />
+        <ellipse cx="110" cy="248" rx="48" ry="8" fill="#000" opacity="0.42" />
+        <rect x="38" y="118" width="108" height="38" rx="8" fill="url(#fl-body)" />
+        <rect x="44" y="124" width="28" height="26" rx="3" fill="#121410" />
+        <rect x="48" y="128" width="8" height="18" rx="1.5" fill="#2a2c24" />
+        <rect x="60" y="128" width="8" height="18" rx="1.5" fill="#2a2c24" />
+        <path d="M146 112h28l18 25-18 25h-28" fill="url(#fl-head)" />
+        <circle cx="186" cy="137" r="11" fill="#1a1c16" />
+        <circle cx="186" cy="137" r="7" fill="#3a4030" />
+        <rect x="28" y="126" width="14" height="22" rx="3" fill="#2c2a26" transform="rotate(-18 35 137)" />
+        <rect x="31" y="130" width="8" height="14" rx="1.5" fill="#1a1814" transform="rotate(-18 35 137)" />
+      </svg>
+    </article>
+  )
+}
+
+function TeachersCabinet() {
+  const detailId = useExamineStore((s) => s.detailId)
+  const inspectDetail = useExamineStore((s) => s.inspectDetail)
+
+  if (detailId === 'teachers-flashlight') return <FlashlightCloseup />
+
+  return (
+    <div className="cabinet-inside">
+      <div className="cabinet-inside-box">
+        <div className={detailId === 'teachers-hooks' ? 'cabinet-hooks is-focus' : 'cabinet-hooks'}>
+          {CABINET_HOOKS.map((label) => (
+            <button
+              key={label}
+              className="cabinet-hook"
+              type="button"
+              onClick={() => inspectDetail('teachers-hooks')}
+            >
+              <span className="cabinet-hook-peg" />
+              <span className="cabinet-hook-label">{label}</span>
+            </button>
+          ))}
+        </div>
+        <div className="cabinet-shelf">
+          <button
+            className="cabinet-flashlight"
+            type="button"
+            aria-label="Lanterna"
+            onClick={() => inspectDetail('teachers-flashlight')}
+          >
+            <span className="cabinet-flash-body" />
+            <span className="cabinet-flash-head" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function ExamineHud() {
   const hoveredId = useExamineStore((s) => s.hoveredId)
   const examiningId = useExamineStore((s) => s.examiningId)
+  const detailId = useExamineStore((s) => s.detailId)
   const interaction = useGameStore((s) => s.interactionState)
   const prologueDone = useGameStore((s) => s.prologueDone)
   const phoneOpen = usePhoneStore((s) => isPhoneOpen(s.ui))
-  const entry = examiningId ? getExamineEntry(examiningId) : null
+  const entry = examiningId ? getExamineEntry(detailId ?? examiningId) : null
 
   const collectibleId = entry?.collectibleId
   const collected = useInventoryStore((s) => (collectibleId ? s.has(collectibleId) : false))
@@ -275,7 +382,8 @@ export function ExamineHud() {
     interaction === 'door-beat' ||
     interaction === 'opening-door' ||
     interaction === 'girl-glimpse' ||
-    interaction === 'map-travel'
+    interaction === 'map-travel' ||
+    interaction === 'using-computer'
   ) {
     return null
   }
@@ -286,6 +394,7 @@ export function ExamineHud() {
         <>
           <div className="examine-dim" />
           {examiningId === 'quadro-negro' ? <HangmanBoard /> : null}
+          {examiningId === 'teachers-cabinet' ? <TeachersCabinet /> : null}
           {entry?.sheet ? <Sheet kind={entry.sheet} /> : null}
           {isHallLockerId(examiningId) ? <LockerPinPad lockerId={examiningId} /> : null}
           {entry?.line ? (
@@ -315,17 +424,25 @@ export function ExamineHud() {
               />
             </svg>
           </button>
-          <p className="hud examine-hud">
-            {collectibleId && !collected ? 'F pegar · Esc ou X fechar' : 'Esc ou X fechar'}
+          <p className="prompt-hud">
+            {collectibleId && !collected
+              ? 'F pegar · Esc ou X fechar'
+              : examiningId === 'teachers-cabinet' && !detailId
+                ? 'Clique para inspecionar · Esc ou X fechar'
+                : detailId
+                  ? 'Esc ou X voltar'
+                  : 'Esc ou X fechar'}
           </p>
         </>
       ) : null}
       {interaction === 'gameplay' && canOpenDoor ? (
-        <p className="hud examine-hud">E abrir</p>
+        <p className="prompt-hud">E abrir</p>
       ) : interaction === 'gameplay' && hallPrompt ? (
-        <p className="hud examine-hud">{hallPrompt}</p>
+        <p className="prompt-hud">{hallPrompt}</p>
+      ) : interaction === 'gameplay' && hoveredId === LAB_ON_PC_ID ? (
+        <p className="prompt-hud">Clique para usar</p>
       ) : interaction === 'gameplay' && hoveredId ? (
-        <p className="hud examine-hud">Clique para examinar</p>
+        <p className="prompt-hud">Clique para examinar</p>
       ) : null}
     </>
   )

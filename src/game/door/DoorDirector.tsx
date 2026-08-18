@@ -11,20 +11,25 @@ import { hasRequiredDoorClues } from './doorProgress'
 import { DOOR, doorDistance } from './doorLayout'
 import { canOpenClassroomDoor, useDoorStore } from './useDoorStore'
 
-const FLICKER_AT = 1.48
-const AJAR_AT = 1.66
-const LINE_AT = 2.55
-const RELEASE_AT = 6.35
+const SCARE_AT = 0.78
+const FLICKER_AT = 1.28
+const AJAR_AT = 1.52
+const LINE_AT = 2.05
+const RELEASE_AT = 5.35
 
 function randomDelay() {
   return 1.7 + Math.random() * 0.9
 }
 
+function yawToDoor() {
+  return Math.atan2(DOOR.wallX - 0.15 - playerMotion.x, DOOR.z - playerMotion.z)
+}
+
 function doorShot() {
   return {
-    position: [DOOR.wallX - 1.72, 1.4, DOOR.z + 0.04] as [number, number, number],
-    lookAt: [DOOR.wallX, 1.05, DOOR.z + 0.22] as [number, number, number],
-    fov: 28,
+    position: [DOOR.wallX - 2.28, 1.56, DOOR.z + 0.82] as [number, number, number],
+    lookAt: [DOOR.wallX - 0.02, 1.52, DOOR.z] as [number, number, number],
+    fov: 34,
     damp: 8,
     snap: true as const,
   }
@@ -37,6 +42,7 @@ export function DoorDirector() {
   const elapsed = useRef(0)
   const ajar = useRef(false)
   const spoken = useRef(false)
+  const scared = useRef(false)
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -63,7 +69,7 @@ export function DoorDirector() {
 
     if (running.current) {
       elapsed.current += delta
-      runDoorBeat(elapsed.current, game, ajar, spoken, running)
+      runDoorBeat(elapsed.current, game, ajar, spoken, scared, running)
       return
     }
 
@@ -98,6 +104,7 @@ export function DoorDirector() {
     elapsed.current = 0
     ajar.current = false
     spoken.current = false
+    scared.current = false
   })
 
   return null
@@ -110,7 +117,7 @@ function startDoorBeat() {
   holdAmbient(7800)
   duckMusic(0.08, 5600)
   playLoudSfx(SFX.knock, 2.8)
-  door.snapAjar()
+  playerMotion.faceYaw = yawToDoor()
   door.markEventTriggered()
   game.setInteractionState('door-beat')
   game.setCameraMode('cutscene')
@@ -133,10 +140,17 @@ function runDoorBeat(
   game: ReturnType<typeof useGameStore.getState>,
   ajar: { current: boolean },
   spoken: { current: boolean },
+  scared: { current: boolean },
   running: { current: boolean },
 ) {
   const door = useDoorStore.getState()
   roomPulse.dim = flickerAmount(t)
+
+  if (t >= SCARE_AT && !scared.current) {
+    scared.current = true
+    playerMotion.flinch = 1
+    playSfx(SFX.scare, 0.92)
+  }
 
   if (t >= AJAR_AT && !ajar.current) {
     ajar.current = true
@@ -145,12 +159,14 @@ function runDoorBeat(
 
   if (t >= LINE_AT && !spoken.current) {
     spoken.current = true
-    door.speak('...Tem alguém aí?', 2400)
+    door.speak('Quem está aí?', 2800)
   }
 
   if (t < RELEASE_AT) return
 
   roomPulse.dim = 0
+  playerMotion.faceYaw = null
+  playerMotion.flinch = 0
   game.setCameraMode('explore')
   game.setCameraOverride(null)
   if (game.interactionState === 'door-beat') game.setInteractionState('gameplay')

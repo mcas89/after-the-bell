@@ -1,12 +1,15 @@
 import { create } from 'zustand'
 import { CLUE_IDS } from '../data/clues'
+import { discoverClue } from '../fragments/discoverClue'
 import type { ObjectiveId } from '../data/objectives'
 import type { SavedStory } from '../state/gameSaveManager'
 import { saveManager } from '../state/gameSaveManager'
 import { useFragmentsStore } from '../state/useFragmentsStore'
 import { useGameStore } from '../state/useGameStore'
-import { playerMotion } from '../player/playerMotion'
+import { refreshControlLock } from '../systems/controlLock'
 import { HALL_PROPS } from './hallwayLayout'
+
+export type LabDoorPhase = 'ajar' | 'opening' | 'open'
 
 type HallwayState = {
   enteredCorridor: boolean
@@ -20,9 +23,11 @@ type HallwayState = {
   line: string | null
   prompt: string | null
   girlVisible: boolean
+  girlWalking: boolean
   girlZ: number
   chapterCardUntil: number
   rattleUntil: number
+  labDoor: LabDoorPhase
   hydrate: (story: SavedStory) => void
   markEntered: () => void
   markSeen203: () => void
@@ -35,9 +40,12 @@ type HallwayState = {
   speak: (line: string, ms?: number) => void
   setPrompt: (prompt: string | null) => void
   showGirl: () => void
+  startGirlWalk: () => void
   hideGirl: () => void
   showChapterCard: () => void
   rattleHandle: () => void
+  beginLabOpen: () => boolean
+  finishLabOpen: () => void
 }
 
 let lineTimer = 0
@@ -55,9 +63,11 @@ export const useHallwayStore = create<HallwayState>((set, get) => ({
   line: null,
   prompt: null,
   girlVisible: false,
-  girlZ: 18.5,
+  girlWalking: false,
+  girlZ: HALL_PROPS.girlStand,
   chapterCardUntil: 0,
   rattleUntil: 0,
+  labDoor: 'ajar',
   hydrate: (story) => {
     const entered = Boolean(story.enteredCorridor)
     const noticed = Boolean(useFragmentsStore.getState().entries[CLUE_IDS.door203]?.discovered)
@@ -69,20 +79,23 @@ export const useHallwayStore = create<HallwayState>((set, get) => ({
       noticed203: noticed,
       foundSecretary: Boolean(story.foundSecretary),
       seenMysteriousGirl: Boolean(story.seenMysteriousGirl),
-      objective: (story.currentObjective as ObjectiveId | null) ?? (entered ? 'explore-school' : null),
+      objective: (story.currentObjective as ObjectiveId | null) ?? (story.seenMysteriousGirl ? 'find-girl' : null),
       line: null,
       prompt: null,
       girlVisible: false,
-      girlZ: 18.5,
+      girlWalking: false,
+      girlZ: HALL_PROPS.girlStand,
       chapterCardUntil: 0,
       rattleUntil: 0,
+      labDoor: useGameStore.getState().flags.labDoorOpened ? 'open' : 'ajar',
     })
+    if (story.seenMysteriousGirl) discoverClue(CLUE_IDS.mysteriousGirl, true)
   },
   markEntered: () => {
     if (get().enteredCorridor) return
-    set({ enteredCorridor: true, objective: 'explore-school' })
+    set({ enteredCorridor: true })
     useGameStore.getState().addFlag('enteredCorridor')
-    saveManager.updateStoryState({ enteredCorridor: true, currentObjective: 'explore-school' })
+    saveManager.updateStoryState({ enteredCorridor: true })
   },
   markSeen203: () => {
     if (get().seenDoor203) return
@@ -110,6 +123,7 @@ export const useHallwayStore = create<HallwayState>((set, get) => ({
   markGirl: () => {
     if (get().seenMysteriousGirl) return
     set({ seenMysteriousGirl: true, objective: 'find-girl' })
+    discoverClue(CLUE_IDS.mysteriousGirl)
     saveManager.updateStoryState({
       seenMysteriousGirl: true,
       currentObjective: 'find-girl',
@@ -132,12 +146,17 @@ export const useHallwayStore = create<HallwayState>((set, get) => ({
     if (get().girlVisible) return
     set({
       girlVisible: true,
-      girlZ: Math.min(HALL_PROPS.darkFrom - 2.4, Math.max(13.1, playerMotion.z + 8.6)),
+      girlWalking: false,
+      girlZ: HALL_PROPS.girlStand,
     })
+  },
+  startGirlWalk: () => {
+    if (!get().girlVisible || get().girlWalking) return
+    set({ girlWalking: true })
   },
   hideGirl: () => {
     if (!get().girlVisible) return
-    set({ girlVisible: false })
+    set({ girlVisible: false, girlWalking: false })
   },
   showChapterCard: () => {
     window.clearTimeout(cardTimer)
@@ -146,5 +165,19 @@ export const useHallwayStore = create<HallwayState>((set, get) => ({
   },
   rattleHandle: () => {
     set({ rattleUntil: performance.now() + 420 })
+  },
+  beginLabOpen: () => {
+    if (get().labDoor !== 'ajar') return false
+    set({ labDoor: 'opening' })
+    useGameStore.getState().setInteractionState('opening-door')
+    refreshControlLock()
+    return true
+  },
+  finishLabOpen: () => {
+    if (get().labDoor === 'open') return
+    set({ labDoor: 'open' })
+    useGameStore.getState().addFlag('labDoorOpened')
+    useGameStore.getState().setInteractionState('gameplay')
+    refreshControlLock()
   },
 }))

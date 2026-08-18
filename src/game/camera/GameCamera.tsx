@@ -7,8 +7,10 @@ import { liveOverride } from '../prologue/timeline'
 import { playerMotion } from '../player/playerMotion'
 import { useMapTravelStore } from '../maps/mapTravel'
 import { useGameStore } from '../state/useGameStore'
-import { blendHallwayCamera, frameLivia } from './hallwayZones'
+import { blendHallwayCamera, frameLivia, silhouetteLongShot } from './hallwayZones'
+import { girlMotion } from '../hallway/GirlSilhouette'
 import { HALL } from '../hallway/hallwayLayout'
+import { useHallwayStore } from '../hallway/useHallwayStore'
 
 type Props = {
   target: RefObject<THREE.Group | null>
@@ -43,6 +45,7 @@ export function GameCamera({ target }: Props) {
     const player = target.current
 
     if (lastMode.current === 'cutscene' && cameraMode === 'explore') returnHold.current = 0.55
+    const enteringCutscene = lastMode.current !== 'cutscene' && cameraMode === 'cutscene'
     lastMode.current = cameraMode
     if (returnHold.current > 0) returnHold.current -= dt
 
@@ -64,20 +67,30 @@ export function GameCamera({ target }: Props) {
       lookDesired.current.copy(desired.current).add(forward.current)
       persp.fov = THREE.MathUtils.damp(persp.fov, 60, 4.2, dt)
     } else if (currentRoom === 'hallway') {
-      const targetAhead = Math.cos(playerMotion.yaw) * 1.85
-      const targetSide = THREE.MathUtils.clamp(
-        Math.sin(playerMotion.yaw) * 1.35 + (playerMotion.x / HALL.halfX) * 0.55,
-        -1,
-        1,
-      )
-      hallAhead.current = THREE.MathUtils.damp(hallAhead.current, targetAhead, 2.05, dt)
-      hallSide.current = THREE.MathUtils.damp(hallSide.current, targetSide, 1.9, dt)
-      const blended = blendHallwayCamera(playerMotion.z, hallAhead.current, hallSide.current)
-      const framed = frameLivia(blended, playerMotion.x, playerMotion.z, hallSide.current)
-      hallDamp.current = framed.damp
-      desired.current.set(...framed.position)
-      lookDesired.current.set(...framed.lookAt)
-      persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
+      const hall = useHallwayStore.getState()
+      const facingDark = Math.cos(playerMotion.yaw) > 0.22
+      if (hall.girlVisible && !hall.seenMysteriousGirl && facingDark) {
+        const shot = silhouetteLongShot(playerMotion.z, girlMotion.z, 30)
+        hallDamp.current = shot.damp
+        desired.current.set(...shot.position)
+        lookDesired.current.set(...shot.lookAt)
+        persp.fov = THREE.MathUtils.damp(persp.fov, shot.fov, shot.damp, dt)
+      } else {
+        const targetAhead = Math.cos(playerMotion.yaw) * 1.85
+        const targetSide = THREE.MathUtils.clamp(
+          Math.sin(playerMotion.yaw) * 1.35 + (playerMotion.x / HALL.halfX) * 0.55,
+          -1,
+          1,
+        )
+        hallAhead.current = THREE.MathUtils.damp(hallAhead.current, targetAhead, 2.05, dt)
+        hallSide.current = THREE.MathUtils.damp(hallSide.current, targetSide, 1.9, dt)
+        const blended = blendHallwayCamera(playerMotion.z, hallAhead.current, hallSide.current)
+        const framed = frameLivia(blended, playerMotion.x, playerMotion.z, hallSide.current)
+        hallDamp.current = framed.damp
+        desired.current.set(...framed.position)
+        lookDesired.current.set(...framed.lookAt)
+        persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
+      }
     } else {
       const px = playerMotion.x
       const py = player?.position.y ?? 0
@@ -103,7 +116,13 @@ export function GameCamera({ target }: Props) {
       const zoom = (pz - shot.lookAt[2]) * shot.zoomByDepth
       const pullIn = cameraMode === 'focus' ? -0.55 : 0
 
-      const doorBias = currentRoom === 'classroom1' ? THREE.MathUtils.smoothstep(px, 1.15, 3.55) : 0
+      const doorBias =
+        currentRoom === 'classroom1' ||
+        currentRoom === 'room12' ||
+        currentRoom === 'teachers' ||
+        currentRoom === 'room14'
+          ? THREE.MathUtils.smoothstep(px, 1.15, 3.55)
+          : 0
       const bounds = getRoom(currentRoom).bounds
 
       desired.current.set(
@@ -141,7 +160,13 @@ export function GameCamera({ target }: Props) {
                 ? hallDamp.current
                 : shot.damp
 
-    if (!ready.current || traveling || storedOverride?.snap || (cameraMode === 'cutscene' && cameraOverride?.snap)) {
+    if (
+      !ready.current ||
+      traveling ||
+      storedOverride?.snap ||
+      enteringCutscene ||
+      (cameraMode === 'cutscene' && cameraOverride?.snap)
+    ) {
       camera.position.copy(desired.current)
       look.current.copy(lookDesired.current)
       if (!traveling) ready.current = true

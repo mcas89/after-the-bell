@@ -3,24 +3,19 @@ import { useEffect, useRef } from 'react'
 import { playSfx, SFX } from '../audio/mixer'
 import { DOOR } from '../door/doorLayout'
 import { useDoorStore } from '../door/useDoorStore'
-import { HALL, HALL_DOORS, HALL_PROPS, nearDoor } from '../hallway/hallwayLayout'
+import { HALL, HALL_DOORS, HALL_PROPS, hallwayStopZ, nearDoor } from '../hallway/hallwayLayout'
+import { hasDarkHallClues } from '../hallway/darkProgress'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { requestMapTravel, useMapTravelStore } from '../maps/mapTravel'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { playerMotion } from '../player/playerMotion'
-import { getRoom } from '../data/rooms'
 import { useGameStore } from '../state/useGameStore'
-
-const SIDE_ROOMS: Array<{
-  room: 'room12' | 'room14'
-  door: { x: number; z: number }
-  back: string
-}> = [
-  { room: 'room12', door: HALL_DOORS.room12, back: 'from-room12' },
-  { room: 'room14', door: HALL_DOORS.room14, back: 'from-room14' },
-]
+import { ITEM_IDS } from '../data/items'
+import { useInventoryStore } from '../state/useInventoryStore'
+import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
 
 const DARK_LINE = 'Está muito escuro. Não consigo ir pra lá.'
+const COLD_LINE = 'Não consigo atravessar. Está muito escuro e gelado.'
 const DARK_COOLDOWN = 5
 
 function canAct() {
@@ -33,11 +28,75 @@ function canAct() {
   )
 }
 
+function hasKey(id: string | null) {
+  if (!id) return true
+  return useInventoryStore.getState().has(id)
+}
+
+function hasOtherKey(needed: string | null) {
+  if (!needed) return false
+  const inv = useInventoryStore.getState()
+  const other = needed === ITEM_IDS.key ? ITEM_IDS.officeKey : ITEM_IDS.key
+  return inv.has(other) && !inv.has(needed)
+}
+
+function tryClassroomDoor(id: keyof typeof HALL_DOORS) {
+  const door = HALL_DOORS[id]
+  const hall = useHallwayStore.getState()
+  if (door.open && door.dest) {
+    playSfx(SFX.doorOpen, 0.45)
+    hall.setPrompt(null)
+    requestMapTravel(door.dest, 'from-hallway')
+    return
+  }
+  if (door.key && hasKey(door.key) && door.dest) {
+    playSfx(SFX.doorOpen, 0.52)
+    hall.setPrompt(null)
+    requestMapTravel(door.dest, 'from-hallway')
+    return
+  }
+  hall.rattleHandle()
+  hall.speak(hasOtherKey(door.key) ? 'Não é essa.' : 'Trancada.')
+}
+
+function tryLabDoor() {
+  const hall = useHallwayStore.getState()
+  if (hall.labDoor === 'ajar') {
+    if (!hall.beginLabOpen()) return
+    playSfx(SFX.doorOpen, 0.62)
+    hall.setPrompt(null)
+    return
+  }
+  if (hall.labDoor === 'open') {
+    playSfx(SFX.doorOpen, 0.45)
+    hall.setPrompt(null)
+    requestMapTravel('room12', 'from-hallway')
+  }
+}
+
+function tryLobbyDoor(px: number, pz: number) {
+  const hall = useHallwayStore.getState()
+  const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(px, pz, item, 1.5))
+  if (!door) return false
+  hall.rattleHandle()
+  hall.speak(door.lockedLine)
+  return true
+}
+
+function lobbyPrompt(x: number, z: number) {
+  if (nearLobbyEntrance(x, z)) return 'E voltar'
+  if (LOBBY_DOOR_LIST.some((door) => nearLobbyDoor(x, z, door))) return 'E abrir'
+  return null
+}
+
 function hallwayPrompt(x: number, z: number) {
   if (nearDoor(x, z, HALL_DOORS.room11, 1.35)) return 'E voltar'
-  if (nearDoor(x, z, HALL_DOORS.room12, 1.35)) return 'E entrar'
+  if (nearDoor(x, z, HALL_DOORS.room12, 1.35)) {
+    return useHallwayStore.getState().labDoor === 'open' ? 'E entrar' : 'E abrir'
+  }
   if (nearDoor(x, z, HALL_DOORS.room13, 1.35)) return 'E abrir'
-  if (nearDoor(x, z, HALL_DOORS.room14, 1.35)) return 'E entrar'
+  if (nearDoor(x, z, HALL_DOORS.room14, 1.35)) return 'E abrir'
+  if (hasDarkHallClues() && z > HALL_PROPS.darkFrom - 0.9) return 'E seguir'
   if (z < HALL.minZ + 1.45) return 'E olhar'
   return null
 }
@@ -60,26 +119,32 @@ export function RoomTravel() {
         if (nearDoor(x, z, HALL_DOORS.room11, 1.45)) {
           cool.current = 0.8
           useDoorStore.getState().setNear(false)
-          playSfx(SFX.doorOpen, 0.35)
-          hall.setPrompt(null)
-          requestMapTravel('classroom1', 'from-hallway')
+          tryClassroomDoor('room11')
           return
         }
-        for (const side of SIDE_ROOMS) {
-          if (!nearDoor(x, z, side.door, 1.45)) continue
+        if (nearDoor(x, z, HALL_DOORS.room12, 1.45)) {
           cool.current = 0.8
-          playSfx(SFX.doorOpen, 0.5)
-          hall.setPrompt(null)
-          requestMapTravel(side.room, 'from-hallway')
+          tryLabDoor()
           return
         }
         if (nearDoor(x, z, HALL_DOORS.room13, 1.45)) {
-          hall.rattleHandle()
-          hall.speak('Trancada.')
+          cool.current = 0.8
+          tryClassroomDoor('room13')
+          return
+        }
+        if (nearDoor(x, z, HALL_DOORS.room14, 1.45)) {
+          cool.current = 0.8
+          tryClassroomDoor('room14')
           return
         }
         if (z > HALL_PROPS.darkFrom - 0.55) {
-          hall.speak(DARK_LINE)
+          if (hasDarkHallClues()) {
+            cool.current = 0.8
+            hall.setPrompt(null)
+            requestMapTravel('passage', 'from-hallway')
+            return
+          }
+          hall.speak(hall.seenMysteriousGirl ? COLD_LINE : DARK_LINE)
           return
         }
         if (z < HALL.minZ + 1.5) {
@@ -88,16 +153,34 @@ export function RoomTravel() {
         return
       }
 
-      if (game.currentRoom === 'room12' || game.currentRoom === 'room14') {
-        const def = getRoom(game.currentRoom)
-        if (z < def.bounds.maxZ - 0.55) return
+      if (game.currentRoom === 'passage') {
         event.preventDefault()
-        const side = SIDE_ROOMS.find((item) => item.room === game.currentRoom)
-        if (!side) return
+        if (nearLobbyEntrance(x, z) && z < 1.2) {
+          cool.current = 0.8
+          hall.setPrompt(null)
+          requestMapTravel('hallway', 'from-passage')
+          return
+        }
+        if (tryLobbyDoor(x, z)) {
+          cool.current = 0.8
+        }
+        return
+      }
+
+      if (game.currentRoom === 'room12' || game.currentRoom === 'teachers' || game.currentRoom === 'room14') {
+        if (Math.hypot(x - (DOOR.wallX - 0.35), z - DOOR.z) > DOOR.reach) return
+        event.preventDefault()
         cool.current = 0.8
         playSfx(SFX.doorOpen, 0.4)
         hall.setPrompt(null)
-        requestMapTravel('hallway', side.back)
+        const back =
+          game.currentRoom === 'teachers'
+            ? 'from-teachers'
+            : game.currentRoom === 'room14'
+              ? 'from-room14'
+              : 'from-room12'
+        requestMapTravel('hallway', back)
+        return
       }
     }
 
@@ -128,6 +211,24 @@ export function RoomTravel() {
       }
     }
 
+    if (game.currentRoom === 'room12' || game.currentRoom === 'teachers' || game.currentRoom === 'room14') {
+      if (x >= DOOR.wallX + 0.42 && Math.abs(z - DOOR.z) < DOOR.half - 0.08) {
+        cool.current = 0.8
+        hall.setPrompt(null)
+        requestMapTravel(
+          'hallway',
+          game.currentRoom === 'teachers'
+            ? 'from-teachers'
+            : game.currentRoom === 'room14'
+              ? 'from-room14'
+              : 'from-room12',
+        )
+        return
+      }
+      hall.setPrompt(Math.hypot(x - (DOOR.wallX - 0.35), z - DOOR.z) <= 1.55 ? 'E voltar' : null)
+      return
+    }
+
     if (game.currentRoom === 'hallway') {
       if (x > HALL.halfX - 0.42 && Math.abs(z - HALL_DOORS.room11.z) < HALL.doorHalf + 0.12) {
         cool.current = 0.8
@@ -136,29 +237,43 @@ export function RoomTravel() {
         requestMapTravel('classroom1', 'from-hallway')
         return
       }
+      if (x > HALL.halfX - 0.42 && Math.abs(z - HALL_DOORS.room12.z) < HALL.doorHalf + 0.12) {
+        if (hall.labDoor !== 'open') return
+        cool.current = 0.8
+        hall.setPrompt(null)
+        requestMapTravel('room12', 'from-hallway')
+        return
+      }
+      const hallOpen = hasDarkHallClues()
+      if (hallOpen && z >= HALL.maxZ - 0.55 && Math.abs(x) < 0.95) {
+        cool.current = 0.8
+        hall.setPrompt(null)
+        requestMapTravel('passage', 'from-hallway')
+        return
+      }
+      const stopZ = hallwayStopZ(hall.seenMysteriousGirl)
       if (
-        z >= HALL_PROPS.darkFrom - 0.52 &&
+        !hallOpen &&
+        z >= stopZ - 0.62 &&
         playerMotion.analog > 0.22 &&
         Math.cos(playerMotion.yaw) > 0.28 &&
         darkCool.current <= 0
       ) {
         darkCool.current = DARK_COOLDOWN
-        hall.speak(DARK_LINE)
+        hall.speak(hall.seenMysteriousGirl ? COLD_LINE : DARK_LINE)
       }
       hall.setPrompt(hallwayPrompt(x, z))
       return
     }
 
-    if (game.currentRoom === 'room12' || game.currentRoom === 'room14') {
-      const def = getRoom(game.currentRoom)
-      if (z > def.bounds.maxZ - 0.28) {
+    if (game.currentRoom === 'passage') {
+      if (nearLobbyEntrance(x, z) && z < 0.32) {
         cool.current = 0.8
-        const side = SIDE_ROOMS.find((item) => item.room === game.currentRoom)
         hall.setPrompt(null)
-        if (side) requestMapTravel('hallway', side.back)
+        requestMapTravel('hallway', 'from-passage')
         return
       }
-      hall.setPrompt(z > def.bounds.maxZ - 0.7 ? 'E voltar' : null)
+      hall.setPrompt(lobbyPrompt(x, z))
       return
     }
 

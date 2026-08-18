@@ -6,26 +6,34 @@ import { HallwayDirector } from '../hallway/HallwayDirector'
 import { HallwayScene } from '../hallway/HallwayScene'
 import { GirlSilhouette } from '../hallway/GirlSilhouette'
 import { ClassroomPlaceholder } from '../scenes/ClassroomPlaceholder'
+import { WindowTerror } from '../atmosphere/WindowTerror'
 import { useGameStore } from '../state/useGameStore'
+import { ArtsRoom } from './ArtsRoom'
+import { PassageRoom } from './PassageRoom'
 import { SideClassroom } from './SideClassroom'
+import { TeachersRoom } from './TeachersRoom'
 import { RoomTravel } from './RoomTravel'
+import { hasDarkHallClues } from '../hallway/darkProgress'
+import { useFragmentsStore } from '../state/useFragmentsStore'
 
 function RoomFog() {
   const room = useGameStore((s) => s.currentRoom)
+  const hallOpen = useFragmentsStore((s) => hasDarkHallClues(s.entries))
   const { scene, gl } = useThree()
 
   useLayoutEffect(() => {
     const fog = scene.fog as THREE.Fog | null
     const hallway = room === 'hallway'
-    const color = hallway ? '#0b0d12' : '#0b0f15'
+    const passage = room === 'passage'
+    const color = hallway || passage ? '#0b0d12' : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
     if (fog) {
       fog.color.set(color)
-      fog.near = hallway ? 7.2 : 6.4
-      fog.far = hallway ? 18.4 : 14.2
+      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : passage ? 8.2 : 6.4
+      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : passage ? 22 : 14.2
     }
-  }, [gl, room, scene])
+  }, [gl, hallOpen, room, scene])
 
   return null
 }
@@ -36,6 +44,7 @@ export function RoomWorld() {
   return (
     <>
       <RoomFog />
+      <WindowTerror />
       {room === 'classroom1' ? (
         <>
           <ClassroomPlaceholder />
@@ -49,9 +58,10 @@ export function RoomWorld() {
           <HallwayDirector />
         </>
       ) : null}
-      {room === 'room11' ? <SideClassroom roomId="room11" label="11" /> : null}
-      {room === 'room12' ? <SideClassroom roomId="room12" label="12" /> : null}
-      {room === 'room14' ? <SideClassroom roomId="room14" label="14" /> : null}
+      {room === 'room12' ? <SideClassroom /> : null}
+      {room === 'room14' ? <ArtsRoom /> : null}
+      {room === 'teachers' ? <TeachersRoom /> : null}
+      {room === 'passage' ? <PassageRoom /> : null}
       <RoomTravel />
     </>
   )

@@ -12,13 +12,13 @@ const darkWood = { color: '#4e3d32', roughness: 0.9, metalness: 0.03 }
 const frame = { color: '#3d332c', roughness: 0.92 }
 const metal = { color: '#c4b089', roughness: 0.38, metalness: 0.55 }
 const glass = {
-  color: '#b7c4ce',
-  roughness: 0.18,
-  metalness: 0.06,
+  color: '#07080c',
+  roughness: 0.22,
+  metalness: 0.04,
   transparent: true,
-  opacity: 0.55,
-  emissive: '#8a9aaa',
-  emissiveIntensity: 0.08,
+  opacity: 0.92,
+  emissive: '#000000',
+  emissiveIntensity: 0,
 }
 
 function FrameStrip({

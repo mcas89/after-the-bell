@@ -6,7 +6,7 @@ export const OBJECTIVES: Record<ObjectiveId, { title: string; line: string }> = 
     line: 'A escola está quieta demais.',
   },
   'find-girl': {
-    title: 'Encontre a garota',
-    line: 'Ela passou pelo corredor. Preciso achá-la.',
+    title: 'Quem é a garota',
+    line: 'Ela passou pelo corredor. Preciso achar ela.',
   },
 }

@@ -53,14 +53,8 @@ export const ROOM_SHOTS: Record<RoomId, CameraShot> = {
     ...CLASSROOM_SHOT,
     position: [0.15, 2.32, 2.85],
   },
-  room12: {
-    ...CLASSROOM_SHOT,
-    position: [-0.05, 2.32, 2.85],
-  },
-  room14: {
-    ...CLASSROOM_SHOT,
-    position: [-0.2, 2.32, 2.85],
-  },
+  room12: CLASSROOM_SHOT,
+  room14: CLASSROOM_SHOT,
   room201: {
     ...CLASSROOM_SHOT,
     position: [0.15, 2.32, 2.85],
@@ -89,16 +83,7 @@ export const ROOM_SHOTS: Record<RoomId, CameraShot> = {
     zoomByDepth: 0.14,
     damp: 2.1,
   },
-  teachers: {
-    position: [-2.1, 2.45, 5.5],
-    lookAt: [0.2, 1.1, -0.2],
-    fov: 37,
-    follow: { x: 0.34, y: 0.06, z: 0.2 },
-    lookFollow: 0.32,
-    margin: { x: 1.5, y: 0.22, z: 1.0 },
-    zoomByDepth: 0.14,
-    damp: 2.1,
-  },
+  teachers: CLASSROOM_SHOT,
   storage: {
     position: [1.4, 2.05, 3.8],
     lookAt: [0, 1.0, -0.6],
@@ -118,5 +103,15 @@ export const ROOM_SHOTS: Record<RoomId, CameraShot> = {
     margin: { x: 2.6, y: 0.3, z: 1.8 },
     zoomByDepth: 0.2,
     damp: 1.9,
+  },
+  passage: {
+    position: [0.1, 2.62, 5.15],
+    lookAt: [0, 1.08, 4.4],
+    fov: 48,
+    follow: { x: 0.48, y: 0.05, z: 0.32 },
+    lookFollow: 0.58,
+    margin: { x: 3.8, y: 0.2, z: 3.6 },
+    zoomByDepth: 0.045,
+    damp: 2.15,
   },
 }

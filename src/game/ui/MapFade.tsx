@@ -4,6 +4,7 @@ import { stepMapTravel, useMapTravelStore } from '../maps/mapTravel'
 export function MapFade() {
   const fade = useMapTravelStore((s) => s.fade)
   const busy = useMapTravelStore((s) => s.busy)
+  const card = useMapTravelStore((s) => s.card)
 
   useEffect(() => {
     if (!busy) return
@@ -21,10 +22,20 @@ export function MapFade() {
     return () => window.cancelAnimationFrame(raf)
   }, [busy])
 
+  const showCard = Boolean(card) && fade > 0.78
+
   return (
-    <div
-      className={`map-fade${busy || fade > 0.01 ? ' active' : ''}`}
-      style={{ opacity: fade }}
-    />
+    <>
+      <div
+        className={`map-fade${busy || fade > 0.01 ? ' active' : ''}`}
+        style={{ opacity: fade }}
+      />
+      {showCard && card ? (
+        <div className="chapter-card is-fade">
+          <p className="chapter-kicker">{card.kicker}</p>
+          <h2>{card.title}</h2>
+        </div>
+      ) : null}
+    </>
   )
 }

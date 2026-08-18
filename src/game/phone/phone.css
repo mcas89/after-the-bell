@@ -482,6 +482,13 @@
   list-style: none;
 }
 
+.phone-inbox-empty {
+  margin: 1.4rem 0.2rem 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: rgba(200, 196, 188, 0.55);
+}
+
 .phone-thread {
   display: flex;
   gap: 0.45rem;
@@ -550,7 +557,7 @@
 .phone-line {
   position: fixed;
   left: 50%;
-  bottom: 7%;
+  bottom: 18%;
   z-index: 28;
   margin: 0;
   transform: translateX(-50%);

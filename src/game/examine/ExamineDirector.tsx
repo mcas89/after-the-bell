@@ -11,10 +11,16 @@ import { duckMusic, holdAmbient, playSfx, SFX } from '../audio/mixer'
 import { playerMotion } from '../player/playerMotion'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { isHallLockerId } from '../hallway/lockers'
+import { useHallwayStore } from '../hallway/useHallwayStore'
+import { LAB_ON_PC_ID, useComputerStore } from '../computer/computerStore'
 import { useGameStore } from '../state/useGameStore'
 
 const lightPos = new THREE.Vector3()
 const box = new THREE.Box3()
+
+function isHudInspect(id: string) {
+  return isHallLockerId(id) || id === 'teachers-cabinet'
+}
 
 function beginInspect(
   id: string,
@@ -27,7 +33,7 @@ function beginInspect(
   useExamineStore.getState().inspect(id)
   inspectId.current = id
   holdLeft.current = examineHoldSeconds(id)
-  if (isHallLockerId(id)) return
+  if (isHudInspect(id)) return
 
   const shot = computeInspectShot(record, camera)
   const store = useGameStore.getState()
@@ -75,6 +81,7 @@ export function ExamineDirector() {
       if (!game.prologueDone || game.interactionState !== 'gameplay') return
       if (isPhoneOpen(usePhoneStore.getState().ui)) return
 
+      const hall = useHallwayStore.getState()
       const examine = useExamineStore.getState()
       const nearby = getNearbyExamineIds(playerMotion.x, playerMotion.z)
       examine.setNearby(nearby)
@@ -82,6 +89,22 @@ export function ExamineDirector() {
         pickExamineId(event.clientX, event.clientY, camera, el, nearby) ??
         (examine.hoveredId && nearby.includes(examine.hoveredId) ? examine.hoveredId : null)
       if (!id) return
+
+      if (id === 'hall-door-12' && hall.labDoor === 'ajar') {
+        event.preventDefault()
+        if (hall.beginLabOpen()) playSfx(SFX.doorOpen, 0.62)
+        return
+      }
+
+      if (id === LAB_ON_PC_ID) {
+        event.preventDefault()
+        playSfx(SFX.clickItem, 0.45)
+        useComputerStore.getState().open()
+        return
+      }
+
+      if (game.currentRoom === 'hallway' && !hall.seenMysteriousGirl) return
+
       event.preventDefault()
       playSfx(SFX.clickItem, 0.45)
       beginInspect(id, camera, inspectId, holdLeft)
@@ -123,12 +146,17 @@ export function ExamineDirector() {
   useFrame((_, delta) => {
     const game = useGameStore.getState()
     const examine = useExamineStore.getState()
+    const hall = useHallwayStore.getState()
     const dt = Math.min(delta, 0.05)
     const inspecting = game.interactionState === 'examining-object'
+    const hallLocked = game.currentRoom === 'hallway' && !hall.seenMysteriousGirl
     const canPick =
-      game.prologueDone && game.interactionState === 'gameplay' && !isPhoneOpen(usePhoneStore.getState().ui)
+      game.prologueDone &&
+      game.interactionState === 'gameplay' &&
+      !isPhoneOpen(usePhoneStore.getState().ui)
 
-    const nearby = canPick ? getNearbyExamineIds(playerMotion.x, playerMotion.z) : inspecting ? examine.nearbyIds : []
+    const allNearby = canPick ? getNearbyExamineIds(playerMotion.x, playerMotion.z) : inspecting ? examine.nearbyIds : []
+    const nearby = hallLocked && canPick ? allNearby.filter((id) => id === 'hall-door-12') : allNearby
     if (canPick || !inspecting) examine.setNearby(nearby)
 
     const hovered =
@@ -142,11 +170,11 @@ export function ExamineDirector() {
     syncHighlights(hovered, examine.examiningId, canPick ? nearby : [])
 
     if (inspecting && examine.examiningId) {
-      const locker = isHallLockerId(examine.examiningId)
+      const hudInspect = isHudInspect(examine.examiningId)
       if (inspectId.current !== examine.examiningId) {
         beginInspect(examine.examiningId, camera, inspectId, holdLeft)
       }
-      if (!locker) {
+      if (!hudInspect) {
         const record = getExamineRecord(examine.examiningId)
         if (record) {
           box.setFromObject(record.object)
@@ -167,7 +195,7 @@ export function ExamineDirector() {
       store.setCameraOverride(null)
     }
 
-    const wantLight = inspecting && examine.examiningId && !isHallLockerId(examine.examiningId) ? 1 : 0
+    const wantLight = inspecting && examine.examiningId && !isHudInspect(examine.examiningId) ? 1 : 0
     lightStrength.current = THREE.MathUtils.damp(lightStrength.current, wantLight, 5.5, dt)
     const lamp = lightRef.current
     if (lamp) {

@@ -6,6 +6,7 @@ import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { refreshControlLock } from '../systems/controlLock'
 import { getSpawn, type SpawnPose } from './spawns'
+import { useHallwayStore } from '../hallway/useHallwayStore'
 
 export type { SpawnPose }
 
@@ -43,6 +44,7 @@ type TravelState = {
   phase: Phase
   hold: number
   pending: { room: RoomId; entryPoint: string } | null
+  card: { kicker: string; title: string } | null
 }
 
 export const useMapTravelStore = create<TravelState>(() => ({
@@ -51,11 +53,13 @@ export const useMapTravelStore = create<TravelState>(() => ({
   phase: 'idle',
   hold: 0,
   pending: null,
+  card: null,
 }))
 
-const FADE_OUT = 0.32
-const HOLD = 0.16
-const FADE_IN = 0.44
+const FADE_OUT = 0.24
+const HOLD = 0.12
+const CHAPTER_HOLD = 0.72
+const FADE_IN = 0.32
 
 export function requestMapTravel(room: RoomId, entryPoint: string) {
   const travel = useMapTravelStore.getState()
@@ -63,13 +67,18 @@ export function requestMapTravel(room: RoomId, entryPoint: string) {
   if (travel.busy) return
   if (game.currentRoom === room && game.entryPoint === entryPoint) return
   saveManager.save()
+  const firstHall =
+    room === 'hallway' &&
+    game.currentRoom === 'classroom1' &&
+    !useHallwayStore.getState().enteredCorridor
   game.setInteractionState('map-travel')
   refreshControlLock()
   useMapTravelStore.setState({
     busy: true,
     phase: 'out',
-    hold: HOLD,
+    hold: firstHall ? CHAPTER_HOLD : HOLD,
     pending: { room, entryPoint },
+    card: firstHall ? { kicker: 'Capítulo 1', title: 'no corredor' } : null,
   })
 }
 
@@ -88,7 +97,7 @@ export function stepMapTravel(dt: number) {
       applyRoomLoad(pending.room, getSpawn(pending.room, pending.entryPoint), pending.entryPoint)
       saveManager.save()
     }
-    useMapTravelStore.setState({ fade: 1, phase: 'hold', hold: HOLD, pending: null })
+    useMapTravelStore.setState({ fade: 1, phase: 'hold', hold: travel.hold, pending: null })
     return
   }
 
@@ -108,7 +117,7 @@ export function stepMapTravel(dt: number) {
     return
   }
 
-  useMapTravelStore.setState({ fade: 0, busy: false, phase: 'idle', pending: null })
+  useMapTravelStore.setState({ fade: 0, busy: false, phase: 'idle', pending: null, card: null })
   const game = useGameStore.getState()
   if (game.interactionState === 'map-travel') game.setInteractionState('gameplay')
   refreshControlLock()

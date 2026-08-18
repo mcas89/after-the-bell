@@ -18,7 +18,7 @@ const glass = {
   emissiveIntensity: 0.16,
 }
 
-function plateTexture(label: string) {
+function plateTexture(label: string, subtitle?: string) {
   const canvas = document.createElement('canvas')
   canvas.width = 256
   canvas.height = 128
@@ -30,10 +30,17 @@ function plateTexture(label: string) {
   ctx.lineWidth = 10
   ctx.strokeRect(8, 8, 240, 112)
   ctx.fillStyle = '#2a2420'
-  ctx.font = 'bold 78px Georgia, serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(label, 128, 70)
+  if (subtitle) {
+    ctx.font = 'bold 52px Georgia, serif'
+    ctx.fillText(label, 128, 48)
+    ctx.font = 'bold 22px Georgia, serif'
+    ctx.fillText(subtitle, 128, 92)
+  } else {
+    ctx.font = 'bold 78px Georgia, serif'
+    ctx.fillText(label, 128, 70)
+  }
   const tex = new THREE.CanvasTexture(canvas)
   tex.colorSpace = THREE.SRGBColorSpace
   return tex
@@ -70,22 +77,31 @@ function DoorHandle({ rattles, hall }: { rattles: boolean; hall: number }) {
   )
 }
 
+const AJAR = 0.38
+const OPEN = 1.72
+
 export function HallwayDoor({
   x,
   z,
   inward,
   label,
+  subtitle,
   rattles = false,
   open = false,
+  lab = false,
+  yaw = 0,
 }: {
   x: number
   z: number
   inward: 1 | -1
   label: string
+  subtitle?: string
   rattles?: boolean
   open?: boolean
+  lab?: boolean
+  yaw?: number
 }) {
-  const plate = useMemo(() => (label ? plateTexture(label) : null), [label])
+  const plate = useMemo(() => (label ? plateTexture(label, subtitle) : null), [label, subtitle])
   const wood = useMemo(() => woodDoorTexture(), [])
   const hall = inward
   const faceY = hall > 0 ? -Math.PI / 2 : Math.PI / 2
@@ -94,6 +110,24 @@ export function HallwayDoor({
   const leafX = hall * 0.11
   const face = hall * 0.152
   const hingeZ = HALL.doorHalf
+  const hinge = useRef<THREE.Group>(null)
+  const labDoor = useHallwayStore((s) => (lab ? s.labDoor : null))
+  const phase = labDoor ?? (open ? 'open' : 'closed')
+  const swung = phase !== 'closed'
+  const angle = useRef(phase === 'open' ? hall * OPEN : phase === 'ajar' || phase === 'opening' ? hall * AJAR : 0)
+
+  useFrame((_, delta) => {
+    if (!lab || !hinge.current) return
+    const current = useHallwayStore.getState().labDoor
+    const want = current === 'open' || current === 'opening' ? hall * OPEN : current === 'ajar' ? hall * AJAR : 0
+    if (current === 'opening') {
+      angle.current = THREE.MathUtils.damp(angle.current, want, 2.35, delta)
+      if (Math.abs(angle.current - want) < 0.03) useHallwayStore.getState().finishLabOpen()
+    } else {
+      angle.current = want
+    }
+    hinge.current.rotation.y = angle.current
+  })
 
   useEffect(() => {
     return () => {
@@ -103,7 +137,7 @@ export function HallwayDoor({
   }, [plate, wood])
 
   return (
-    <group position={[x, 0, z]}>
+    <group position={[x, 0, z]} rotation={[0, yaw, 0]}>
       <mesh position={[0.1, leafH / 2, 0]} receiveShadow>
         <boxGeometry args={[0.16, leafH + 0.16, leafW + 0.22]} />
         <meshStandardMaterial {...frame} />
@@ -121,14 +155,18 @@ export function HallwayDoor({
         <meshStandardMaterial {...frame} />
       </mesh>
 
-      {open ? (
+      {swung ? (
         <mesh position={[0.46, 1.1, 0]} receiveShadow>
           <boxGeometry args={[0.72, 2.18, leafW - 0.04]} />
           <meshStandardMaterial color="#070605" roughness={1} />
         </mesh>
       ) : null}
 
-      <group position={[0, 0, -HALL.doorHalf]} rotation={[0, open ? hall * 1.72 : 0, 0]}>
+      <group
+        ref={hinge}
+        position={[0, 0, -HALL.doorHalf]}
+        rotation={[0, lab ? angle.current : open ? hall * OPEN : 0, 0]}
+      >
         <mesh position={[leafX, leafH / 2, hingeZ]} castShadow receiveShadow>
           <boxGeometry args={[0.08, leafH, leafW]} />
           <meshStandardMaterial color="#8a6f58" map={wood} roughness={0.78} metalness={0.04} />
@@ -182,10 +220,10 @@ export function HallwayDoor({
         </mesh>
 
         <group position={[0, 0, hingeZ]}>
-          <DoorHandle rattles={rattles && !open} hall={hall} />
+          <DoorHandle rattles={rattles && !swung} hall={hall} />
         </group>
       </group>
-      <pointLight position={[hall * 0.28, 1.45, 0]} color="#e8d2b0" intensity={open ? 0.42 : 0.28} distance={2.6} decay={2} />
+      <pointLight position={[hall * 0.28, 1.45, 0]} color="#e8d2b0" intensity={swung ? 0.42 : 0.28} distance={2.6} decay={2} />
 
       {plate ? (
         <group position={[hall * 0.08, HALL.doorH + 0.28, 0]}>

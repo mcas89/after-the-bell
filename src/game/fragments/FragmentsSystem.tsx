@@ -34,7 +34,7 @@ export function FragmentsSystem() {
 
       if (event.code === 'KeyJ') {
         if (game.interactionState === 'examining-object') return
-        if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel') return
+        if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel' || game.interactionState === 'using-computer') return
         event.preventDefault()
         fragments.toggleJournal()
         return
@@ -52,7 +52,7 @@ export function FragmentsSystem() {
 
   if (!prologueDone) return <FragmentToast />
 
-  const showDock = !open && !inventoryOpen && !isPhoneOpen(phoneUi)
+  const showDock = !open && !inventoryOpen && !isPhoneOpen(phoneUi) && interaction !== 'using-computer'
 
   return (
     <>

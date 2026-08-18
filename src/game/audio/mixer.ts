@@ -141,7 +141,7 @@ export function playSfx(url: string, volume = 0.42, cooldownMs = 0) {
   const now = performance.now()
   if (cooldownMs > 0 && now - (lastPlay.get(url) ?? 0) < cooldownMs) return
   lastPlay.set(url, now)
-  const el = new Audio(url)
+  const el = new Audio(encodeURI(url))
   el.volume = Math.max(0, Math.min(1, volume * audioLevels.sfxVolume))
   void el.play().catch(() => {
     lastPlay.delete(url)

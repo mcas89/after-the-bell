@@ -108,7 +108,8 @@ function isRoomId(value: string): value is RoomId {
     value === 'office' ||
     value === 'teachers' ||
     value === 'storage' ||
-    value === 'backyard'
+    value === 'backyard' ||
+    value === 'passage'
   )
 }
 

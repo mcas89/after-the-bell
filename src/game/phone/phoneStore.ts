@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
-import { playSfxFor, SFX, stopSfxSlice } from '../audio/mixer'
+import { playSfx, SFX, stopSfxSlice } from '../audio/mixer'
 import { playPinFail } from './phoneAudio'
 
 export type PhoneUi = 'hidden' | 'notification' | 'locked' | 'pin-entry' | 'unlocked'
@@ -33,10 +33,10 @@ type PhoneState = {
   tryUnlock: () => void
 }
 
-function speak(set: (partial: Partial<PhoneState>) => void, line: string) {
+function speak(set: (partial: Partial<PhoneState>) => void, line: string, ms = 2800) {
   window.clearTimeout(lineTimer)
   set({ line })
-  lineTimer = window.setTimeout(() => set({ line: null }), 2800)
+  lineTimer = window.setTimeout(() => set({ line: null }), ms)
 }
 
 export function isPhoneOpen(ui: PhoneUi) {
@@ -53,9 +53,10 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
   shakeAt: 0,
   trigger: () => {
     if (get().triggered) return
-    playSfxFor(SFX.phoneNotify, 0.62, 2000)
+    playSfx(SFX.phoneNotify, 0.72)
     const keepOpen = isPhoneOpen(get().ui)
     set({ triggered: true, armed: true, ui: keepOpen ? get().ui : 'notification' })
+    speak(set, 'Meu celular... preciso falar com alguém!', 4200)
     saveManager.save()
     if (keepOpen) return
     window.setTimeout(() => {

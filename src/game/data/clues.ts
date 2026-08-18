@@ -43,6 +43,9 @@ export const CLUE_IDS = {
   friends: 'clue-friends',
   door203: 'clue-door-203',
   mysteriousGirl: 'clue-mysterious-girl',
+  howToLeave: 'clue-how-to-leave',
+  closingNotice: 'clue-closing-notice',
+  secondFloor: 'clue-second-floor',
 } as const
 
 export const CLUES: ClueDef[] = [
@@ -101,7 +104,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'L + M',
-        description: 'L + M. As mesmas iniciais do quadro.',
+        description: 'L + M. Depois de todos irem a… O meu é o quinto. Código: niver.',
       },
     ],
   },
@@ -134,7 +137,40 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'A garota',
-        description: 'Vi uma garota de uniforme no corredor. Talvez ela saiba o que está acontecendo.',
+        description: 'Vi uma garota de uniforme no corredor. Preciso achar ela.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.howToLeave,
+    kind: 'fragment',
+    chapter: 'room12',
+    stages: [
+      {
+        title: 'Como sair',
+        description: 'A gente pesquisou como sair. Porta, alarme, segundo andar. A busca das 03:05 não abre.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.closingNotice,
+    kind: 'fragment',
+    chapter: 'teachers',
+    stages: [
+      {
+        title: 'Alarme',
+        description: 'Depois das 22h o alarme arma. As portas trancam por fora.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.secondFloor,
+    kind: 'fragment',
+    chapter: 'room14',
+    stages: [
+      {
+        title: 'Segundo andar',
+        description: 'Desenho de uma janela no segundo andar. O vidro está quebrado.',
       },
     ],
   },

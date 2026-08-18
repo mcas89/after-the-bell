@@ -9,6 +9,7 @@ import { useInventoryStore } from './useInventoryStore'
 import { clampWithDoor } from '../door/doorLayout'
 import { useDoorStore } from '../door/useDoorStore'
 import { useHallwayStore } from '../hallway/useHallwayStore'
+import { useComputerStore } from '../computer/computerStore'
 import { useGameStore } from './useGameStore'
 
 function progressFromLists(save: GameSave): Record<string, ClueProgress> {
@@ -103,8 +104,12 @@ function applyGameSave(save: GameSave) {
   const roomId = migrateRoomId(save.scene || CLASSROOM_1.id)
   const bounds = getRoom(roomId).bounds
   const placed =
-    roomId === 'classroom1'
-      ? clampWithDoor(save.player.position.x, save.player.position.z, doorOpen)
+    roomId === 'classroom1' || roomId === 'room12' || roomId === 'teachers' || roomId === 'room14'
+      ? clampWithDoor(
+          save.player.position.x,
+          save.player.position.z,
+          roomId === 'room12' || roomId === 'teachers' || roomId === 'room14' || doorOpen,
+        )
       : {
           x: Math.min(bounds.maxX, Math.max(bounds.minX, save.player.position.x)),
           z: Math.min(bounds.maxZ, Math.max(bounds.minZ, save.player.position.z)),
@@ -113,6 +118,8 @@ function applyGameSave(save: GameSave) {
   playerMotion.x = placed.x
   playerMotion.z = placed.z
   playerMotion.yaw = save.player.rotation
+  playerMotion.faceYaw = null
+  playerMotion.flinch = 0
   playerMotion.distanceWalked = save.story.phoneIntroduced
     ? Math.max(save.player.walked ?? 0, 99)
     : (save.player.walked ?? 0)
@@ -166,6 +173,7 @@ function applyGameSave(save: GameSave) {
 
   useDoorStore.getState().hydrate(save.story)
   useHallwayStore.getState().hydrate(save.story)
+  useComputerStore.getState().hydrate(Boolean(save.flags.computerUnlocked))
 
   refreshControlLock()
 }

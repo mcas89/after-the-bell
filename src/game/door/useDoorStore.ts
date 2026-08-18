@@ -66,6 +66,7 @@ export const useDoorStore = create<DoorState>((set, get) => ({
     set({ phase: 'open' })
     useGameStore.getState().addFlag('doorOpened')
     useGameStore.getState().setInteractionState('gameplay')
+    get().speak('Quem abriu a porta?', 3200)
     saveManager.updateStoryState({ classroomDoorOpened: true, doorOpened: true })
     refreshControlLock()
   },

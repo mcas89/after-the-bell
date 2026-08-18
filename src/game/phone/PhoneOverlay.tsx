@@ -131,26 +131,29 @@ function LockGlyph() {
 
 function LockedScreen() {
   const goPin = usePhoneStore((s) => s.goPin)
+  const hasMessages = usePhoneStore((s) => s.triggered)
 
   return (
     <div className="phone-lock is-home">
       <LockGlyph />
       <p className="phone-time">03:17</p>
       <p className="phone-service">Sem serviço</p>
-      <button className="phone-note" type="button" onClick={goPin}>
-        <span className="phone-note-top">
-          <span className="phone-note-app">
-            <span className="phone-note-bubble" aria-hidden />
-            Mensagens
+      {hasMessages ? (
+        <button className="phone-note" type="button" onClick={goPin}>
+          <span className="phone-note-top">
+            <span className="phone-note-app">
+              <span className="phone-note-bubble" aria-hidden />
+              Mensagens
+            </span>
+            <span className="phone-note-when">agora</span>
           </span>
-          <span className="phone-note-when">agora</span>
-        </span>
-        <span className="phone-note-title">4 mensagens</span>
-        <span className="phone-note-body">
-          <LockGlyph />
-          Desbloqueie para ver
-        </span>
-      </button>
+          <span className="phone-note-title">4 mensagens</span>
+          <span className="phone-note-body">
+            <LockGlyph />
+            Desbloqueie para ver
+          </span>
+        </button>
+      ) : null}
       <button className="phone-cta" type="button" onClick={goPin}>
         Inserir código
       </button>
@@ -195,6 +198,7 @@ function PinScreen() {
 
 function HomeScreen() {
   const openApp = usePhoneStore((s) => s.openApp)
+  const hasMessages = usePhoneStore((s) => s.triggered)
 
   return (
     <div className="phone-os">
@@ -210,7 +214,9 @@ function HomeScreen() {
           >
             <span className={`phone-app-icon ${app.tone}`}>
               <AppGlyph id={app.id} />
-              {'badge' in app && app.badge ? <span className="phone-app-badge">{app.badge}</span> : null}
+              {hasMessages && 'badge' in app && app.badge ? (
+                <span className="phone-app-badge">{app.badge}</span>
+              ) : null}
             </span>
             <span className="phone-app-label">{app.label}</span>
           </button>
@@ -221,23 +227,29 @@ function HomeScreen() {
 }
 
 function MessagesScreen() {
+  const hasMessages = usePhoneStore((s) => s.triggered)
+
   return (
     <div className="phone-os is-app">
       <p className="phone-app-title">Mensagens</p>
-      <ul className="phone-inbox">
-        {THREADS.map((thread) => (
-          <li key={thread.from} className="phone-thread">
-            <span className="phone-thread-unread" aria-hidden />
-            <span className="phone-thread-copy">
-              <span className="phone-thread-top">
-                <span className="phone-thread-from">{thread.from}</span>
-                <span className="phone-thread-time">{thread.time}</span>
+      {hasMessages ? (
+        <ul className="phone-inbox">
+          {THREADS.map((thread) => (
+            <li key={thread.from} className="phone-thread">
+              <span className="phone-thread-unread" aria-hidden />
+              <span className="phone-thread-copy">
+                <span className="phone-thread-top">
+                  <span className="phone-thread-from">{thread.from}</span>
+                  <span className="phone-thread-time">{thread.time}</span>
+                </span>
+                <span className="phone-thread-body">{thread.body}</span>
               </span>
-              <span className="phone-thread-body">{thread.body}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="phone-inbox-empty">Nenhuma mensagem</p>
+      )}
     </div>
   )
 }
