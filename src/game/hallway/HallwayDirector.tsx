@@ -24,6 +24,7 @@ function girlShot() {
   const shot = silhouetteLongShot(playerMotion.z, girlMotion.z, 26)
   return {
     ...shot,
+    fov: 32,
     snap: true as const,
   }
 }

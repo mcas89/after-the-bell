@@ -44,10 +44,10 @@ export function hallwayLookAhead(px: number, pz: number, lead: number): HallwayS
 
 export function silhouetteLongShot(playerZ: number, girlZ: number, fov = 24): HallwayShot {
   const gz = girlZ > 8 ? girlZ : HALL_PROPS.girlStand
-  const camZ = clamp(playerZ - 0.62, HALL.minZ + 0.42, gz - 7.6)
+  const camZ = clamp(Math.max(playerZ - 0.4, gz - 6.2), HALL.minZ + 0.42, gz - 4.6)
   return {
-    position: [0.02, 1.14, camZ],
-    lookAt: [0.05, 1.3, gz],
+    position: [0.02, 1.22, camZ],
+    lookAt: [0.05, 1.18, gz],
     fov,
     damp: 7.2,
   }

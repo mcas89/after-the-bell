@@ -25,12 +25,10 @@ function paintShadow(root: THREE.Object3D) {
   root.traverse((obj) => {
     const mesh = obj as THREE.Mesh
     if (!mesh.isMesh) return
-    mesh.material = new THREE.MeshLambertMaterial({
-      color: '#000000',
-      emissive: '#000000',
-      fog: true,
-      transparent: true,
-      opacity: 0.82,
+    mesh.material = new THREE.MeshBasicMaterial({
+      color: '#05060a',
+      fog: false,
+      toneMapped: false,
     })
     mesh.castShadow = false
     mesh.receiveShadow = false
@@ -38,7 +36,7 @@ function paintShadow(root: THREE.Object3D) {
   })
 }
 
-function MarinaShade() {
+function MarinaShade({ shown }: { shown: boolean }) {
   const startZ = useHallwayStore((s) => s.girlZ)
   const walking = useHallwayStore((s) => s.girlWalking)
   const vrm = useVrm('/characters/Livia.vrm?silhouette=1')
@@ -66,10 +64,13 @@ function MarinaShade() {
 
   useLayoutEffect(() => {
     paintShadow(vrm.scene)
+  }, [vrm])
+
+  useLayoutEffect(() => {
     z.current = startZ
     girlMotion.z = startZ
     if (group.current) group.current.position.z = startZ
-  }, [startZ, vrm])
+  }, [startZ, shown])
 
   useFrame((_, delta) => {
     const want = walking ? 1 : 0
@@ -97,26 +98,36 @@ function MarinaShade() {
   })
 
   return (
-    <group ref={group} position={[0.05, 0, startZ]} rotation={[0, 0, 0]}>
+    <group ref={group} visible={shown} position={[0.05, 0, startZ]} rotation={[0, 0, 0]}>
       <group scale={[1.045, 1.02, 1.045]} position={[0, 0, 0.03]}>
         <primitive object={vrm.scene} />
       </group>
       <mesh position={[0, 0.92, 0.06]} renderOrder={1}>
         <planeGeometry args={[0.82, 1.78]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.22} depthWrite={false} fog side={THREE.DoubleSide} />
+        <meshBasicMaterial
+          color="#000000"
+          transparent
+          opacity={0.35}
+          depthWrite={false}
+          fog={false}
+          toneMapped={false}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      <pointLight position={[0.08, 1.45, 1.25]} color="#8aa3bb" intensity={2.1} distance={3.8} decay={2} />
+      <pointLight position={[0.08, 1.45, 1.25]} color="#8aa3bb" intensity={2.8} distance={4.6} decay={2} />
     </group>
   )
 }
 
 export function GirlSilhouette() {
   const visible = useHallwayStore((s) => s.girlVisible)
-  if (!visible) return null
+  const seen = useHallwayStore((s) => s.seenMysteriousGirl)
+
+  if (seen && !visible) return null
 
   return (
     <Suspense fallback={null}>
-      <MarinaShade />
+      <MarinaShade shown={visible} />
     </Suspense>
   )
 }

@@ -56,10 +56,10 @@ export function RoomWorld() {
           <DoorDirector />
         </>
       ) : null}
+      <GirlSilhouette />
       {room === 'hallway' ? (
         <>
           <HallwayScene />
-          <GirlSilhouette />
           <HallwayDirector />
         </>
       ) : null}
