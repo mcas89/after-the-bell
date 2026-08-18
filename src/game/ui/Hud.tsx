@@ -10,7 +10,7 @@ import { PrologueOverlay } from '../prologue/PrologueOverlay'
 import { SaveDirector } from '../state/SaveDirector'
 import { useGameStore } from '../state/useGameStore'
 import { MenuButton } from './MenuButton'
-import { DebugResetSave } from './DebugResetSave'
+import { SaveHistory } from './SaveHistory'
 import { ChapterHud } from './ChapterHud'
 import { MapFade } from './MapFade'
 import { useHallwayStore } from '../hallway/useHallwayStore'
@@ -53,7 +53,7 @@ export function Hud() {
       <ChapterHud />
       {doorLine && !hallLine ? <p className="spoken-line">{doorLine}</p> : null}
       <SaveDirector />
-      <DebugResetSave />
+      <SaveHistory />
       {showHint ? <p className="hud">WASD para andar</p> : null}
       <MapFade />
     </div>

@@ -3,7 +3,10 @@ import type { RoomId } from '../data/rooms'
 import { migrateRoomId } from '../data/rooms'
 
 export const SAVE_KEY = 'after-the-bell-save-v1'
+export const HISTORY_KEY = 'after-the-bell-history-v1'
+export const RESUME_KEY = 'after-the-bell-resume'
 export const SAVE_VERSION = 1
+const HISTORY_MAX = 8
 
 export type SavedStory = {
   prologueIntroCompleted: boolean
@@ -44,6 +47,12 @@ export type GameSave = {
   }
   flags: Record<string, boolean>
   updatedAt: number
+}
+
+export type SaveEntry = {
+  id: string
+  label: string
+  save: GameSave
 }
 
 type Bindings = {
@@ -189,6 +198,115 @@ function writeStorage(save: GameSave) {
   }
 }
 
+const ROOM_LABEL: Record<string, string> = {
+  classroom1: 'Sala 11',
+  room11: 'Sala 11',
+  hallway: 'Corredor',
+  room12: 'Sala 12',
+  room14: 'Sala 14',
+  teachers: 'Sala dos professores',
+  passage: 'Salão',
+}
+
+export function describeSave(save: GameSave) {
+  const room = ROOM_LABEL[save.scene] ?? 'Escola'
+  if (save.scene === 'hallway' && !save.story.seenMysteriousGirl) return `${room} · fundo escuro`
+  if (save.scene === 'hallway' && save.story.seenMysteriousGirl) return `${room} · depois da garota`
+  if (save.scene === 'passage' && !save.flags?.lobbyLights) return `${room} · no escuro`
+  return room
+}
+
+function fingerprint(save: GameSave) {
+  const flags = Object.keys(save.flags)
+    .filter((key) => save.flags[key])
+    .sort()
+    .join(',')
+  return [
+    save.scene,
+    save.story.seenMysteriousGirl ? '1' : '0',
+    save.story.enteredCorridor ? '1' : '0',
+    save.story.classroomDoorOpened ? '1' : '0',
+    save.inventory.items.join(','),
+    save.clues.discovered.slice().sort().join(','),
+    flags,
+    Math.round(save.player.position.x * 2),
+    Math.round(save.player.position.z * 2),
+  ].join('|')
+}
+
+function cloneSave(save: GameSave): GameSave {
+  return JSON.parse(JSON.stringify(save)) as GameSave
+}
+
+function isSaveEntry(value: unknown): value is SaveEntry {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<SaveEntry>
+  return typeof entry.id === 'string' && typeof entry.label === 'string' && isGameSave(entry.save)
+}
+
+function readHistory(): SaveEntry[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY)
+    if (!raw) return []
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(isSaveEntry).map((entry) => ({
+      ...entry,
+      save: {
+        ...emptySave(),
+        ...entry.save,
+        scene: migrateRoomId(entry.save.scene),
+      },
+    }))
+  } catch (error) {
+    if (import.meta.env.DEV) console.error('[save] histórico inválido.', error)
+    return []
+  }
+}
+
+function writeHistory(entries: SaveEntry[]) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, HISTORY_MAX)))
+  } catch (error) {
+    if (import.meta.env.DEV) console.error('[save] não foi possível gravar o histórico.', error)
+  }
+}
+
+function clearHistory() {
+  try {
+    localStorage.removeItem(HISTORY_KEY)
+  } catch (error) {
+    if (import.meta.env.DEV) console.error('[save] não foi possível apagar o histórico.', error)
+  }
+}
+
+function pushHistory(save: GameSave, options?: { force?: boolean; label?: string }) {
+  if (!save.story.prologueIntroCompleted) return
+  const list = readHistory()
+  const next = cloneSave(save)
+  if (!options?.force && list[0] && fingerprint(list[0].save) === fingerprint(next)) {
+    list[0] = { ...list[0], save: next }
+    writeHistory(list)
+    return
+  }
+  writeHistory([
+    {
+      id: `${next.updatedAt}-${Math.random().toString(36).slice(2, 7)}`,
+      label: options?.label ?? describeSave(next),
+      save: next,
+    },
+    ...list,
+  ])
+}
+
+function markResume() {
+  try {
+    sessionStorage.setItem(RESUME_KEY, '1')
+  } catch {
+    /* ignore */
+  }
+}
+
 function collectOrEmpty() {
   return bindings?.collect() ?? emptySave()
 }
@@ -205,7 +323,54 @@ export const saveManager = {
   save() {
     const save = collectOrEmpty()
     if (!save.story.prologueIntroCompleted) return
-    writeStorage({ ...save, updatedAt: Date.now() })
+    const next = { ...save, updatedAt: Date.now() }
+    writeStorage(next)
+    pushHistory(next)
+  },
+
+  checkpoint(label: string) {
+    const save = collectOrEmpty()
+    if (!save.story.prologueIntroCompleted) return
+    const next = { ...save, updatedAt: Date.now() }
+    writeStorage(next)
+    pushHistory(next, { force: true, label })
+  },
+
+  listHistory(): SaveEntry[] {
+    const list = readHistory()
+    const current = readStorage()
+    if (list.length > 0 || !current?.story.prologueIntroCompleted) return list
+    return [
+      {
+        id: 'current',
+        label: describeSave(current),
+        save: current,
+      },
+    ]
+  },
+
+  restore(id: string) {
+    const entry = saveManager.listHistory().find((item) => item.id === id)
+    if (!entry) return
+    markResume()
+    writeStorage(entry.save)
+    window.location.reload()
+  },
+
+  shouldResume() {
+    try {
+      return sessionStorage.getItem(RESUME_KEY) === '1'
+    } catch {
+      return false
+    }
+  },
+
+  consumeResume() {
+    try {
+      sessionStorage.removeItem(RESUME_KEY)
+    } catch {
+      /* ignore */
+    }
   },
 
   reset() {
@@ -214,6 +379,7 @@ export const saveManager = {
     } catch (error) {
       if (import.meta.env.DEV) console.error('[save] não foi possível apagar.', error)
     }
+    clearHistory()
     window.location.reload()
   },
 
@@ -223,6 +389,7 @@ export const saveManager = {
     } catch (error) {
       if (import.meta.env.DEV) console.error('[save] não foi possível apagar.', error)
     }
+    clearHistory()
   },
 
   hasStoredGame() {

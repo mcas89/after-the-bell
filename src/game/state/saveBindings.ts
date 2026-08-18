@@ -198,6 +198,13 @@ export function hydrateFromSave() {
       if (document.hidden) saveManager.save()
     })
   }
+
+  if (saveManager.shouldResume()) {
+    saveManager.consumeResume()
+    if (saveManager.applyLoaded()) {
+      useGameStore.getState().enterGame()
+    }
+  }
 }
 
 export { emptySave }

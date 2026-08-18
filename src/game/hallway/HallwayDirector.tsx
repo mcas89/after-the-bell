@@ -8,6 +8,7 @@ import { useExamineStore } from '../examine/useExamineStore'
 import { updateClue } from '../fragments/discoverClue'
 import { playerMotion } from '../player/playerMotion'
 import { useFragmentsStore } from '../state/useFragmentsStore'
+import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { girlMotion } from './GirlSilhouette'
 import { useHallwayStore } from './useHallwayStore'
@@ -41,6 +42,7 @@ export function beginGirlScare() {
   const hall = useHallwayStore.getState()
   if (hall.seenMysteriousGirl || scareStarting) return
   if (useGameStore.getState().interactionState === 'girl-glimpse') return
+  saveManager.checkpoint('Antes da silhueta')
   scareStarting = true
 
   holdAmbient(9800)
