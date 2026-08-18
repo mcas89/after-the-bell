@@ -7,7 +7,9 @@ import { liveOverride } from '../prologue/timeline'
 import { playerMotion } from '../player/playerMotion'
 import { useMapTravelStore } from '../maps/mapTravel'
 import { useGameStore } from '../state/useGameStore'
-import { hallwayLookAhead } from './hallwayZones'
+import { girlMotion } from '../hallway/GirlSilhouette'
+import { useHallwayStore } from '../hallway/useHallwayStore'
+import { hallwayLookAhead, silhouetteLongShot } from './hallwayZones'
 
 type Props = {
   target: RefObject<THREE.Group | null>
@@ -63,14 +65,24 @@ export function GameCamera({ target }: Props) {
       lookDesired.current.copy(desired.current).add(forward.current)
       persp.fov = THREE.MathUtils.damp(persp.fov, 60, 4.2, dt)
     } else if (currentRoom === 'hallway') {
+      const hall = useHallwayStore.getState()
       const along = Math.cos(playerMotion.yaw)
-      const targetLead = along > 0.28 ? 1 : along < -0.28 ? -1 : hallLead.current
-      hallLead.current = THREE.MathUtils.damp(hallLead.current, targetLead, 2.35, dt)
-      const framed = hallwayLookAhead(playerMotion.x, playerMotion.z, hallLead.current)
-      hallDamp.current = framed.damp
-      desired.current.set(...framed.position)
-      lookDesired.current.set(...framed.lookAt)
-      persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
+      const facingDark = along > 0.22
+      if (hall.girlVisible && !hall.seenMysteriousGirl && facingDark) {
+        const framed = silhouetteLongShot(playerMotion.z, girlMotion.z, 30)
+        hallDamp.current = framed.damp
+        desired.current.set(...framed.position)
+        lookDesired.current.set(...framed.lookAt)
+        persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
+      } else {
+        const targetLead = along > 0.28 ? 1 : along < -0.28 ? -1 : hallLead.current
+        hallLead.current = THREE.MathUtils.damp(hallLead.current, targetLead, 2.35, dt)
+        const framed = hallwayLookAhead(playerMotion.x, playerMotion.z, hallLead.current)
+        hallDamp.current = framed.damp
+        desired.current.set(...framed.position)
+        lookDesired.current.set(...framed.lookAt)
+        persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
+      }
     } else {
       const px = playerMotion.x
       const py = player?.position.y ?? 0
