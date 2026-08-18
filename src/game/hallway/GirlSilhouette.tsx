@@ -11,7 +11,7 @@ const STRIDE = 0.92
 const IDLE_RATE = 0.72
 const BLEND = 3.4
 
-export const girlMotion = {
+export const girlMotion: { z: number } = {
   z: HALL_PROPS.girlStand,
 }
 

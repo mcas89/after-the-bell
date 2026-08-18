@@ -59,7 +59,11 @@ export function HangmanChalk() {
 
 export function HangmanBoard() {
   const hasKey = useInventoryStore((s) => s.has(ITEM_IDS.officeKey))
-  const solvedWord = useGameStore((s) => getHangmanSolved())
+  const solvedWord = useGameStore((s) => {
+    if (s.flags[HANGMAN_FLAGS.friends]) return 'FRIENDS' as HangmanWord
+    if (s.flags[HANGMAN_FLAGS.amizade]) return 'AMIZADE' as HangmanWord
+    return null
+  })
   const solved = Boolean(solvedWord) || hasKey
   const [guess, setGuess] = useState(() => emptyGuess(getHangmanSolved()))
   const [focus, setFocus] = useState(0)
