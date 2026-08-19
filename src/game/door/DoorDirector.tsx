@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { duckMusic, holdAmbient, playLoudSfx, playSfx, SFX } from '../audio/mixer'
 import { roomPulse } from '../atmosphere/roomPulse'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
@@ -9,7 +9,7 @@ import { useGameStore } from '../state/useGameStore'
 import { refreshControlLock } from '../systems/controlLock'
 import { hasRequiredDoorClues } from './doorProgress'
 import { DOOR, doorDistance } from './doorLayout'
-import { canOpenClassroomDoor, useDoorStore } from './useDoorStore'
+import { useDoorStore } from './useDoorStore'
 
 const SCARE_AT = 0.78
 const FLICKER_AT = 1.28
@@ -43,23 +43,6 @@ export function DoorDirector() {
   const ajar = useRef(false)
   const spoken = useRef(false)
   const scared = useRef(false)
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.repeat || event.code !== 'KeyE') return
-      const game = useGameStore.getState()
-      if (!game.prologueDone || game.interactionState !== 'gameplay') return
-      if (isPhoneOpen(usePhoneStore.getState().ui)) return
-      if (!canOpenClassroomDoor()) return
-      event.preventDefault()
-      if (!useDoorStore.getState().beginOpen()) return
-      refreshControlLock()
-      playSfx(SFX.doorOpen, 0.62)
-    }
-
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
 
   useFrame((_, delta) => {
     const game = useGameStore.getState()

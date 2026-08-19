@@ -13,11 +13,14 @@ import { MenuButton } from './MenuButton'
 import { SaveHistory } from './SaveHistory'
 import { ChapterHud } from './ChapterHud'
 import { MapFade } from './MapFade'
+import { TouchControls } from './TouchControls'
+import { useTouchUi } from '../input/useTouchUi'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { ComputerSystem } from '../computer/ComputerSystem'
 
 export function Hud() {
   useKeyboard()
+  const touch = useTouchUi()
   const bootScreen = useGameStore((s) => s.bootScreen)
   const prologueDone = useGameStore((s) => s.prologueDone)
   const interaction = useGameStore((s) => s.interactionState)
@@ -51,10 +54,11 @@ export function Hud() {
       <InventorySystem />
       <ExamineHud />
       <ChapterHud />
+      <TouchControls />
       {doorLine && !hallLine ? <p className="spoken-line">{doorLine}</p> : null}
       <SaveDirector />
       <SaveHistory />
-      {showHint ? <p className="hud">WASD para andar</p> : null}
+      {showHint && !touch ? <p className="hud">WASD para andar</p> : null}
       <MapFade />
     </div>
   )

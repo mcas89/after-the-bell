@@ -27,6 +27,7 @@ export function GameCanvas() {
         height: '100%',
         display: 'block',
         background: '#0c1016',
+        touchAction: 'none',
       }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping

@@ -76,7 +76,7 @@ export function ExamineDirector() {
     }
 
     const onPointer = (event: PointerEvent) => {
-      if (event.button !== 0) return
+      if (event.button !== 0 && event.pointerType !== 'touch') return
       const game = useGameStore.getState()
       if (!game.prologueDone || game.interactionState !== 'gameplay') return
       if (isPhoneOpen(usePhoneStore.getState().ui)) return

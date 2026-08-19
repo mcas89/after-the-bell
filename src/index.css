@@ -12,10 +12,20 @@ body,
   background: #12151c;
   font-family: Georgia, 'Times New Roman', serif;
   color: #c8c4bc;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 * {
   box-sizing: border-box;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .overlay {
@@ -1104,3 +1114,72 @@ body,
 .hangman-ok {
   color: rgba(210, 228, 200, 0.88);
 }
+
+.touch-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 21;
+  pointer-events: none;
+}
+
+.joystick {
+  position: absolute;
+  left: max(1.1rem, env(safe-area-inset-left));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  width: 7.6rem;
+  height: 7.6rem;
+  border-radius: 50%;
+  border: 1px solid rgba(214, 204, 188, 0.22);
+  background: rgba(8, 10, 14, 0.38);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.joystick.is-active {
+  background: rgba(8, 10, 14, 0.52);
+  border-color: rgba(214, 204, 188, 0.4);
+}
+
+.joystick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.55rem;
+  height: 2.55rem;
+  margin: -1.275rem 0 0 -1.275rem;
+  border-radius: 50%;
+  background: rgba(236, 228, 216, 0.82);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.touch-btn {
+  position: absolute;
+  right: max(1.2rem, env(safe-area-inset-right));
+  bottom: max(1.55rem, env(safe-area-inset-bottom));
+  z-index: 2;
+  min-width: 4.6rem;
+  height: 4.6rem;
+  padding: 0 0.7rem;
+  border: 1px solid rgba(214, 204, 188, 0.32);
+  border-radius: 50%;
+  background: rgba(8, 10, 14, 0.72);
+  color: rgba(236, 228, 216, 0.94);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.touch-btn.is-take {
+  bottom: max(6.5rem, calc(env(safe-area-inset-bottom) + 5.2rem));
+}
+
+@media (pointer: coarse) {
+  .menu-actions {
+    bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+}
+

@@ -9,9 +9,12 @@ import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { refreshControlLock } from '../systems/controlLock'
 import menuArt from '../../../menu.png'
+import menuMobile from '../../../menu_mobile.png'
+import { useTouchUi } from '../input/useTouchUi'
 
 export function MenuScreen() {
   const boot = useGameStore((s) => s.bootScreen)
+  const touch = useTouchUi()
   const canContinue = boot === 'menu' && saveManager.hasStoredGame()
   useEffect(() => {
     if (boot !== 'menu') return
@@ -47,7 +50,7 @@ export function MenuScreen() {
 
   return (
     <div className="menu-screen" onPointerDown={wake}>
-      <img className="menu-art" src={menuArt} alt="" />
+      <img className="menu-art" src={touch ? menuMobile : menuArt} alt="" />
       <div className="menu-shade" />
       <nav className="menu-actions" aria-label="Menu">
         <button className="menu-btn" type="button" onClick={startNew}>

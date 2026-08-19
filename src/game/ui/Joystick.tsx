@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { moveInput } from '../input/moveInput'
 
 const RADIUS = 52
@@ -40,11 +40,14 @@ export function Joystick() {
     setActive(false)
   }, [])
 
+  useEffect(() => stop, [stop])
+
   return (
     <div
       className={`joystick${active ? ' is-active' : ''}`}
       onPointerDown={(event) => {
         event.preventDefault()
+        event.stopPropagation()
         event.currentTarget.setPointerCapture(event.pointerId)
         pointerId.current = event.pointerId
         const rect = event.currentTarget.getBoundingClientRect()
@@ -61,6 +64,7 @@ export function Joystick() {
       }}
       onPointerUp={stop}
       onPointerCancel={stop}
+      onLostPointerCapture={stop}
     >
       <div
         className="joystick-knob"

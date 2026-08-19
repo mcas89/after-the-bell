@@ -11,6 +11,7 @@ import { ITEM_IDS } from '../data/items'
 import { HangmanBoard } from './HangmanBoard'
 import { useExamineStore } from './useExamineStore'
 import { LAB_ON_PC_ID } from '../computer/computerStore'
+import { useTouchUi } from '../input/useTouchUi'
 
 function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>['sheet'] }) {
   if (kind === 'bloco') {
@@ -230,7 +231,16 @@ function promptLine(
   examiningId: string,
   detailId: string | null,
   prompt: ReturnType<typeof collectPromptFor>,
+  touch: boolean,
 ) {
+  if (touch) {
+    if (examiningId === 'teachers-cabinet' && !detailId) return 'Toque na chave ou na lanterna'
+    const locker = getHallLocker(examiningId)
+    if (locker?.kind === 'livia' && useLockerPinStore.getState().isOpen(locker.id) && !detailId) {
+      return 'Toque na foto'
+    }
+    return null
+  }
   if (prompt) return `F pegar ${prompt.label} · Esc ou X fechar`
   if (examiningId === 'teachers-cabinet' && !detailId) {
     return 'Clique na chave ou na lanterna · Esc ou X fechar'
@@ -244,6 +254,7 @@ function promptLine(
 }
 
 export function ExamineHud() {
+  const touch = useTouchUi()
   const hoveredId = useExamineStore((s) => s.hoveredId)
   const examiningId = useExamineStore((s) => s.examiningId)
   const detailId = useExamineStore((s) => s.detailId)
@@ -264,6 +275,10 @@ export function ExamineHud() {
     Boolean(entry?.image) &&
     examiningId !== 'teachers-cabinet' &&
     !isHallLockerId(examiningId ?? '')
+  const inspectHint =
+    interaction === 'examining-object' && examiningId
+      ? promptLine(examiningId, detailId, prompt, touch)
+      : null
 
   if (
     !prologueDone ||
@@ -316,10 +331,10 @@ export function ExamineHud() {
               />
             </svg>
           </button>
-          <p className="prompt-hud">{promptLine(examiningId, detailId, prompt)}</p>
+          {inspectHint ? <p className="prompt-hud">{inspectHint}</p> : null}
         </>
       ) : null}
-      {interaction === 'gameplay' && canOpenDoor ? (
+      {touch ? null : interaction === 'gameplay' && canOpenDoor ? (
         <p className="prompt-hud">E abrir</p>
       ) : interaction === 'gameplay' && hallPrompt ? (
         <p className="prompt-hud">{hallPrompt}</p>
