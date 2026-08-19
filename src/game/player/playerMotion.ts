@@ -12,4 +12,8 @@ export const playerMotion = {
   yaw: Math.PI,
   faceYaw: null as number | null,
   flinch: 0,
+  flashX: 0,
+  flashY: 1.34,
+  flashZ: 0,
+  flashReady: false,
 }

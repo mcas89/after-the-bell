@@ -2,10 +2,14 @@ import { useFrame, useLoader } from '@react-three/fiber'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
-import { compileClip, nudgeBone, sampleBlendedPose, type PoseClipJson } from './poseClip'
+import { compileClip, mixBoneEuler, nudgeBone, sampleBlendedPose, type PoseClipJson } from './poseClip'
 import { playerMotion } from './playerMotion'
 import { useGameStore } from '../state/useGameStore'
 import { useVrm } from './useVrm'
+import { ITEM_IDS } from '../data/items'
+import { FLASHLIGHT_ON } from '../inventory/flashlight'
+import { useInventoryStore } from '../state/useInventoryStore'
+import { HeldFlashlight } from './HeldFlashlight'
 
 function readClip(data: unknown): PoseClipJson {
   return (typeof data === 'string' ? JSON.parse(data) : data) as PoseClipJson
@@ -16,6 +20,13 @@ const STRIDE = 0.92
 const BLEND_IN = 4.6
 const BLEND_OUT = 3.2
 const IDLE_RATE = 1.22
+const HOLD_BLEND = 6.2
+
+const FLASH_HOLD = {
+  shoulder: { x: 0, y: 0, z: 0.0524 },
+  upper: { x: -0.384, y: 0, z: 1.309 },
+  lower: { x: -0.0873, y: 1.5708, z: 0.2967 },
+}
 
 export function LiviaModel() {
   const vrm = useVrm('/characters/Livia.vrm')
@@ -42,6 +53,7 @@ export function LiviaModel() {
   const leanFwd = useRef(0)
   const leanSide = useRef(0)
   const lookYaw = useRef(0)
+  const holdFlash = useRef(0)
 
   useLayoutEffect(() => {
     vrm.scene.visible = useGameStore.getState().liviaVisible
@@ -66,6 +78,38 @@ export function LiviaModel() {
       walkTime.current,
       walkWeight.current,
     )
+
+    const torchOn =
+      Boolean(useGameStore.getState().flags[FLASHLIGHT_ON]) &&
+      useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
+    holdFlash.current = THREE.MathUtils.damp(holdFlash.current, torchOn ? 1 : 0, HOLD_BLEND, delta)
+    if (holdFlash.current > 0.01) {
+      const w = holdFlash.current
+      mixBoneEuler(
+        pose,
+        VRMHumanBoneName.RightShoulder,
+        FLASH_HOLD.shoulder.x,
+        FLASH_HOLD.shoulder.y,
+        FLASH_HOLD.shoulder.z,
+        w,
+      )
+      mixBoneEuler(
+        pose,
+        VRMHumanBoneName.RightUpperArm,
+        FLASH_HOLD.upper.x,
+        FLASH_HOLD.upper.y,
+        FLASH_HOLD.upper.z,
+        w,
+      )
+      mixBoneEuler(
+        pose,
+        VRMHumanBoneName.RightLowerArm,
+        FLASH_HOLD.lower.x,
+        FLASH_HOLD.lower.y,
+        FLASH_HOLD.lower.z,
+        w,
+      )
+    }
 
     const fwdTarget =
       speedNorm * 0.055 + THREE.MathUtils.clamp(playerMotion.accel * 0.035, -0.04, 0.08)
@@ -96,5 +140,10 @@ export function LiviaModel() {
     vrm.update(delta)
   })
 
-  return <primitive object={vrm.scene} />
+  return (
+    <>
+      <primitive object={vrm.scene} />
+      <HeldFlashlight vrm={vrm} />
+    </>
+  )
 }

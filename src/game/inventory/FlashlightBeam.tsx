@@ -25,11 +25,14 @@ export function FlashlightBeam() {
     const fz = Math.cos(yaw)
     const x = playerMotion.x
     const z = playerMotion.z
+    const ox = playerMotion.flashReady ? playerMotion.flashX : x + fx * 0.22
+    const oy = playerMotion.flashReady ? playerMotion.flashY : 1.34
+    const oz = playerMotion.flashReady ? playerMotion.flashZ : z + fz * 0.18
     if (light.current) {
-      light.current.position.set(x + fx * 0.22, 1.34, z + fz * 0.18)
+      light.current.position.set(ox, oy, oz)
     }
     if (fill.current) {
-      fill.current.position.set(x + fx * 0.12, 1.22, z + fz * 0.1)
+      fill.current.position.set(ox, oy, oz)
     }
     if (target.current) {
       target.current.position.set(x + fx * 4.2, 0.92, z + fz * 4.2)

@@ -242,3 +242,24 @@ export function nudgeBone(pose: VRMPose, name: VRMHumanBoneName, x: number, y: n
   bone.rotation = [_qBlend.x, _qBlend.y, _qBlend.z, _qBlend.w]
   pose[name] = bone
 }
+
+export function mixBoneEuler(
+  pose: VRMPose,
+  name: VRMHumanBoneName,
+  x: number,
+  y: number,
+  z: number,
+  weight: number,
+) {
+  const t = THREE.MathUtils.clamp(weight, 0, 1)
+  if (t < 0.001) return
+  const bone = pose[name] ?? { rotation: [0, 0, 0, 1] }
+  const rot = bone.rotation ?? [0, 0, 0, 1]
+  _qBlend.set(rot[0], rot[1], rot[2], rot[3])
+  _euler.set(x, y, z, 'XYZ')
+  _qNudge.setFromEuler(_euler)
+  if (t >= 0.999) _qBlend.copy(_qNudge)
+  else _qBlend.slerp(_qNudge, t)
+  bone.rotation = [_qBlend.x, _qBlend.y, _qBlend.z, _qBlend.w]
+  pose[name] = bone
+}
