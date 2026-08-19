@@ -18,6 +18,13 @@ type Props = {
   target: RefObject<THREE.Group | null>
 }
 
+function dampAngle(current: number, target: number, lambda: number, delta: number) {
+  let diff = target - current
+  while (diff > Math.PI) diff -= Math.PI * 2
+  while (diff < -Math.PI) diff += Math.PI * 2
+  return current + diff * (1 - Math.exp(-lambda * delta))
+}
+
 export function GameCamera({ target }: Props) {
   const look = useRef(new THREE.Vector3())
   const desired = useRef(new THREE.Vector3())
@@ -31,6 +38,7 @@ export function GameCamera({ target }: Props) {
   const hallDamp = useRef(2.15)
   const hallWall = useRef<ReturnType<typeof hallwayWallSide>>(null)
   const hallWallMix = useRef(0)
+  const followYaw = useRef(playerMotion.yaw)
 
   useFrame(({ camera }, delta) => {
     const { currentRoom, cameraMode, cameraOverride: storedOverride, interactionState } = useGameStore.getState()
@@ -42,6 +50,7 @@ export function GameCamera({ target }: Props) {
       hallLead.current = along >= 0 ? 1 : -1
       hallWall.current = null
       hallWallMix.current = 0
+      followYaw.current = playerMotion.yaw
       resetLook()
     }
     const cameraOverride = liveOverride.current ?? storedOverride
@@ -60,12 +69,19 @@ export function GameCamera({ target }: Props) {
     const facingDark = along > 0.22
     const silhouette =
       hall && hall.girlVisible && !hall.seenMysteriousGirl && facingDark
+    const phoneFollow =
+      cameraMode !== 'examine' &&
+      cameraMode !== 'cutscene' &&
+      cameraMode !== 'firstPerson' &&
+      !silhouette &&
+      readTouchUi()
     const orbiting =
       cameraMode !== 'examine' &&
       cameraMode !== 'cutscene' &&
       cameraMode !== 'firstPerson' &&
       !silhouette &&
-      (readTouchUi() || lookInput.ready)
+      !readTouchUi() &&
+      lookInput.ready
 
     if (cameraMode === 'examine' && storedOverride) {
       desired.current.set(...storedOverride.position)
@@ -89,6 +105,22 @@ export function GameCamera({ target }: Props) {
       hallWallMix.current = 0
       const framed = silhouetteLongShot(playerMotion.z, girlMotion.z, 30)
       hallDamp.current = framed.damp
+      desired.current.set(...framed.position)
+      lookDesired.current.set(...framed.lookAt)
+      persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
+    } else if (phoneFollow) {
+      hallWall.current = null
+      hallWallMix.current = 0
+      followYaw.current = dampAngle(followYaw.current, playerMotion.yaw, 7.4, dt)
+      const framed = playerOrbitShot(
+        playerMotion.x,
+        playerMotion.z,
+        followYaw.current,
+        0.16,
+        getRoom(currentRoom),
+        lookInput.zoom,
+      )
+      hallDamp.current = lookInput.dragging ? 12 : 6.2
       desired.current.set(...framed.position)
       lookDesired.current.set(...framed.lookAt)
       persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)
@@ -194,7 +226,7 @@ export function GameCamera({ target }: Props) {
             ? 8
             : returnHold.current > 0
               ? 1.55
-              : orbiting || currentRoom === 'hallway'
+              : phoneFollow || orbiting || currentRoom === 'hallway'
                 ? hallDamp.current
                 : shot.damp
 

@@ -17,13 +17,14 @@ export function playerOrbitShot(
   yaw: number,
   pitch: number,
   room: RoomDef,
+  distOverride?: number,
 ): OrbitShot {
   const inner = 0.55
   const span = Math.min(room.bounds.maxX - room.bounds.minX, room.bounds.maxZ - room.bounds.minZ)
-  const dist = clamp(span * 0.28, 1.55, 2.5)
+  const dist = distOverride ?? clamp(span * 0.28, 1.55, 2.5)
   const sx = Math.sin(yaw)
   const cz = Math.cos(yaw)
-  const y = clamp(1.58 + pitch * 0.34, 1.28, room.size.height - 0.42)
+  const y = clamp(1.52 + pitch * 0.34 + dist * 0.08, 1.28, room.size.height - 0.38)
   return {
     position: [
       clamp(px - sx * dist, room.bounds.minX + inner, room.bounds.maxX - inner),
@@ -31,11 +32,11 @@ export function playerOrbitShot(
       clamp(pz - cz * dist, room.bounds.minZ + inner, room.bounds.maxZ - inner),
     ],
     lookAt: [
-      px + sx * 1.2,
-      clamp(1.1 + pitch * 1.05, 0.42, 2.28),
-      clamp(pz + cz * 1.2, room.bounds.minZ + 0.35, room.bounds.maxZ - 0.35),
+      px + sx * 0.85,
+      clamp(1.05 + pitch * 0.9, 0.42, 2.18),
+      clamp(pz + cz * 0.85, room.bounds.minZ + 0.35, room.bounds.maxZ - 0.35),
     ],
-    fov: 52,
+    fov: clamp(58 - dist * 2.4, 42, 56),
     damp: 3.4,
   }
 }
