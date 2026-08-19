@@ -9,7 +9,7 @@ import { useMapTravelStore } from '../maps/mapTravel'
 import { useGameStore } from '../state/useGameStore'
 import { girlMotion } from '../hallway/GirlSilhouette'
 import { useHallwayStore } from '../hallway/useHallwayStore'
-import { hallwayLookAhead, silhouetteLongShot } from './hallwayZones'
+import { hallwayLookAhead, hallwayWallShot, hallwayWallSide, mixHallwayShot, silhouetteLongShot } from './hallwayZones'
 
 type Props = {
   target: RefObject<THREE.Group | null>
@@ -26,6 +26,8 @@ export function GameCamera({ target }: Props) {
   const returnHold = useRef(0)
   const hallLead = useRef(1)
   const hallDamp = useRef(2.15)
+  const hallWall = useRef<ReturnType<typeof hallwayWallSide>>(null)
+  const hallWallMix = useRef(0)
 
   useFrame(({ camera }, delta) => {
     const { currentRoom, cameraMode, cameraOverride: storedOverride, interactionState } = useGameStore.getState()
@@ -35,6 +37,8 @@ export function GameCamera({ target }: Props) {
       ready.current = false
       const along = Math.cos(playerMotion.yaw)
       hallLead.current = along >= 0 ? 1 : -1
+      hallWall.current = null
+      hallWallMix.current = 0
     }
     const cameraOverride = liveOverride.current ?? storedOverride
     const shot = ROOM_SHOTS[currentRoom]
@@ -69,6 +73,8 @@ export function GameCamera({ target }: Props) {
       const along = Math.cos(playerMotion.yaw)
       const facingDark = along > 0.22
       if (hall.girlVisible && !hall.seenMysteriousGirl && facingDark) {
+        hallWall.current = null
+        hallWallMix.current = 0
         const framed = silhouetteLongShot(playerMotion.z, girlMotion.z, 30)
         hallDamp.current = framed.damp
         desired.current.set(...framed.position)
@@ -77,7 +83,19 @@ export function GameCamera({ target }: Props) {
       } else {
         const targetLead = along > 0.28 ? 1 : along < -0.28 ? -1 : hallLead.current
         hallLead.current = THREE.MathUtils.damp(hallLead.current, targetLead, 2.35, dt)
-        const framed = hallwayLookAhead(playerMotion.x, playerMotion.z, hallLead.current)
+        const travel = hallwayLookAhead(playerMotion.x, playerMotion.z, hallLead.current)
+        const wall = hallwayWallSide(playerMotion.x, playerMotion.yaw, hallWall.current)
+        hallWall.current = wall ?? hallWall.current
+        hallWallMix.current = THREE.MathUtils.damp(hallWallMix.current, wall ? 1 : 0, 2.15, dt)
+        if (hallWallMix.current < 0.02) hallWall.current = wall
+        const framed =
+          hallWall.current && hallWallMix.current > 0.01
+            ? mixHallwayShot(
+                travel,
+                hallwayWallShot(hallWall.current, playerMotion.z, hallLead.current),
+                hallWallMix.current,
+              )
+            : travel
         hallDamp.current = framed.damp
         desired.current.set(...framed.position)
         lookDesired.current.set(...framed.lookAt)
