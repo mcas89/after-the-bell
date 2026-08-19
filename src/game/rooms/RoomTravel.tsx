@@ -12,8 +12,7 @@ import { playerMotion } from '../player/playerMotion'
 import { useGameStore } from '../state/useGameStore'
 import { ITEM_IDS } from '../data/items'
 import { useInventoryStore } from '../state/useInventoryStore'
-import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance, nearLobbySwitch } from './lobbyLayout'
-import { lobbyCanSee, lobbyLightsOn, tryFlipLobbySwitch } from '../inventory/flashlight'
+import { LOBBY_DOOR_LIST, inLobbyDoorway, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
 
 const DARK_LINE = 'Meu corpo não quer ir.'
 const COLD_LINE = 'Meu corpo não quer ir.'
@@ -79,6 +78,26 @@ function tryLobbyDoor(px: number, pz: number) {
   const hall = useHallwayStore.getState()
   const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(px, pz, item, 1.5))
   if (!door) return false
+  const game = useGameStore.getState()
+  if (door.kind === 'gate') {
+    hall.rattleHandle()
+    if (!game.flags.patioGatePushed) {
+      game.addFlag('patioGatePushed')
+      hall.speak('Não abre. Tem uma escada descendo.')
+    } else if (!game.flags.patioGateAgain) {
+      game.addFlag('patioGateAgain')
+      hall.speak('Não consigo.')
+    } else {
+      hall.speak('Tem alguma coisa lá embaixo...')
+    }
+    return true
+  }
+  if (door.open && door.dest) {
+    playSfx(SFX.doorOpen, 0.45)
+    hall.setPrompt(null)
+    requestMapTravel(door.dest, 'from-patio')
+    return true
+  }
   hall.rattleHandle()
   hall.speak(door.lockedLine)
   return true
@@ -86,11 +105,19 @@ function tryLobbyDoor(px: number, pz: number) {
 
 function lobbyPrompt(x: number, z: number) {
   if (nearLobbyEntrance(x, z)) return 'E voltar'
-  if (nearLobbySwitch(x, z) && lobbyCanSee()) {
-    return lobbyLightsOn() ? 'E olhar' : 'E ligar'
-  }
-  if (lobbyCanSee() && LOBBY_DOOR_LIST.some((door) => nearLobbyDoor(x, z, door))) return 'E abrir'
-  return null
+  const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(x, z, item))
+  if (!door) return null
+  if (door.kind === 'gate') return 'E empurrar'
+  if (door.open) return 'E entrar'
+  return 'E abrir'
+}
+
+function isPatioRoom(room: string) {
+  return room === 'library' || room === 'bathroom'
+}
+
+function patioBack(room: string) {
+  return room === 'library' ? 'from-library' : 'from-bathroom'
 }
 
 function hallwayPrompt(x: number, z: number) {
@@ -165,14 +192,20 @@ export function RoomTravel() {
           requestMapTravel('hallway', 'from-passage')
           return
         }
-        if (nearLobbySwitch(x, z) && lobbyCanSee()) {
-          cool.current = 0.8
-          tryFlipLobbySwitch()
-          return
-        }
-        if (lobbyCanSee() && tryLobbyDoor(x, z)) {
+        if (tryLobbyDoor(x, z)) {
           cool.current = 0.8
         }
+        return
+      }
+
+      if (isPatioRoom(game.currentRoom)) {
+        if (Math.hypot(x - (DOOR.wallX - 0.35), z - DOOR.z) > DOOR.reach) return
+        event.preventDefault()
+        cool.current = 0.8
+        playSfx(SFX.doorOpen, 0.4)
+        hall.setPrompt(null)
+        if (game.currentRoom === 'bathroom' && game.flags.bathWetSeen) game.addFlag('bathWetGone')
+        requestMapTravel('passage', patioBack(game.currentRoom))
         return
       }
 
@@ -218,6 +251,18 @@ export function RoomTravel() {
         requestMapTravel('hallway', 'from-classroom')
         return
       }
+    }
+
+    if (isPatioRoom(game.currentRoom)) {
+      if (x >= DOOR.wallX + 0.42 && Math.abs(z - DOOR.z) < DOOR.half - 0.08) {
+        cool.current = 0.8
+        hall.setPrompt(null)
+        if (game.currentRoom === 'bathroom' && game.flags.bathWetSeen) game.addFlag('bathWetGone')
+        requestMapTravel('passage', patioBack(game.currentRoom))
+        return
+      }
+      hall.setPrompt(Math.hypot(x - (DOOR.wallX - 0.35), z - DOOR.z) <= 1.55 ? 'E voltar' : null)
+      return
     }
 
     if (game.currentRoom === 'room12' || game.currentRoom === 'teachers' || game.currentRoom === 'room14') {
@@ -280,6 +325,13 @@ export function RoomTravel() {
         cool.current = 0.8
         hall.setPrompt(null)
         requestMapTravel('hallway', 'from-passage')
+        return
+      }
+      const openDoor = LOBBY_DOOR_LIST.find((door) => door.open && door.dest && inLobbyDoorway(x, z, door))
+      if (openDoor?.dest) {
+        cool.current = 0.8
+        hall.setPrompt(null)
+        requestMapTravel(openDoor.dest, 'from-patio')
         return
       }
       hall.setPrompt(lobbyPrompt(x, z))

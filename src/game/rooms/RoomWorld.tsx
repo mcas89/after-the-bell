@@ -9,35 +9,34 @@ import { ClassroomPlaceholder } from '../scenes/ClassroomPlaceholder'
 import { WindowTerror } from '../atmosphere/WindowTerror'
 import { useGameStore } from '../state/useGameStore'
 import { ArtsRoom } from './ArtsRoom'
+import { BathroomRoom } from './BathroomRoom'
+import { LibraryRoom } from './LibraryRoom'
 import { PassageRoom } from './PassageRoom'
 import { SideClassroom } from './SideClassroom'
 import { TeachersRoom } from './TeachersRoom'
 import { RoomTravel } from './RoomTravel'
 import { hasDarkHallClues } from '../hallway/darkProgress'
 import { FlashlightBeam } from '../inventory/FlashlightBeam'
-import { FLASHLIGHT_ON, LOBBY_LIGHTS } from '../inventory/flashlight'
 import { useFragmentsStore } from '../state/useFragmentsStore'
 
 function RoomFog() {
   const room = useGameStore((s) => s.currentRoom)
   const hallOpen = useFragmentsStore((s) => hasDarkHallClues(s.entries))
-  const lobbyLit = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
-  const torch = useGameStore((s) => Boolean(s.flags[FLASHLIGHT_ON]))
   const { scene, gl } = useThree()
 
   useLayoutEffect(() => {
     const fog = scene.fog as THREE.Fog | null
     const hallway = room === 'hallway'
-    const passage = room === 'passage'
-    const color = hallway || passage ? '#0b0d12' : '#0b0f15'
+    const patio = room === 'passage' || room === 'library' || room === 'bathroom'
+    const color = hallway || patio ? '#0b0d12' : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
     if (fog) {
       fog.color.set(color)
-      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : passage && lobbyLit ? 7.4 : passage && torch ? 1.15 : passage ? 0.5 : 6.4
-      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : passage && lobbyLit ? 18 : passage && torch ? 8.2 : passage ? 3.4 : 14.2
+      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : room === 'passage' ? 8.4 : room === 'library' || room === 'bathroom' ? 4.2 : 6.4
+      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : room === 'passage' ? 22 : room === 'library' || room === 'bathroom' ? 11 : 14.2
     }
-  }, [gl, hallOpen, lobbyLit, room, scene, torch])
+  }, [gl, hallOpen, room, scene])
 
   return null
 }
@@ -67,6 +66,8 @@ export function RoomWorld() {
       {room === 'room14' ? <ArtsRoom /> : null}
       {room === 'teachers' ? <TeachersRoom /> : null}
       {room === 'passage' ? <PassageRoom /> : null}
+      {room === 'library' ? <LibraryRoom /> : null}
+      {room === 'bathroom' ? <BathroomRoom /> : null}
       <RoomTravel />
     </>
   )

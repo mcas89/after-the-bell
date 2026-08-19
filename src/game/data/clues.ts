@@ -46,6 +46,7 @@ export const CLUE_IDS = {
   howToLeave: 'clue-how-to-leave',
   closingNotice: 'clue-closing-notice',
   secondFloor: 'clue-second-floor',
+  ma: 'clue-ma',
 } as const
 
 export const CLUES: ClueDef[] = [
@@ -171,6 +172,17 @@ export const CLUES: ClueDef[] = [
       {
         title: 'Segundo andar',
         description: 'Uma janela quebrada no segundo andar foi marcada à caneta.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.ma,
+    kind: 'fragment',
+    chapter: 'library',
+    stages: [
+      {
+        title: 'M.A.',
+        description: 'Encontrei as iniciais M.A. num registro. M não era só um rabisco.',
       },
     ],
   },

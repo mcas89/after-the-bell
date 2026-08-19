@@ -130,7 +130,9 @@ export function GameCamera({ target }: Props) {
         currentRoom === 'classroom1' ||
         currentRoom === 'room12' ||
         currentRoom === 'teachers' ||
-        currentRoom === 'room14'
+        currentRoom === 'room14' ||
+        currentRoom === 'library' ||
+        currentRoom === 'bathroom'
           ? THREE.MathUtils.smoothstep(px, 1.15, 3.55)
           : 0
       const bounds = getRoom(currentRoom).bounds

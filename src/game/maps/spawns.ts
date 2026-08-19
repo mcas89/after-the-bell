@@ -1,6 +1,7 @@
 import { DOOR } from '../door/doorLayout'
 import { HALL, HALL_DOORS } from '../hallway/hallwayLayout'
 import type { RoomId } from '../data/rooms'
+import { LOBBY_DOORS } from '../rooms/lobbyLayout'
 
 export type SpawnPose = {
   x: number
@@ -35,6 +36,14 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
   },
   passage: {
     'from-hallway': { x: 0, z: 1.45, yaw: 0 },
+    'from-library': { x: LOBBY_DOORS.library.x + 1.15, z: LOBBY_DOORS.library.z, yaw: Math.PI / 2 },
+    'from-bathroom': { x: LOBBY_DOORS.bathroom.x - 1.15, z: LOBBY_DOORS.bathroom.z, yaw: -Math.PI / 2 },
+  },
+  library: {
+    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+  },
+  bathroom: {
+    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
   },
 }
 

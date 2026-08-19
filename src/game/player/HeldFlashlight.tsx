@@ -36,7 +36,7 @@ export function HeldFlashlight({ vrm }: Props) {
   if (!hand) return null
 
   return createPortal(
-    <group position={[0.012, 0.048, 0.018]} rotation={[1.12, 0.18, 1.48]} visible={showing}>
+    <group position={[-0.01, 0.042, -0.04]} rotation={[1.12, 0.18, 1.48]} visible={showing}>
       <mesh position={[0, 0.01, 0]} castShadow>
         <cylinderGeometry args={[0.014, 0.016, 0.11, 10]} />
         <meshStandardMaterial color="#2a2c30" metalness={0.55} roughness={0.38} />

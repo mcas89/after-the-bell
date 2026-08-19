@@ -1,4 +1,4 @@
-export type ObjectiveId = 'explore-school' | 'find-girl'
+export type ObjectiveId = 'explore-school' | 'find-girl' | 'find-exit'
 
 export const OBJECTIVES: Record<ObjectiveId, { title: string; line: string }> = {
   'explore-school': {
@@ -8,5 +8,9 @@ export const OBJECTIVES: Record<ObjectiveId, { title: string; line: string }> = 
   'find-girl': {
     title: 'Quem é a garota',
     line: 'Ela passou pelo corredor. Preciso achar ela.',
+  },
+  'find-exit': {
+    title: 'Encontre uma saída',
+    line: 'Tem que ter um jeito de sair daqui.',
   },
 }

@@ -205,14 +205,15 @@ const ROOM_LABEL: Record<string, string> = {
   room12: 'Sala 12',
   room14: 'Sala 14',
   teachers: 'Sala dos professores',
-  passage: 'Salão',
+  passage: 'Pátio',
+  library: 'Biblioteca',
+  bathroom: 'Banheiro',
 }
 
 export function describeSave(save: GameSave) {
   const room = ROOM_LABEL[save.scene] ?? 'Escola'
   if (save.scene === 'hallway' && !save.story.seenMysteriousGirl) return `${room} · fundo escuro`
   if (save.scene === 'hallway' && save.story.seenMysteriousGirl) return `${room} · depois da garota`
-  if (save.scene === 'passage' && !save.flags?.lobbyLights) return `${room} · no escuro`
   return room
 }
 

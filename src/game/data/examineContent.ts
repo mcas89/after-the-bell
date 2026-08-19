@@ -161,19 +161,19 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Lá fora ainda está vazio.',
   },
   'lobby-library': {
-    line: 'Biblioteca. Trancada.',
+    line: 'Biblioteca. A porta está aberta.',
   },
   'lobby-storage': {
-    line: 'Zeladoria. Trancada.',
+    line: 'Zeladoria. Fechada.',
   },
   'lobby-bathroom': {
-    line: 'Banheiro. Trancada.',
+    line: 'Banheiro. A porta está aberta.',
   },
   'lobby-office': {
     line: 'Diretoria. Trancada.',
   },
   'lobby-exit': {
-    line: 'Saída. Trancada por fora.',
+    line: 'Um portão. Tem escada descendo.',
   },
   'lobby-counter': {
     line: 'Balcão da diretoria. Ninguém.',
@@ -192,6 +192,34 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'side-door-teachers': {
     line: 'O corredor está do outro lado.',
+  },
+  'side-door-library': {
+    line: 'O pátio está do outro lado.',
+  },
+  'side-door-bathroom': {
+    line: 'O pátio está do outro lado.',
+  },
+  'lib-shelf': {
+    line: 'Estantes. A maior parte some no escuro.',
+  },
+  'lib-ledger': {
+    line: 'M.A...\nM.',
+    fragmentId: 'clue-ma',
+  },
+  'lib-note': {
+    line: 'Essa frase de novo...',
+  },
+  'bath-mirror': {
+    line: 'Eu pareço péssima.',
+  },
+  'bath-stall': {
+    line: 'Vazio.',
+  },
+  'bath-stall-empty': {
+    line: 'Vazio.',
+  },
+  'bath-sink': {
+    line: 'Ainda está molhado...',
   },
   'lab-pc': {
     line: 'Computador desligado.',
@@ -362,6 +390,18 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     return useGameStore.getState().flags.lobbyLights
       ? { line: 'A luz voltou. Pouca.' }
       : { line: 'Interruptor.' }
+  }
+  if (key === 'lobby-exit') {
+    const flags = useGameStore.getState().flags
+    if (flags.patioGateAgain) return { line: 'Tem alguma coisa lá embaixo...' }
+    if (flags.patioGatePushed) return { line: 'Não abre. Tem uma escada descendo.' }
+    return { line: 'Um portão. Tem escada descendo.' }
+  }
+  if (key === 'bath-sink') {
+    const game = useGameStore.getState()
+    if (game.flags.bathWetGone) return { line: 'Sumiu.' }
+    if (!game.flags.bathWetSeen) game.addFlag('bathWetSeen')
+    return { line: 'Ainda está molhado...' }
   }
   if (key === 'quadro-negro' && useGameStore.getState().flags.hangmanAmizade) {
     return { ...SHARED[key], line: 'A palavra era AMIZADE.' }
