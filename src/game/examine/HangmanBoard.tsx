@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
-import { ITEM_IDS } from '../data/items'
 import { CLASSROOM_1 } from '../data/rooms'
 import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
-import { useInventoryStore } from '../state/useInventoryStore'
 import { getHangmanChalkTexture } from './paperTextures'
 
 export const HANGMAN_FLAGS = {
@@ -15,7 +13,7 @@ export type HangmanWord = 'AMIZADE' | 'FRIENDS'
 
 const GIVEN = [false, false, true, false, false, true, false] as const
 const GIVEN_LETTERS = ['', '', 'I', '', '', 'D', ''] as const
-const ANSWERS: HangmanWord[] = ['AMIZADE', 'FRIENDS']
+const ANSWER: HangmanWord = 'AMIZADE'
 
 export function getHangmanSolved(): HangmanWord | null {
   const flags = useGameStore.getState().flags
@@ -28,10 +26,8 @@ function emptyGuess(solved: HangmanWord | null) {
   return solved ? solved.split('') : [...GIVEN_LETTERS]
 }
 
-function winLine(word: HangmanWord, justWon: boolean) {
-  if (!justWon) return 'A chave já está no inventário.'
-  if (word === 'FRIENDS') return 'Ganhei uma chave nova. A luz acendeu um pouco.'
-  return 'Ganhei uma chave nova. Foi para o inventário.'
+function winLine(justWon: boolean) {
+  return justWon ? 'AMIZADE. Era isso.' : 'A palavra era AMIZADE.'
 }
 
 export function HangmanChalk() {
@@ -58,13 +54,12 @@ export function HangmanChalk() {
 }
 
 export function HangmanBoard() {
-  const hasKey = useInventoryStore((s) => s.has(ITEM_IDS.officeKey))
   const solvedWord = useGameStore((s) => {
     if (s.flags[HANGMAN_FLAGS.friends]) return 'FRIENDS' as HangmanWord
     if (s.flags[HANGMAN_FLAGS.amizade]) return 'AMIZADE' as HangmanWord
     return null
   })
-  const solved = Boolean(solvedWord) || hasKey
+  const solved = Boolean(solvedWord)
   const [guess, setGuess] = useState(() => emptyGuess(getHangmanSolved()))
   const [focus, setFocus] = useState(0)
   const [shakeAt, setShakeAt] = useState(0)
@@ -100,16 +95,13 @@ export function HangmanBoard() {
   const check = (slots: string[]) => {
     if (solved) return
     const word = slots.join('')
-    const match = ANSWERS.find((answer) => answer === word)
-    if (match) {
-      const flag = match === 'FRIENDS' ? HANGMAN_FLAGS.friends : HANGMAN_FLAGS.amizade
+    if (word === ANSWER) {
       justWonRef.current = true
-      setWonWord(match)
+      setWonWord(ANSWER)
       setJustWon(true)
-      setGuess(match.split(''))
+      setGuess(ANSWER.split(''))
       setFail(null)
-      useGameStore.getState().addFlag(flag)
-      useInventoryStore.getState().collect(ITEM_IDS.officeKey)
+      useGameStore.getState().addFlag(HANGMAN_FLAGS.amizade)
       saveManager.save()
       return
     }
@@ -176,7 +168,7 @@ export function HangmanBoard() {
           ))}
         </div>
         {shown ? (
-          <p className="hangman-ok">{winLine(shown, justWon || justWonRef.current)}</p>
+          <p className="hangman-ok">{winLine(justWon || justWonRef.current)}</p>
         ) : fail ? (
           <p className="hangman-fail">{fail}</p>
         ) : (

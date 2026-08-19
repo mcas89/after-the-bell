@@ -23,6 +23,9 @@ export function ComputerSystem() {
       if (event.code === 'Escape' || event.code === 'KeyX') {
         event.preventDefault()
         event.stopImmediatePropagation()
+        if (computer.ui === 'desktop' && computer.goBack()) {
+          return
+        }
         if (computer.ui === 'desktop' && computer.app === 'web' && computer.historyOpen) {
           computer.closeHistory()
           return

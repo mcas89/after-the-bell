@@ -15,8 +15,8 @@ import { useInventoryStore } from '../state/useInventoryStore'
 import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance, nearLobbySwitch } from './lobbyLayout'
 import { lobbyCanSee, lobbyLightsOn, tryFlipLobbySwitch } from '../inventory/flashlight'
 
-const DARK_LINE = 'Está muito escuro. Não consigo ir pra lá.'
-const COLD_LINE = 'Não consigo atravessar. Está muito escuro e gelado.'
+const DARK_LINE = 'Meu corpo não quer ir.'
+const COLD_LINE = 'Meu corpo não quer ir.'
 const DARK_COOLDOWN = 5
 
 function canAct() {

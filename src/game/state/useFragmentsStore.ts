@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import {
+  DEDUCTIONS,
   getClueDef,
   resolveClue,
   type ClueProgress,
@@ -65,7 +66,8 @@ export const useFragmentsStore = create<FragmentsState>((set, get) => ({
   pendingToast: null,
   discover: (id, silent = false) => {
     const def = getClueDef(id)
-    if (!def || def.kind !== 'fragment') return false
+    if (!def) return false
+    if (def.kind !== 'fragment' && def.kind !== 'deduction') return false
 
     const current = get().entries[id]
     if (current?.discovered) return false
@@ -88,6 +90,15 @@ export const useFragmentsStore = create<FragmentsState>((set, get) => ({
         set({ pendingToast: { title: view.title } })
       } else {
         showToast(set, { title: view.title })
+      }
+    }
+    if (def.kind === 'fragment') {
+      for (const deduction of DEDUCTIONS) {
+        if (get().entries[deduction.id]?.discovered) continue
+        const needs = deduction.requires ?? []
+        if (needs.length === 0) continue
+        if (!needs.every((need) => get().entries[need]?.discovered)) continue
+        get().discover(deduction.id, silent)
       }
     }
     return true

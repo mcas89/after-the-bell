@@ -401,7 +401,8 @@ export function recordTexture() {
   ctx.fillText('Lívia Ferreira', 56, 230)
   ctx.fillStyle = '#6a5a4a'
   ctx.font = `22px ${SANS}`
-  ctx.fillText('Nº 17     2º B', 56, 268)
+  ctx.fillText('Nascimento: 03/05', 56, 268)
+  ctx.fillText('Nº 17     2º B', 56, 308)
   ctx.fillText('Frequência    • • • •  ○  • •', 56, 360)
   ctx.fillText('Notas               7,0    6,5    —', 56, 420)
   ctx.fillStyle = 'rgba(40, 40, 40, 0.28)'

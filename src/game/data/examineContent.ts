@@ -23,25 +23,53 @@ export type ExamineEntry = {
   fragmentId?: string
   collectibleId?: string
   sheet?: SheetKind
+  image?: string
+}
+
+export const EXAMINE_IMG = {
+  turmaSala: '/image/foto-turma-sala.png',
+  turmaCorredor: '/image/foto-turma-corredor.png',
+  achados: '/image/foto-achados.png',
+  fotoVerso: '/image/foto-armario-livia-verso.png',
+  natureza: '/image/arte-natureza-morta.png',
+  corredor: '/image/arte-corredor.png',
+  arvore: '/image/arte-arvore.png',
+  retratos: '/image/arte-retratos.png',
+  fachada: '/image/arte-fachada.png',
+  composicao: '/image/arte-composicao.png',
+  mochilaLivia: '/image/dentro-mochila-livia.png',
+  mochilaOutra: '/image/dentro-mochila-outra.png',
+  armario4: '/image/dentro-armario-4.png',
+  armario5: '/image/dentro-armario-5.png',
+  professores: '/image/dentro-armario-professores.png',
+} as const
+
+export type CollectPrompt = { id: string; label: string }
+
+const COLLECT_LABEL: Record<string, string> = {
+  [ITEM_IDS.key]: 'chave',
+  [ITEM_IDS.officeKey]: 'chave',
+  [ITEM_IDS.batteries]: 'pilhas',
+  [ITEM_IDS.flashlight]: 'lanterna',
 }
 
 const SHARED: Record<string, ExamineEntry> = {
   'mochila-fechada': {
-    line: 'Essa é minha... O chaveiro ainda está no zíper.',
+    line: 'L.F. no chaveiro. É minha.',
     fragmentId: 'clue-my-backpack',
-    sheet: 'mochila-livia',
+    image: EXAMINE_IMG.mochilaLivia,
   },
   'mochila-aberta': {
-    line: 'Não sei de quem é... mas não me parece estranha.',
+    line: 'Tem outra mochila aqui. Está aberta. Algumas coisas me parecem familiares... mas eu não lembro de quem são.',
     fragmentId: 'clue-other-backpack',
-    sheet: 'mochila-outra',
+    image: EXAMINE_IMG.mochilaOutra,
   },
   refrigerante: {
-    line: 'Dois refrigerantes... Um está quase vazio. Por que tem dois?',
+    line: 'Duas. Uma quase vazia. Eu não estava bebendo as duas.',
     fragmentId: 'clue-two-drinks',
   },
   prontuario: {
-    line: 'Lívia Ferreira... Eu estudo aqui.',
+    line: 'Lívia Ferreira... 03 de maio. Sou eu.',
     sheet: 'prontuario',
   },
   'livros-professor': {
@@ -51,7 +79,7 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Algumas canetas estão vazias. Alguém escreveu muito.',
   },
   'bloco-folhas': {
-    line: 'Eu não sei esperar...?',
+    line: 'L + M. “O meu é o quinto. Código: meu niver.” Quem é M?',
     fragmentId: 'clue-lm',
     sheet: 'bloco',
   },
@@ -63,11 +91,11 @@ const SHARED: Record<string, ExamineEntry> = {
     sheet: 'chao',
   },
   'armario-livros': {
-    line: 'Falta um livro bem no meio. O espaço está vazio de propósito.',
+    line: 'Falta um livro no meio.',
   },
   mural: {
-    line: 'Avisos, horário de prova... a foto da turma está escura demais. Não dá pra ver nenhum rosto.',
-    sheet: 'mural',
+    line: 'A foto da turma. Não dá pra ver nenhum rosto.',
+    image: EXAMINE_IMG.turmaSala,
   },
   'quadro-negro': {
     line: 'Um jogo da forca... Qual será a palavra?',
@@ -75,7 +103,7 @@ const SHARED: Record<string, ExamineEntry> = {
     sheet: 'quadro',
   },
   relogio: {
-    line: 'A mesma hora do celular... mas não está mudando. Algo está errado!',
+    line: 'Meu celular e o relógio marcam 03:17. O ponteiro não anda.',
     fragmentId: 'clue-0317',
   },
   janela: {
@@ -89,7 +117,7 @@ const SHARED: Record<string, ExamineEntry> = {
     collectibleId: 'item-key',
   },
   'hall-clock': {
-    line: 'Não é só o relógio da sala...\nAqui também...',
+    line: 'Outro relógio. 03:17. Não é só o da sala.',
   },
   'hall-window': {
     line: 'O pátio está vazio. Nenhuma luz.',
@@ -98,7 +126,7 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Lá fora está completamente vazio. Nem uma luz. Nem um som.',
   },
   'hall-passage': {
-    line: 'Está muito escuro. Não consigo ir pra lá.',
+    line: 'Meu corpo não quer ir.',
   },
   'hall-door-11': {
     line: 'Sala 11. A 2º B.\nA sala de onde eu vim.',
@@ -116,10 +144,12 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Cartaz de um campeonato. As faces estão apagadas.',
   },
   'hall-mural-1': {
-    line: 'Achados e perdidos. Recados, uma foto escura, uma chave desenhada.',
+    line: 'Achados e perdidos. A foto está escura.',
+    image: EXAMINE_IMG.achados,
   },
   'hall-mural-2': {
-    line: 'Foto da turma. Os rostos não aparecem. Só a data.',
+    line: 'Foto da turma. Os rostos não aparecem.',
+    image: EXAMINE_IMG.turmaCorredor,
   },
   'hall-mural-3': {
     line: 'Recados sobrepostos. Um nome está rasgado no meio.',
@@ -167,7 +197,7 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Computador desligado.',
   },
   'teachers-notice': {
-    line: 'Depois das 22h o alarme arma. Portas trancam por fora.',
+    line: 'Depois das 22h as portas trancam por fora.',
     fragmentId: 'clue-closing-notice',
     sheet: 'aviso',
   },
@@ -181,14 +211,19 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Encostada na parede. Não vou sentar.',
   },
   'teachers-cabinet': {
-    line: 'Ganchos vazios. Embaixo, uma lanterna.',
+    line: 'Quatro ganchos. Uma chave. No chão, uma lanterna.',
+    image: EXAMINE_IMG.professores,
   },
   'teachers-hooks': {
-    line: 'Portaria. Externa. Alunos. Nada.',
+    line: 'BIB. EXT. DIR. Vazios.',
   },
   'teachers-flashlight': {
     line: 'Pesada. Sem pilhas.',
     collectibleId: 'item-flashlight',
+  },
+  'teachers-key': {
+    line: 'Pesada. Fria.',
+    collectibleId: 'item-key-diretoria',
   },
   'teachers-table': {
     line: 'Ronda das 22h. Assinaram e foram embora. As chaves foram junto.',
@@ -199,25 +234,35 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'arts-frame-1': {
     line: 'Natureza morta. Tinta ainda meio molhada.',
+    image: EXAMINE_IMG.natureza,
   },
   'arts-frame-2': {
     line: 'Um corredor. Vazio.',
+    image: EXAMINE_IMG.corredor,
   },
   'arts-frame-3': {
     line: 'Árvore à noite. Só isso.',
+    image: EXAMINE_IMG.arvore,
   },
   'arts-frame-4': {
     line: 'Retratos. Nenhum rosto ficou direito.',
+    image: EXAMINE_IMG.retratos,
   },
   'arts-frame-5': {
-    line: 'Segundo andar. O vidro tá quebrado.',
+    line: 'Uma janela no segundo andar. O vidro está marcado.',
     fragmentId: 'clue-second-floor',
+    image: EXAMINE_IMG.fachada,
   },
   'arts-frame-6': {
     line: 'Trabalho de cor. Sem nome.',
+    image: EXAMINE_IMG.composicao,
   },
   'arts-window': {
     line: 'Lá fora está completamente vazio. Nem uma luz. Nem um som.',
+  },
+  'locker-photo': {
+    line: 'O verso. Só isso.',
+    image: EXAMINE_IMG.fotoVerso,
   },
 }
 
@@ -252,6 +297,16 @@ const ALIAS: Record<string, string> = {
   'arts-frame-12': 'arts-frame-6',
 }
 
+function hasFlashlight() {
+  const inv = useInventoryStore.getState()
+  return inv.has(ITEM_IDS.flashlight) || inv.has(ITEM_IDS.flashlightLit)
+}
+
+function hasBatteries() {
+  const inv = useInventoryStore.getState()
+  return inv.has(ITEM_IDS.batteries) || inv.has(ITEM_IDS.flashlightLit)
+}
+
 export function getExamineEntry(id: string): ExamineEntry | null {
   const key = ALIAS[id] ?? id
   if (key === 'porta') {
@@ -278,59 +333,106 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   if (key === 'hall-passage') {
     return hasDarkHallClues()
       ? { line: 'Uma passagem. Dá pra seguir.' }
-      : { line: 'Está muito escuro. Não consigo ir pra lá.' }
+      : { line: 'Meu corpo não quer ir.' }
   }
   if (key === 'teachers-cabinet') {
-    const taken =
-      useInventoryStore.getState().has(ITEM_IDS.flashlight) ||
-      useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
-    return taken
-      ? { line: 'Ganchos vazios.' }
-      : { line: 'Ganchos vazios. Embaixo, uma lanterna.', collectibleId: ITEM_IDS.flashlight }
+    const takenFlash = hasFlashlight()
+    const takenKey = useInventoryStore.getState().has(ITEM_IDS.officeKey)
+    const line =
+      takenFlash && takenKey
+        ? 'Vazio.'
+        : takenFlash
+          ? 'A chave ainda está no gancho.'
+          : takenKey
+            ? 'A lanterna ainda está no chão.'
+            : 'Quatro ganchos. Uma chave. No chão, uma lanterna.'
+    return { line, image: EXAMINE_IMG.professores }
   }
   if (key === 'teachers-flashlight') {
-    const taken =
-      useInventoryStore.getState().has(ITEM_IDS.flashlight) ||
-      useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
-    return taken
+    return hasFlashlight()
       ? { line: 'Não tem mais nada.' }
       : { line: 'Pesada. Sem pilhas.', collectibleId: ITEM_IDS.flashlight }
+  }
+  if (key === 'teachers-key') {
+    return useInventoryStore.getState().has(ITEM_IDS.officeKey)
+      ? { line: 'Não tem mais nada.' }
+      : { line: 'Pesada. Fria.', collectibleId: ITEM_IDS.officeKey }
   }
   if (key === 'lobby-switch') {
     return useGameStore.getState().flags.lobbyLights
       ? { line: 'A luz voltou. Pouca.' }
       : { line: 'Interruptor.' }
   }
-  if (key === 'quadro-negro' && useInventoryStore.getState().has(ITEM_IDS.officeKey)) {
-    return { ...SHARED[key], line: 'Ganhei uma chave nova. Foi para o inventário.' }
+  if (key === 'quadro-negro' && useGameStore.getState().flags.hangmanAmizade) {
+    return { ...SHARED[key], line: 'A palavra era AMIZADE.' }
   }
   const locker = getHallLocker(key)
   if (locker) {
     if (useLockerPinStore.getState().isOpen(locker.id)) {
-      if (locker.kind === 'livia') return { line: 'Cadernos. Uma foto virada. Meu moletom.' }
+      if (locker.kind === 'livia') {
+        return { line: 'Cadernos. Uma foto virada. Meu moletom.', image: EXAMINE_IMG.armario4 }
+      }
       if (locker.kind === 'marina') {
-        const taken =
-          useInventoryStore.getState().has(ITEM_IDS.batteries) ||
-          useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
-        return taken
-          ? { line: 'Quase vazio.' }
-          : { line: 'Pilhas. Alguém deixou.', collectibleId: ITEM_IDS.batteries }
+        return hasBatteries()
+          ? { line: 'Quase vazio.', image: EXAMINE_IMG.armario5 }
+          : { line: 'Pilhas. Alguém deixou.', image: EXAMINE_IMG.armario5, collectibleId: ITEM_IDS.batteries }
       }
       return { line: 'Quase vazio.' }
     }
     if (locker.kind === 'livia') return { line: 'Meu armário.' }
-    if (locker.kind === 'marina') return { line: 'Não tem nome. Só o número.' }
+    if (locker.kind === 'marina') return { line: 'Todo mundo tem nome... menos esse.' }
     return { line: `Armário da ${locker.name}.` }
   }
   return SHARED[key] ?? null
 }
 
+export function collectPromptFor(
+  examiningId: string | null,
+  detailId: string | null,
+): CollectPrompt | null {
+  if (!examiningId) return null
+  const inv = useInventoryStore.getState()
+
+  if (examiningId === 'teachers-cabinet') {
+    if (detailId === 'teachers-flashlight') {
+      if (hasFlashlight()) return null
+      return { id: ITEM_IDS.flashlight, label: COLLECT_LABEL[ITEM_IDS.flashlight] }
+    }
+    if (detailId === 'teachers-key') {
+      if (inv.has(ITEM_IDS.officeKey)) return null
+      return { id: ITEM_IDS.officeKey, label: COLLECT_LABEL[ITEM_IDS.officeKey] }
+    }
+    return null
+  }
+
+  const locker = getHallLocker(examiningId)
+  if (locker?.kind === 'marina' && useLockerPinStore.getState().isOpen(locker.id)) {
+    if (hasBatteries()) return null
+    return { id: ITEM_IDS.batteries, label: COLLECT_LABEL[ITEM_IDS.batteries] }
+  }
+
+  const looking = detailId ?? examiningId
+  const entry = getExamineEntry(looking)
+  if (!entry?.collectibleId || inv.has(entry.collectibleId)) return null
+  return { id: entry.collectibleId, label: COLLECT_LABEL[entry.collectibleId] ?? 'item' }
+}
+
 export function examineHoldSeconds(id: string) {
   if (isHallLockerId(id) || id === 'quadro-negro' || id === 'teachers-cabinet') return 0
+  if (id === 'mochila-fechada' || id === 'mochila-aberta') return 0
   const entry = getExamineEntry(id)
   if (!entry) return 3.2
   if (entry.collectibleId) return 0
-  if (entry.sheet === 'mural' || entry.sheet === 'prontuario' || entry.sheet === 'quadro' || entry.sheet === 'mochila-livia' || entry.sheet === 'aviso' || entry.sheet === 'ronda') return 6.8
+  if (entry.image) return 0
+  if (
+    entry.sheet === 'mural' ||
+    entry.sheet === 'prontuario' ||
+    entry.sheet === 'quadro' ||
+    entry.sheet === 'aviso' ||
+    entry.sheet === 'ronda'
+  ) {
+    return 6.8
+  }
   if (entry.sheet) return 5.5
   if (entry.fragmentId) return 5.4
   const n = entry.line?.length ?? 20

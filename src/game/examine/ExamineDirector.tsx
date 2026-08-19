@@ -19,7 +19,7 @@ const lightPos = new THREE.Vector3()
 const box = new THREE.Box3()
 
 function isHudInspect(id: string) {
-  return isHallLockerId(id) || id === 'teachers-cabinet'
+  return isHallLockerId(id) || id === 'teachers-cabinet' || id === 'mochila-fechada' || id === 'mochila-aberta'
 }
 
 function beginInspect(

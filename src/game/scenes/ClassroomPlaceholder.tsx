@@ -33,6 +33,17 @@ const CLOCK_MINUTE = 17
 const KEY_POS: [number, number, number] = [-0.64, TEACHER_TOP + 0.014, -2.82]
 const KEY_SPIN_NEAR = 2.2
 
+function ClassroomMuralPhoto() {
+  const map = useTexture('/image/foto-turma-sala.png')
+  map.colorSpace = THREE.SRGBColorSpace
+  return (
+    <mesh rotation={[0, -Math.PI / 2, 0]} position={[-0.016, 0, 0]}>
+      <planeGeometry args={[1.6, 1.18]} />
+      <meshStandardMaterial map={map} roughness={0.88} />
+    </mesh>
+  )
+}
+
 function clockAngle(hours: number, minutes: number, kind: 'hour' | 'minute') {
   const turn =
     kind === 'minute'
@@ -562,10 +573,9 @@ export function ClassroomPlaceholder() {
             <boxGeometry args={[0.03, 1.26, 1.68]} />
             <meshStandardMaterial color="#a57b52" roughness={0.94} />
           </mesh>
-          <mesh rotation={[0, -Math.PI / 2, 0]} position={[-0.016, 0, 0]}>
-            <planeGeometry args={[1.6, 1.18]} />
-            <meshStandardMaterial map={getWrittenTexture('mural')} roughness={0.88} />
-          </mesh>
+          <Suspense fallback={null}>
+            <ClassroomMuralPhoto />
+          </Suspense>
         </group>
       </Examinable>
       <WrittenSurfaces />
@@ -621,4 +631,5 @@ export function ClassroomPlaceholder() {
 }
 
 useTexture.preload('/textura/piso_madeira.png')
+useTexture.preload('/image/foto-turma-sala.png')
 preloadGameAudio()

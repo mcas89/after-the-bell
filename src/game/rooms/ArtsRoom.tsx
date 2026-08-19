@@ -6,7 +6,6 @@ import { CLASSROOM_1 } from '../data/rooms'
 import { DOOR, doorColliders } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
-import { getArtDrawingTexture, type ArtDrawingId } from '../examine/paperTextures'
 import { HallwayDoor } from '../hallway/HallwayDoor'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
@@ -22,6 +21,14 @@ const MOON = '#c9d8ea'
 const DESKS = FURNITURE.filter((item) => item.kind === 'desk')
 const FRAME_HALF = { x: 0.32, z: 0.16 }
 const DRAWINGS = ['vases', 'hall', 'tree', 'faces', 'window', 'shapes'] as const
+const ART_IMAGES = {
+  vases: '/image/arte-natureza-morta.png',
+  hall: '/image/arte-corredor.png',
+  tree: '/image/arte-arvore.png',
+  faces: '/image/arte-retratos.png',
+  window: '/image/arte-fachada.png',
+  shapes: '/image/arte-composicao.png',
+} as const
 const FRAME_URLS = ['/quadro_pintura.glb', '/quadro_pintura2.glb'] as const
 
 const ARTS_FRAMES = DESKS.map((desk, index) => ({
@@ -199,11 +206,13 @@ function WoodFrame() {
 
 function ArtPainting({
   url,
-  drawing,
+  image,
 }: {
   url: string
-  drawing: ArtDrawingId
+  image: string
 }) {
+  const map = useTexture(image)
+  map.colorSpace = THREE.SRGBColorSpace
   return (
     <group>
       <ModelGuard fallback={<WoodFrame />}>
@@ -213,7 +222,7 @@ function ArtPainting({
       </ModelGuard>
       <mesh position={[0, 0.48, 0.04]}>
         <planeGeometry args={[0.5, 0.68]} />
-        <meshStandardMaterial map={getArtDrawingTexture(drawing)} roughness={0.9} />
+        <meshStandardMaterial map={map} roughness={0.9} />
       </mesh>
     </group>
   )
@@ -294,7 +303,7 @@ export function ArtsRoom() {
         {ARTS_FRAMES.map((frame) => (
           <Examinable key={frame.id} id={frame.id}>
             <group position={[frame.x, 0, frame.z]} rotation={[0, frame.yaw, 0]}>
-              <ArtPainting url={frame.url} drawing={frame.drawing} />
+              <ArtPainting url={frame.url} image={ART_IMAGES[frame.drawing]} />
             </group>
           </Examinable>
         ))}
@@ -309,3 +318,4 @@ export function ArtsRoom() {
 }
 
 useTexture.preload('/textura/piso_madeira.png')
+for (const src of Object.values(ART_IMAGES)) useTexture.preload(src)

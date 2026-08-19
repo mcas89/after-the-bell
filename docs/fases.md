@@ -26,7 +26,7 @@ Quando uma fase terminar, marcar `[x]` e só então abrir a próxima.
 - Lívia Ferreira, 16, impulsiva. Primeira pessoa, frase curta, sem metáfora de autora.
 - Amiga: **Marina Alves**, 16. No jogo, primeiro só **M** / silhueta / “o quinto” / niver.
 - Armário 5: placa sem nome. Pad “Armário 5”. Linha: *Não tem nome. Só o número.*
-- PINs: celular **0305** (Lívia). Armário 5 e PC **2011** (niver da M). Papel do armário da Lívia: `0305-2011`. **Não explicar** em voz alta.
+- PINs: celular e armário 4 **0305** (niver da Lívia, no prontuário). Armário 5 e PC **2107** (papel `0305-2107` no armário da Lívia). **Não explicar** em voz alta.
 - A janela da sala 11 **não** é a da queda.
 - Culpa emocional sim. “Você matou” / “ela pulou” **nunca**, até a revelação final.
 - A escola do jogo é memória distorcida, não o prédio real. O texto da Lívia não explica o truque.

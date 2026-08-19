@@ -147,11 +147,13 @@ function applyGameSave(save: GameSave) {
   usePhoneStore.setState({
     ui: 'hidden',
     app: 'home',
+    viewId: null,
     armed: prologueDone,
     triggered: save.story.phoneIntroduced,
     pin: '',
     line: null,
     shakeAt: 0,
+    heard: {},
   })
 
   useFragmentsStore.setState({

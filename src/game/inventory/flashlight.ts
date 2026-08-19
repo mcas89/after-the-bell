@@ -45,7 +45,7 @@ export function combineFlashlight() {
   })
   inv.closeInventory()
   saveManager.save()
-  useHallwayStore.getState().speak('Agora vai.')
+  useHallwayStore.getState().speak('Agora sim.')
   playSfx(SFX.clickItem, 0.48)
   return true
 }

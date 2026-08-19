@@ -75,6 +75,22 @@ function HallClock({ map }: { map: THREE.CanvasTexture | null }) {
   )
 }
 
+const HALL_MURAL_PHOTO = {
+  lost: '/image/foto-achados.png',
+  photos: '/image/foto-turma-corredor.png',
+} as const
+
+function HallPhotoPlane({ src, w, h }: { src: string; w: number; h: number }) {
+  const map = useTexture(src)
+  map.colorSpace = THREE.SRGBColorSpace
+  return (
+    <mesh position={[0, 0, 0.002]}>
+      <planeGeometry args={[w, h]} />
+      <meshStandardMaterial map={map} roughness={0.88} />
+    </mesh>
+  )
+}
+
 function HallMural({
   id,
   z,
@@ -84,6 +100,7 @@ function HallMural({
   kind,
 }: (typeof HALL_MURALS)[number]) {
   const map = useMemo(() => getHallBoardTexture(kind), [kind])
+  const photo = kind === 'notes' ? null : HALL_MURAL_PHOTO[kind]
   return (
     <Examinable id={id}>
       <group position={[HALL.halfX - 0.065, y, z]} rotation={[0, -Math.PI / 2, 0]}>
@@ -91,22 +108,30 @@ function HallMural({
           <boxGeometry args={[w + 0.1, h + 0.1, 0.05]} />
           <meshStandardMaterial color="#5c4634" roughness={0.92} />
         </mesh>
-        <mesh position={[0, 0, 0.002]}>
-          <planeGeometry args={[w, h]} />
-          <meshStandardMaterial map={map} roughness={0.88} />
-        </mesh>
-        <mesh position={[-w * 0.28, h * 0.18, 0.03]} rotation={[0, 0, 0.12]} castShadow>
-          <planeGeometry args={[0.28, 0.34]} />
-          <meshStandardMaterial color="#efe6d4" roughness={0.82} />
-        </mesh>
-        <mesh position={[w * 0.22, -h * 0.16, 0.028]} rotation={[0, 0, -0.08]} castShadow>
-          <planeGeometry args={[0.32, 0.22]} />
-          <meshStandardMaterial color="#fff3b0" roughness={0.8} />
-        </mesh>
-        <mesh position={[w * 0.32, h * 0.28, 0.032]} rotation={[0, 0, 0.06]}>
-          <circleGeometry args={[0.018, 10]} />
-          <meshBasicMaterial color="#c43c3c" />
-        </mesh>
+        {photo ? (
+          <Suspense fallback={null}>
+            <HallPhotoPlane src={photo} w={w} h={h} />
+          </Suspense>
+        ) : (
+          <>
+            <mesh position={[0, 0, 0.002]}>
+              <planeGeometry args={[w, h]} />
+              <meshStandardMaterial map={map} roughness={0.88} />
+            </mesh>
+            <mesh position={[-w * 0.28, h * 0.18, 0.03]} rotation={[0, 0, 0.12]} castShadow>
+              <planeGeometry args={[0.28, 0.34]} />
+              <meshStandardMaterial color="#efe6d4" roughness={0.82} />
+            </mesh>
+            <mesh position={[w * 0.22, -h * 0.16, 0.028]} rotation={[0, 0, -0.08]} castShadow>
+              <planeGeometry args={[0.32, 0.22]} />
+              <meshStandardMaterial color="#fff3b0" roughness={0.8} />
+            </mesh>
+            <mesh position={[w * 0.32, h * 0.28, 0.032]} rotation={[0, 0, 0.06]}>
+              <circleGeometry args={[0.018, 10]} />
+              <meshBasicMaterial color="#c43c3c" />
+            </mesh>
+          </>
+        )}
       </group>
     </Examinable>
   )
@@ -774,3 +799,5 @@ export function HallwayScene() {
 }
 
 useTexture.preload('/textura/piso_madeira.png')
+useTexture.preload('/image/foto-achados.png')
+useTexture.preload('/image/foto-turma-corredor.png')

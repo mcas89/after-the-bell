@@ -56,11 +56,11 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: '03:17',
-        description: 'A mesma hora do celular. Não está mudando. Algo está errado.',
+        description: 'Meu celular e o relógio marcam 03:17. O ponteiro não anda. Não sei há quanto tempo.',
       },
       {
         title: '03:17',
-        description: 'Não é só o relógio da sala. O corredor também está parado em 03:17.',
+        description: 'Outro relógio. Mesma hora. 03:17. Não é só o da sala.',
       },
     ],
   },
@@ -71,7 +71,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Minha mochila',
-        description: 'Essa é minha. O chaveiro ainda está no zíper.',
+        description: 'L.F. no chaveiro. É minha.',
       },
     ],
   },
@@ -82,7 +82,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Outra mochila',
-        description: 'Não sei de quem é, mas não me parece estranha.',
+        description: 'Tem outra mochila aqui. Está aberta. Algumas coisas me parecem familiares... mas eu não lembro de quem são.',
       },
     ],
   },
@@ -93,7 +93,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Duas bebidas',
-        description: 'Dois refrigerantes. Um está quase vazio.',
+        description: 'Duas. Uma quase vazia. Eu não estava bebendo as duas.',
       },
     ],
   },
@@ -104,7 +104,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'L + M',
-        description: 'L + M. Depois de todos irem a… O meu é o quinto. Código: niver.',
+        description: 'L + M. “O meu é o quinto. Código: meu niver.” Quem é M?',
       },
     ],
   },
@@ -115,7 +115,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'A forca',
-        description: 'Um jogo da forca no quadro. A palavra está incompleta.',
+        description: 'A palavra era AMIZADE.',
       },
     ],
   },
@@ -137,7 +137,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'A garota',
-        description: 'Vi uma garota de uniforme no corredor. Preciso achar ela.',
+        description: 'Vi uma garota de uniforme no corredor. Ela fugiu. Preciso achar ela.',
       },
     ],
   },
@@ -148,7 +148,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Como sair',
-        description: 'A gente pesquisou como sair. Porta, alarme, segundo andar. A busca das 03:05 não abre.',
+        description: 'Amanhecer. Alarme. Porta trancada. Segundo andar. A busca das 03:05 não abre. A gente estava tentando sair daqui.',
       },
     ],
   },
@@ -159,7 +159,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Alarme',
-        description: 'Depois das 22h o alarme arma. As portas trancam por fora.',
+        description: 'Depois das 22h as portas trancam por fora. A gente ficou aqui depois disso.',
       },
     ],
   },
@@ -170,13 +170,12 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Segundo andar',
-        description: 'Desenho de uma janela no segundo andar. O vidro está quebrado.',
+        description: 'Uma janela quebrada no segundo andar foi marcada à caneta.',
       },
     ],
   },
 ]
 
-/** Deduções ficam cadastradas aqui. A lógica de desbloqueio entra numa etapa futura. */
 export const DEDUCTIONS: ClueDef[] = [
   {
     id: 'deduction-not-alone',
@@ -186,7 +185,7 @@ export const DEDUCTIONS: ClueDef[] = [
     stages: [
       {
         title: 'Eu não estava sozinha',
-        description: 'Tudo indica que havia outra pessoa comigo antes de eu acordar.',
+        description: 'Outra mochila. Duas bebidas. L + M. Tinha alguém aqui comigo.',
       },
     ],
   },

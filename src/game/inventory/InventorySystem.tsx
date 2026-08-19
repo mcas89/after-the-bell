@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { getExamineEntry } from '../data/examineContent'
+import { collectPromptFor } from '../data/examineContent'
 import { useExamineStore } from '../examine/useExamineStore'
+import { isHallLockerId } from '../hallway/lockers'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
@@ -32,11 +33,15 @@ export function InventorySystem() {
       if (event.code === 'KeyF') {
         if (game.interactionState !== 'examining-object') return
         const examine = useExamineStore.getState()
-        const looking = examine.detailId ?? examine.examiningId
-        const collectibleId = looking ? getExamineEntry(looking)?.collectibleId : undefined
-        if (!collectibleId || inventory.has(collectibleId)) return
+        const prompt = collectPromptFor(examine.examiningId, examine.detailId)
+        if (!prompt || inventory.has(prompt.id)) return
         event.preventDefault()
-        inventory.collect(collectibleId)
+        inventory.collect(prompt.id)
+        if (examine.examiningId === 'teachers-cabinet') {
+          if (examine.detailId) useExamineStore.setState({ detailId: null })
+          return
+        }
+        if (isHallLockerId(examine.examiningId)) return
         useExamineStore.getState().stopInspect()
         return
       }

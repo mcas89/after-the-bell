@@ -3,9 +3,11 @@ import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { playSfx, SFX, stopSfxSlice } from '../audio/mixer'
 import { playPinFail } from './phoneAudio'
+import { phoneCall, phonePhoto, phoneThread, type PhoneApp } from './phoneContent'
+
+export type { PhoneApp } from './phoneContent'
 
 export type PhoneUi = 'hidden' | 'notification' | 'locked' | 'pin-entry' | 'unlocked'
-export type PhoneApp = 'home' | 'messages' | 'offline'
 
 const PIN_LEN = 4
 const PHONE_PIN = '0305'
@@ -14,11 +16,13 @@ let lineTimer = 0
 type PhoneState = {
   ui: PhoneUi
   app: PhoneApp
+  viewId: string | null
   armed: boolean
   triggered: boolean
   pin: string
   line: string | null
   shakeAt: number
+  heard: Record<string, boolean>
   trigger: () => void
   ensureReady: () => void
   open: () => void
@@ -27,7 +31,9 @@ type PhoneState = {
   goPin: () => void
   goLocked: () => void
   goHome: () => void
+  goBack: () => boolean
   openApp: (app: Exclude<PhoneApp, 'home'>) => void
+  openView: (id: string) => void
   inputDigit: (digit: string) => void
   deleteDigit: () => void
   tryUnlock: () => void
@@ -39,6 +45,18 @@ function speak(set: (partial: Partial<PhoneState>) => void, line: string, ms = 2
   lineTimer = window.setTimeout(() => set({ line: null }), ms)
 }
 
+function hear(
+  get: () => PhoneState,
+  set: (partial: Partial<PhoneState>) => void,
+  key: string,
+  line: string,
+  ms?: number,
+) {
+  if (get().heard[key]) return
+  set({ heard: { ...get().heard, [key]: true } })
+  speak(set, line, ms)
+}
+
 export function isPhoneOpen(ui: PhoneUi) {
   return ui === 'locked' || ui === 'pin-entry' || ui === 'unlocked'
 }
@@ -46,11 +64,13 @@ export function isPhoneOpen(ui: PhoneUi) {
 export const usePhoneStore = create<PhoneState>((set, get) => ({
   ui: 'hidden',
   app: 'home',
+  viewId: null,
   armed: false,
   triggered: false,
   pin: '',
   line: null,
   shakeAt: 0,
+  heard: {},
   trigger: () => {
     if (get().triggered) return
     playSfx(SFX.phoneNotify, 0.72)
@@ -73,12 +93,12 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
     if (useGameStore.getState().interactionState !== 'gameplay') return
     stopSfxSlice()
     const unlocked = useGameStore.getState().phoneUnlocked
-    set({ ui: unlocked ? 'unlocked' : 'locked', pin: '', app: 'home' })
+    set({ ui: unlocked ? 'unlocked' : 'locked', pin: '', app: 'home', viewId: null })
     saveManager.updateStoryState({ phone0317Seen: true })
   },
   close: () => {
     if (!isPhoneOpen(get().ui)) return
-    set({ ui: 'hidden', pin: '', app: 'home' })
+    set({ ui: 'hidden', pin: '', app: 'home', viewId: null })
   },
   dismissNotice: () => {
     if (get().ui !== 'notification') return
@@ -95,11 +115,43 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
   },
   goHome: () => {
     if (get().ui !== 'unlocked') return
-    set({ app: 'home' })
+    set({ app: 'home', viewId: null })
+  },
+  goBack: () => {
+    if (get().ui !== 'unlocked') return false
+    if (get().viewId) {
+      set({ viewId: null })
+      return true
+    }
+    if (get().app !== 'home') {
+      set({ app: 'home' })
+      return true
+    }
+    return false
   },
   openApp: (app) => {
     if (get().ui !== 'unlocked') return
-    set({ app })
+    set({ app, viewId: null })
+    if (app === 'clock') hear(get, set, 'clock', 'Seis da manhã...?')
+    if (app === 'notes') hear(get, set, 'notes', 'Eu estava preparando alguma coisa.')
+    if (app === 'maps') hear(get, set, 'maps', 'Eu estava tentando ir pra casa.')
+    if (app === 'camera') hear(get, set, 'camera', 'Não abre.')
+    if (app === 'recorder') hear(get, set, 'recorder', 'Arquivo danificado.')
+  },
+  openView: (id) => {
+    if (get().ui !== 'unlocked') return
+    const thread = phoneThread(id)
+    if (thread?.locked) {
+      hear(get, set, 'locked', thread.line ?? 'Por que só essa não abre?')
+      return
+    }
+    if (thread?.line) hear(get, set, thread.id, thread.line)
+    const photo = phonePhoto(id)
+    if (photo) hear(get, set, photo.id, photo.line)
+    const call = phoneCall(id)
+    if (call?.line) hear(get, set, call.id, call.line)
+    if (thread || photo) set({ viewId: id })
+    if (call?.line) return
   },
   inputDigit: (digit) => {
     if (get().ui !== 'pin-entry') return
@@ -117,7 +169,7 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
     if (get().pin === PHONE_PIN) {
       window.clearTimeout(lineTimer)
       useGameStore.getState().unlockPhone()
-      set({ ui: 'unlocked', pin: '', line: null, app: 'home' })
+      set({ ui: 'unlocked', pin: '', line: null, app: 'home', viewId: null })
       saveManager.save()
       return
     }

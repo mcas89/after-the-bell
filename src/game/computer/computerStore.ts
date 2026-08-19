@@ -5,9 +5,12 @@ import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { refreshControlLock } from '../systems/controlLock'
 import { playPinFail } from '../phone/phoneAudio'
+import { APP_ROOT, pcNode, type ComputerApp } from './computerContent'
+
+export type { ComputerApp } from './computerContent'
 
 export const LAB_ON_PC_ID = 'lab-pc-5'
-export const COMPUTER_PIN = '2011'
+export const COMPUTER_PIN = '2107'
 
 export const WEB_HISTORY = [
   { time: '01:52', query: 'quanto falta pra amanhecer' },
@@ -18,7 +21,6 @@ export const WEB_HISTORY = [
 ] as const
 
 export type ComputerUi = 'hidden' | 'login' | 'desktop'
-export type ComputerApp = 'home' | 'docs' | 'web' | 'trash' | 'notes' | 'work'
 
 const PIN_LEN = 4
 let lineTimer = 0
@@ -27,19 +29,30 @@ let historyTimer = 0
 type ComputerState = {
   ui: ComputerUi
   app: ComputerApp
+  nodeId: string | null
   pin: string
   line: string | null
   shakeAt: number
   unlocked: boolean
   historySeen: boolean
   historyOpen: boolean
+  historyPage: string | null
+  redactHits: number
+  heard: Record<string, boolean>
+  notesProps: boolean
   hydrate: (unlocked: boolean) => void
   open: () => void
   close: () => void
   openApp: (app: Exclude<ComputerApp, 'home'>) => void
+  openNode: (id: string) => void
+  goBack: () => boolean
   goHome: () => void
   toggleHistory: () => void
   closeHistory: () => void
+  selectHistory: (time: string) => void
+  clearHistoryPage: () => void
+  showNotesProps: () => void
+  say: (line: string, ms?: number) => void
   inputDigit: (digit: string) => void
   deleteDigit: () => void
   tryUnlock: () => void
@@ -52,6 +65,18 @@ function speak(set: (partial: Partial<ComputerState>) => void, line: string, ms 
   lineTimer = window.setTimeout(() => set({ line: null }), ms)
 }
 
+function hear(
+  get: () => ComputerState,
+  set: (partial: Partial<ComputerState>) => void,
+  key: string,
+  line: string,
+  ms?: number,
+) {
+  if (get().heard[key]) return
+  set({ heard: { ...get().heard, [key]: true } })
+  speak(set, line, ms)
+}
+
 export function isComputerOpen(ui: ComputerUi) {
   return ui === 'login' || ui === 'desktop'
 }
@@ -59,24 +84,34 @@ export function isComputerOpen(ui: ComputerUi) {
 export const useComputerStore = create<ComputerState>((set, get) => ({
   ui: 'hidden',
   app: 'home',
+  nodeId: null,
   pin: '',
   line: null,
   shakeAt: 0,
   unlocked: false,
   historySeen: false,
   historyOpen: false,
+  historyPage: null,
+  redactHits: 0,
+  heard: {},
+  notesProps: false,
   hydrate: (unlocked) => {
     window.clearTimeout(lineTimer)
     window.clearTimeout(historyTimer)
     set({
       ui: 'hidden',
       app: 'home',
+      nodeId: null,
       pin: '',
       line: null,
       shakeAt: 0,
       unlocked,
       historySeen: Boolean(useGameStore.getState().flags.computerHistorySeen),
       historyOpen: false,
+      historyPage: null,
+      redactHits: 0,
+      heard: {},
+      notesProps: false,
     })
   },
   open: () => {
@@ -91,35 +126,103 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
       unlocked,
       pin: '',
       app: 'home',
+      nodeId: null,
       historyOpen: false,
+      historyPage: null,
+      notesProps: false,
     })
     if (!unlocked) speak(set, 'Está com meu login, mas qual é a minha senha? Eu não lembro.')
   },
   close: () => {
     if (!isComputerOpen(get().ui)) return
     window.clearTimeout(lineTimer)
-    set({ ui: 'hidden', pin: '', app: 'home', line: null, historyOpen: false })
+    set({
+      ui: 'hidden',
+      pin: '',
+      app: 'home',
+      nodeId: null,
+      line: null,
+      historyOpen: false,
+      historyPage: null,
+      notesProps: false,
+    })
     useGameStore.getState().setInteractionState('gameplay')
     refreshControlLock()
   },
   openApp: (app) => {
     if (get().ui !== 'desktop') return
-    set({ app, historyOpen: false })
+    set({
+      app,
+      nodeId: APP_ROOT[app] ?? null,
+      historyOpen: false,
+      historyPage: null,
+      notesProps: false,
+    })
+    if (app === 'clock') hear(get, set, 'clock', 'Nem os segundos...')
+    if (app === 'notes') hear(get, set, 'notes', 'Vazio.')
+  },
+  openNode: (id) => {
+    if (get().ui !== 'desktop') return
+    const node = pcNode(id)
+    if (!node) return
+    set({ nodeId: id, notesProps: false })
+    if (node.id === 'docs-pessoal') {
+      if (!get().heard.pessoal) hear(get, set, 'pessoal', 'Vazia...?')
+      else hear(get, set, 'pessoal-2', 'Diz que tem dois arquivos aqui.')
+      return
+    }
+    if (node.line) hear(get, set, node.id, node.line)
+  },
+  goBack: () => {
+    if (get().ui !== 'desktop') return false
+    if (get().app === 'web' && get().historyPage) {
+      set({ historyPage: null })
+      return true
+    }
+    if (get().notesProps) {
+      set({ notesProps: false })
+      return true
+    }
+    const node = pcNode(get().nodeId)
+    if (node?.parent) {
+      set({ nodeId: node.parent })
+      return true
+    }
+    return false
   },
   goHome: () => {
     if (get().ui !== 'desktop') return
-    set({ app: 'home', historyOpen: false })
+    set({ app: 'home', nodeId: null, historyOpen: false, historyPage: null, notesProps: false })
   },
   toggleHistory: () => {
     if (get().ui !== 'desktop' || get().app !== 'web') return
     const next = !get().historyOpen
-    set({ historyOpen: next })
+    set({ historyOpen: next, historyPage: next ? get().historyPage : null })
     if (next) get().readHistory()
   },
   closeHistory: () => {
     if (!get().historyOpen) return
     set({ historyOpen: false })
   },
+  selectHistory: (time) => {
+    if (get().ui !== 'desktop' || get().app !== 'web') return
+    set({ historyOpen: true, historyPage: time })
+    get().readHistory()
+    if (time !== '03:05') return
+    const hits = get().redactHits + 1
+    set({ redactHits: hits })
+    if (hits >= 2) hear(get, set, 'redact', 'O que eu procurei aqui?')
+  },
+  clearHistoryPage: () => {
+    if (!get().historyPage) return
+    set({ historyPage: null })
+  },
+  showNotesProps: () => {
+    if (get().app !== 'notes') return
+    set({ notesProps: true })
+    hear(get, set, 'notes-props', '03:09... mas não tem nada escrito.')
+  },
+  say: (line, ms) => speak(set, line, ms),
   inputDigit: (digit) => {
     if (get().ui !== 'login') return
     if (!/^\d$/.test(digit)) return
@@ -136,12 +239,12 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
     if (get().pin === COMPUTER_PIN) {
       window.clearTimeout(lineTimer)
       useGameStore.getState().addFlag('computerUnlocked')
-      set({ ui: 'desktop', unlocked: true, pin: '', line: null, app: 'home' })
+      set({ ui: 'desktop', unlocked: true, pin: '', line: null, app: 'home', nodeId: null })
       saveManager.save()
       return
     }
     playPinFail()
-    speak(set, 'Eu não lembro da senha...')
+    speak(set, get().pin === '0305' ? 'Não é essa.' : 'Eu não lembro da senha...')
     set({ pin: '', shakeAt: Date.now() })
   },
   readHistory: () => {

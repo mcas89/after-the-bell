@@ -182,6 +182,13 @@
   color: rgba(200, 196, 188, 0.58);
 }
 
+.phone-date {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(200, 196, 188, 0.7);
+}
+
 .phone-note {
   display: flex;
   flex-direction: column;
@@ -445,6 +452,14 @@
   background: linear-gradient(180deg, #7ad18a 0%, #2f6fd6 100%);
 }
 
+.phone-app-icon.is-notes {
+  background: linear-gradient(180deg, #ffe08a 0%, #f0c14a 100%);
+}
+
+.phone-app-icon.is-recorder {
+  background: linear-gradient(180deg, #ff7a6a 0%, #c43c3c 100%);
+}
+
 .phone-app-badge {
   position: absolute;
   top: -0.32rem;
@@ -476,10 +491,15 @@
 .phone-inbox {
   display: flex;
   flex-direction: column;
+  flex: 1;
   margin: 0;
   padding: 0;
   overflow: auto;
   list-style: none;
+}
+
+.phone-inbox > li {
+  display: block;
 }
 
 .phone-inbox-empty {
@@ -493,8 +513,28 @@
   display: flex;
   gap: 0.45rem;
   align-items: flex-start;
+  width: 100%;
   padding: 0.58rem 0.1rem;
+  border: 0;
   border-bottom: 1px solid rgba(236, 228, 216, 0.08);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.phone-thread.is-locked {
+  opacity: 0.78;
+}
+
+.phone-thread-lock {
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-top: 0.38rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(200, 196, 188, 0.35);
 }
 
 .phone-thread-unread {
@@ -552,6 +592,221 @@
   margin: 0;
   font-size: 1.15rem;
   font-weight: 600;
+}
+
+.phone-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0 0.1rem 0.4rem;
+  overflow: auto;
+  list-style: none;
+}
+
+.phone-chat li {
+  display: flex;
+  flex-direction: column;
+  max-width: 86%;
+  gap: 0.12rem;
+}
+
+.phone-chat li span {
+  padding: 0.42rem 0.55rem;
+  border-radius: 0.85rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.phone-chat li em {
+  font-size: 0.52rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  color: rgba(200, 196, 188, 0.45);
+}
+
+.phone-chat li.is-them {
+  align-self: flex-start;
+}
+
+.phone-chat li.is-them span {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.phone-chat li.is-me {
+  align-self: flex-end;
+}
+
+.phone-chat li.is-me span {
+  background: rgba(52, 199, 89, 0.28);
+}
+
+.phone-call-kind {
+  width: 1.1rem;
+  margin-top: 0.28rem;
+  color: rgba(200, 196, 188, 0.7);
+  font-size: 0.82rem;
+}
+
+.phone-call-kind.is-in {
+  color: #62e08a;
+}
+
+.phone-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.phone-photo-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.phone-photo-tile img,
+.phone-photo-gap {
+  display: block;
+  width: 100%;
+  height: 5.2rem;
+  object-fit: cover;
+  border-radius: 0.45rem;
+  background: #12141a;
+}
+
+.phone-photo-tile img.is-smear,
+.phone-photo.is-smear img {
+  filter: contrast(1.08) saturate(0.7);
+}
+
+.phone-photo-gap {
+  background: #07080c;
+}
+
+.phone-photo-tile span {
+  font-size: 0.62rem;
+  color: rgba(200, 196, 188, 0.62);
+}
+
+.phone-photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #0c0e12;
+}
+
+.phone-photo img {
+  display: block;
+  width: 100%;
+  max-height: 11.5rem;
+  object-fit: contain;
+}
+
+.phone-photo.is-smear::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 46%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(12, 14, 18, 0.55) 28%, #0c0e12 78%);
+}
+
+.phone-photo-broken {
+  display: grid;
+  place-items: center;
+  min-height: 8.5rem;
+  border-radius: 0.5rem;
+  background: #07080c;
+  color: rgba(200, 196, 188, 0.62);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.phone-note-list {
+  margin: 0;
+  padding: 0 0.2rem;
+  list-style: none;
+}
+
+.phone-note-list li {
+  padding: 0.42rem 0;
+  border-bottom: 1px solid rgba(236, 228, 216, 0.08);
+  font-size: 0.86rem;
+}
+
+.phone-clock-big {
+  margin: 0.35rem 0 0;
+  font-size: 2.15rem;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.phone-clock-sub {
+  margin: 0.25rem 0 1rem;
+  font-size: 0.68rem;
+  color: rgba(200, 196, 188, 0.6);
+}
+
+.phone-alarm {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.45rem;
+  align-items: baseline;
+  padding: 0.7rem 0.2rem;
+  border-top: 1px solid rgba(236, 228, 216, 0.1);
+  font-size: 0.86rem;
+}
+
+.phone-alarm em {
+  font-size: 0.62rem;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #62e08a;
+}
+
+.phone-maps-off {
+  margin: 0 0 0.85rem;
+  font-size: 0.72rem;
+  color: rgba(200, 196, 188, 0.62);
+}
+
+.phone-maps-hist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.phone-maps-hist li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding: 0.55rem 0.1rem;
+  border-bottom: 1px solid rgba(236, 228, 216, 0.08);
+}
+
+.phone-maps-hist span {
+  font-size: 0.78rem;
+}
+
+.phone-maps-hist em {
+  font-size: 0.62rem;
+  font-style: normal;
+  color: rgba(200, 196, 188, 0.55);
 }
 
 .phone-line {

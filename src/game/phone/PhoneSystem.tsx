@@ -44,6 +44,7 @@ export function PhoneSystem() {
       if (event.code === 'Escape') {
         if (isPhoneOpen(ui)) {
           event.preventDefault()
+          if (phone.goBack()) return
           phone.close()
         } else if (ui === 'notification' && game.interactionState === 'gameplay') {
           event.preventDefault()
