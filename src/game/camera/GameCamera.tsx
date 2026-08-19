@@ -52,6 +52,8 @@ export function GameCamera({ target }: Props) {
       hallWallMix.current = 0
       followYaw.current = playerMotion.yaw
       resetLook()
+      lookInput.yaw = playerMotion.yaw
+      lookInput.pitch = 0.12
     }
     const cameraOverride = liveOverride.current ?? storedOverride
     const shot = ROOM_SHOTS[currentRoom]
@@ -111,16 +113,22 @@ export function GameCamera({ target }: Props) {
     } else if (phoneFollow) {
       hallWall.current = null
       hallWallMix.current = 0
-      followYaw.current = dampAngle(followYaw.current, playerMotion.yaw, 7.4, dt)
+      ensureLookReady()
+      const moving = playerMotion.speed > 0.14 && !lookInput.dragging
+      if (moving) {
+        lookInput.yaw = dampAngle(lookInput.yaw, playerMotion.yaw, 5.1, dt)
+        lookInput.pitch = THREE.MathUtils.damp(lookInput.pitch, 0.12, 5.1, dt)
+      }
+      followYaw.current = lookInput.yaw
       const framed = playerOrbitShot(
         playerMotion.x,
         playerMotion.z,
-        followYaw.current,
-        0.16,
+        lookInput.yaw,
+        lookInput.pitch,
         getRoom(currentRoom),
         lookInput.zoom,
       )
-      hallDamp.current = lookInput.dragging ? 12 : 6.2
+      hallDamp.current = lookInput.dragging ? 16 : moving ? 5.4 : 7.2
       desired.current.set(...framed.position)
       lookDesired.current.set(...framed.lookAt)
       persp.fov = THREE.MathUtils.damp(persp.fov, framed.fov, framed.damp, dt)

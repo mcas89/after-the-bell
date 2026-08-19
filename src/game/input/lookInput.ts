@@ -1,14 +1,14 @@
 import { playerMotion } from '../player/playerMotion'
 
-export const PITCH_MIN = -0.28
-export const PITCH_MAX = 0.52
-export const ZOOM_MIN = 1.38
-export const ZOOM_MAX = 4.4
-export const ZOOM_DEFAULT = 2.42
+export const PITCH_MIN = -0.42
+export const PITCH_MAX = 0.78
+export const ZOOM_MIN = 1.7
+export const ZOOM_MAX = 8.6
+export const ZOOM_DEFAULT = 5.35
 
 export const lookInput = {
   yaw: 0,
-  pitch: 0.08,
+  pitch: 0.12,
   zoom: ZOOM_DEFAULT,
   dragging: false,
   consumed: false,
@@ -30,11 +30,11 @@ export function resetLook() {
 export function ensureLookReady() {
   if (lookInput.ready) return
   lookInput.yaw = playerMotion.yaw
-  lookInput.pitch = 0.08
+  lookInput.pitch = 0.12
   lookInput.ready = true
 }
 
-export function applyLookDelta(dx: number, dy: number, yawSens = 0.0052, pitchSens = 0.0034) {
+export function applyLookDelta(dx: number, dy: number, yawSens = 0.0058, pitchSens = 0.0038) {
   lookInput.yaw -= dx * yawSens
   lookInput.pitch = Math.min(PITCH_MAX, Math.max(PITCH_MIN, lookInput.pitch + dy * pitchSens))
   lookInput.ready = true
@@ -46,4 +46,8 @@ export function applyZoom(delta: number) {
 
 export function setZoom(value: number) {
   lookInput.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value))
+}
+
+export function scaleZoom(scale: number) {
+  setZoom(lookInput.zoom * scale)
 }
