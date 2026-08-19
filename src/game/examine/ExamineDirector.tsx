@@ -13,6 +13,8 @@ import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { isHallLockerId } from '../hallway/lockers'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { LAB_ON_PC_ID, useComputerStore } from '../computer/computerStore'
+import { lookInput } from '../input/lookInput'
+import { readTouchUi } from '../input/useTouchUi'
 import { useGameStore } from '../state/useGameStore'
 
 const lightPos = new THREE.Vector3()
@@ -75,8 +77,9 @@ export function ExamineDirector() {
       pointer.current.inside = false
     }
 
-    const onPointer = (event: PointerEvent) => {
-      if (event.button !== 0 && event.pointerType !== 'touch') return
+    const pending = { id: null as string | null, x: 0, y: 0 }
+
+    const tryInspect = (clientX: number, clientY: number) => {
       const game = useGameStore.getState()
       if (!game.prologueDone || game.interactionState !== 'gameplay') return
       if (isPhoneOpen(usePhoneStore.getState().ui)) return
@@ -86,18 +89,16 @@ export function ExamineDirector() {
       const nearby = getNearbyExamineIds(playerMotion.x, playerMotion.z)
       examine.setNearby(nearby)
       const id =
-        pickExamineId(event.clientX, event.clientY, camera, el, nearby) ??
+        pickExamineId(clientX, clientY, camera, el, nearby) ??
         (examine.hoveredId && nearby.includes(examine.hoveredId) ? examine.hoveredId : null)
       if (!id) return
 
       if (id === 'hall-door-12' && hall.labDoor === 'ajar') {
-        event.preventDefault()
         if (hall.beginLabOpen()) playSfx(SFX.doorOpen, 0.62)
         return
       }
 
       if (id === LAB_ON_PC_ID) {
-        event.preventDefault()
         playSfx(SFX.clickItem, 0.45)
         useComputerStore.getState().open()
         return
@@ -105,9 +106,34 @@ export function ExamineDirector() {
 
       if (game.currentRoom === 'hallway' && !hall.seenMysteriousGirl) return
 
-      event.preventDefault()
       playSfx(SFX.clickItem, 0.45)
       beginInspect(id, camera, inspectId, holdLeft)
+    }
+
+    const onPointer = (event: PointerEvent) => {
+      if (event.button !== 0 && event.pointerType !== 'touch') return
+      const game = useGameStore.getState()
+      if (!game.prologueDone || game.interactionState !== 'gameplay') return
+      if (isPhoneOpen(usePhoneStore.getState().ui)) return
+      const touchLook = readTouchUi() && event.pointerType !== 'mouse'
+      if (touchLook) {
+        pending.id = 'wait'
+        pending.x = event.clientX
+        pending.y = event.clientY
+        return
+      }
+      event.preventDefault()
+      tryInspect(event.clientX, event.clientY)
+    }
+
+    const onUp = (event: PointerEvent) => {
+      if (pending.id === null) return
+      pending.id = null
+      if (lookInput.consumed) return
+      const game = useGameStore.getState()
+      if (game.interactionState !== 'gameplay') return
+      event.preventDefault()
+      tryInspect(event.clientX, event.clientY)
     }
 
     const onContext = (event: MouseEvent) => {
@@ -119,6 +145,8 @@ export function ExamineDirector() {
     el.addEventListener('pointermove', onMove)
     el.addEventListener('pointerleave', onLeave)
     el.addEventListener('pointerdown', onPointer)
+    el.addEventListener('pointerup', onUp)
+    el.addEventListener('pointercancel', onUp)
     el.addEventListener('contextmenu', onContext)
     el.style.cursor = 'default'
     return () => {
@@ -126,6 +154,8 @@ export function ExamineDirector() {
       el.removeEventListener('pointermove', onMove)
       el.removeEventListener('pointerleave', onLeave)
       el.removeEventListener('pointerdown', onPointer)
+      el.removeEventListener('pointerup', onUp)
+      el.removeEventListener('pointercancel', onUp)
       el.removeEventListener('contextmenu', onContext)
     }
   }, [camera, gl])

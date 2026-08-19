@@ -5,6 +5,7 @@ import type { Group } from 'three'
 import { AudioRoot } from '../audio/AudioRoot'
 import { Footsteps } from '../audio/Footsteps'
 import { GameCamera } from '../camera/GameCamera'
+import { TouchLook } from '../input/TouchLook'
 import { ExamineDirector } from '../examine/ExamineDirector'
 import { Player } from '../player/Player'
 import { PrologueDirector } from '../prologue/PrologueDirector'
@@ -42,6 +43,7 @@ export function GameCanvas() {
       <Footsteps />
       <PrologueDirector />
       <ExamineDirector />
+      <TouchLook />
       <RoomWorld />
       <Player groupRef={playerRef} />
       <GameCamera target={playerRef} />

@@ -14,6 +14,7 @@ import { SaveHistory } from './SaveHistory'
 import { ChapterHud } from './ChapterHud'
 import { MapFade } from './MapFade'
 import { TouchControls } from './TouchControls'
+import { LookPad } from './LookPad'
 import { useTouchUi } from '../input/useTouchUi'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { ComputerSystem } from '../computer/ComputerSystem'
@@ -55,10 +56,11 @@ export function Hud() {
       <ExamineHud />
       <ChapterHud />
       <TouchControls />
+      <LookPad />
       {doorLine && !hallLine ? <p className="spoken-line">{doorLine}</p> : null}
       <SaveDirector />
       <SaveHistory />
-      {showHint && !touch ? <p className="hud">WASD para andar</p> : null}
+      {showHint && !touch ? <p className="hud has-look">WASD para andar</p> : null}
       <MapFade />
     </div>
   )

@@ -61,6 +61,41 @@ textarea {
   pointer-events: none;
 }
 
+.hud.has-look {
+  left: 6.5rem;
+}
+
+.look-pad {
+  position: fixed;
+  left: max(1.1rem, env(safe-area-inset-left));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  z-index: 21;
+  display: grid;
+  place-items: center;
+  width: 4.4rem;
+  height: 4.4rem;
+  padding: 0;
+  border: 1px solid rgba(214, 204, 188, 0.28);
+  border-radius: 50%;
+  background: rgba(8, 10, 14, 0.62);
+  color: rgba(236, 228, 216, 0.9);
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.look-pad.is-active {
+  cursor: grabbing;
+  background: rgba(8, 10, 14, 0.78);
+  border-color: rgba(214, 204, 188, 0.45);
+}
+
+.look-pad svg {
+  width: 1.55rem;
+  height: 1.55rem;
+  pointer-events: none;
+}
+
 .prompt-hud {
   position: fixed;
   left: 50%;
