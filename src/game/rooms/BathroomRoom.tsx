@@ -5,6 +5,7 @@ import { DOOR, doorColliders } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
+import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 
 const { width, depth, height } = CLASSROOM_1.size
@@ -111,6 +112,7 @@ export function BathroomRoom() {
             <boxGeometry args={[1.85, 2.1, 0.06]} />
             <meshStandardMaterial color="#6a6864" roughness={0.7} />
           </mesh>
+          <FurnitureModel url="/privada.glb" position={[-0.55, 0, 0]} rotationY={Math.PI / 2} targetHeight={0.82} pickable={false} />
           <Examinable id={i === 1 ? 'bath-stall' : 'bath-stall-empty'}>
             <mesh position={[0.82, 1.05, 0]} castShadow>
               <boxGeometry args={[0.06, 2.1, 1.1]} />
@@ -122,22 +124,7 @@ export function BathroomRoom() {
 
       <Examinable id="bath-sink">
         <group position={[1.7, 0, 2.72]}>
-          <mesh position={[0, 0.82, 0]} castShadow receiveShadow>
-            <boxGeometry args={[1.55, 0.14, 0.48]} />
-            <meshStandardMaterial color="#d8d4cc" roughness={0.35} metalness={0.08} />
-          </mesh>
-          <mesh position={[0, 0.42, 0]} receiveShadow>
-            <boxGeometry args={[1.5, 0.84, 0.42]} />
-            <meshStandardMaterial color="#8a8680" roughness={0.7} />
-          </mesh>
-          <mesh position={[-0.28, 0.9, 0]} >
-            <cylinderGeometry args={[0.12, 0.12, 0.08, 12]} />
-            <meshStandardMaterial color="#c8c4bc" roughness={0.3} />
-          </mesh>
-          <mesh position={[0.32, 0.9, 0]}>
-            <cylinderGeometry args={[0.12, 0.12, 0.08, 12]} />
-            <meshStandardMaterial color="#c8c4bc" roughness={0.3} />
-          </mesh>
+          <FurnitureModel url="/pia.glb" position={[0, 0, 0]} targetHeight={0.96} pickable={false} />
         </group>
       </Examinable>
 

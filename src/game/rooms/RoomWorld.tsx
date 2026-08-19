@@ -28,13 +28,13 @@ function RoomFog() {
     const fog = scene.fog as THREE.Fog | null
     const hallway = room === 'hallway'
     const patio = room === 'passage' || room === 'library' || room === 'bathroom'
-    const color = hallway || patio ? '#0b0d12' : '#0b0f15'
+    const color = hallway || patio ? '#0a1018' : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
     if (fog) {
       fog.color.set(color)
-      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : room === 'passage' ? 8.4 : room === 'library' || room === 'bathroom' ? 4.2 : 6.4
-      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : room === 'passage' ? 22 : room === 'library' || room === 'bathroom' ? 11 : 14.2
+      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : room === 'passage' ? 7.2 : room === 'library' || room === 'bathroom' ? 4.2 : 6.4
+      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : room === 'passage' ? 28 : room === 'library' || room === 'bathroom' ? 11 : 14.2
     }
   }, [gl, hallOpen, room, scene])
 

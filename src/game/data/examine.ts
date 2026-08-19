@@ -57,7 +57,7 @@ export const EXAMINE_ITEMS: Record<string, ExamineTuning> = {
   'lobby-storage': { radius: 2.3, pick: 'large', examineDistance: 1.4, examineFacing: [1, 0, 0] },
   'lobby-bathroom': { radius: 2.3, pick: 'large', examineDistance: 1.4, examineFacing: [-1, 0, 0] },
   'lobby-office': { radius: 2.3, pick: 'large', examineDistance: 1.4, examineFacing: [0, 0, -1] },
-  'lobby-exit': { radius: 2.3, pick: 'large', examineDistance: 1.4, examineFacing: [-1, 0, 0] },
+  'lobby-exit': { radius: 2.4, pick: 'large', examineDistance: 1.45, examineFacing: [0, 0, -1] },
   'lobby-counter': { radius: 2.35, pick: 'large', examineDistance: 1.25, examineFacing: [-1, 0, 0] },
   'lobby-switch': { radius: 2.15, pick: 'small', pickRadius: 0.22, examineDistance: 0.55, examineFacing: [1, 0, 0], fov: 34 },
   'hall-door-11': { radius: 2.3, pick: 'large', examineDistance: 1.4 },

@@ -11,8 +11,13 @@ export const LOBBY = {
   maxZ: 13.65,
   doorHalf: HALL.doorHalf,
   doorH: HALL.doorH,
-  entranceHalf: 0.96,
+  entranceHalf: 1.82,
 } as const
+
+const NEAR_Z = 3.55
+const FAR_Z = 10.05
+const DIR_X = -3.55
+const GATE_X = 5.45
 
 export type LobbyDoorId = 'library' | 'storage' | 'bathroom' | 'office' | 'exit'
 
@@ -38,7 +43,7 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
   library: {
     id: 'library',
     x: -LOBBY.halfX,
-    z: 9.15,
+    z: NEAR_Z,
     wall: 'west',
     inward: 1,
     yaw: 0,
@@ -53,7 +58,7 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
   storage: {
     id: 'storage',
     x: -LOBBY.halfX,
-    z: 3.55,
+    z: FAR_Z,
     wall: 'west',
     inward: 1,
     yaw: 0,
@@ -68,7 +73,7 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
   bathroom: {
     id: 'bathroom',
     x: LOBBY.halfX,
-    z: 9.15,
+    z: NEAR_Z,
     wall: 'east',
     inward: -1,
     yaw: 0,
@@ -82,7 +87,7 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
   },
   office: {
     id: 'office',
-    x: 0,
+    x: DIR_X,
     z: LOBBY.maxZ,
     wall: 'north',
     inward: -1,
@@ -97,11 +102,11 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
   },
   exit: {
     id: 'exit',
-    x: LOBBY.halfX,
-    z: 3.55,
-    wall: 'east',
+    x: GATE_X,
+    z: LOBBY.maxZ,
+    wall: 'north',
     inward: -1,
-    yaw: 0,
+    yaw: Math.PI / 2,
     label: '',
     subtitle: undefined,
     examineId: 'lobby-exit',
@@ -114,10 +119,12 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
 
 export const LOBBY_PLANTER = {
   x: 0,
-  z: 6.45,
-  halfX: 1.42,
-  halfZ: 1.02,
+  z: 6.85,
+  halfX: 1.18,
+  halfZ: 1.18,
 } as const
+
+export const LOBBY_EAST_OPEN_FROM = 6.35
 
 export const LOBBY_DOOR_LIST = Object.values(LOBBY_DOORS)
 
@@ -130,7 +137,7 @@ export function nearLobbyDoor(px: number, pz: number, door: LobbyDoorDef, reach 
 }
 
 export function nearLobbyEntrance(px: number, pz: number) {
-  return pz < 1.55 && Math.abs(px) < 1.22
+  return pz < 1.7 && Math.abs(px) < 2.05
 }
 
 export function inLobbyDoorway(px: number, pz: number, door: LobbyDoorDef) {
@@ -172,9 +179,10 @@ export function lobbyColliders(): Aabb[] {
     { at: LOBBY_DOORS.library.z, half: LOBBY.doorHalf },
     { at: LOBBY_DOORS.storage.z, half: LOBBY.doorHalf },
   ]
-  const eastOpen = [
-    { at: LOBBY_DOORS.bathroom.z, half: LOBBY.doorHalf },
-    { at: LOBBY_DOORS.exit.z, half: LOBBY.doorHalf },
+  const eastOpen = [{ at: LOBBY_DOORS.bathroom.z, half: LOBBY.doorHalf }]
+  const northOpen = [
+    { at: LOBBY_DOORS.office.x, half: LOBBY.doorHalf },
+    { at: LOBBY_DOORS.exit.x, half: LOBBY.doorHalf + 0.12 },
   ]
   const west = wallRuns(LOBBY.minZ, LOBBY.maxZ, westOpen).map((part) => ({
     minX: -h - tOut,
@@ -182,13 +190,19 @@ export function lobbyColliders(): Aabb[] {
     minZ: part.start,
     maxZ: part.end,
   }))
-  const east = wallRuns(LOBBY.minZ, LOBBY.maxZ, eastOpen).map((part) => ({
+  const eastBath = wallRuns(LOBBY.minZ, LOBBY_EAST_OPEN_FROM, eastOpen).map((part) => ({
     minX: h - tIn,
     maxX: h + tOut,
     minZ: part.start,
     maxZ: part.end,
   }))
-  const north = wallRuns(-h, h, [{ at: LOBBY_DOORS.office.x, half: LOBBY.doorHalf }]).map((part) => ({
+  const eastRail = {
+    minX: h - 0.1,
+    maxX: h + 0.16,
+    minZ: LOBBY_EAST_OPEN_FROM,
+    maxZ: LOBBY.maxZ,
+  }
+  const north = wallRuns(-h, h, northOpen).map((part) => ({
     minX: part.start,
     maxX: part.end,
     minZ: LOBBY.maxZ - tIn,
@@ -203,7 +217,8 @@ export function lobbyColliders(): Aabb[] {
   const bed = LOBBY_PLANTER
   return [
     ...west,
-    ...east,
+    ...eastBath,
+    eastRail,
     ...north,
     ...south,
     ...LOBBY_DOOR_LIST.filter((door) => !door.open).map(doorBlock),
