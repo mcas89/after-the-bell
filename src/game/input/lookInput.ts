@@ -2,9 +2,9 @@ import { playerMotion } from '../player/playerMotion'
 
 export const PITCH_MIN = -0.42
 export const PITCH_MAX = 0.78
-export const ZOOM_MIN = 1.7
-export const ZOOM_MAX = 8.6
-export const ZOOM_DEFAULT = 5.35
+export const ZOOM_MIN = 1.55
+export const ZOOM_MAX = 4.15
+export const ZOOM_DEFAULT = 2.45
 
 export const lookInput = {
   yaw: 0,

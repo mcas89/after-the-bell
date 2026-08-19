@@ -9,9 +9,9 @@ import { useMapTravelStore } from '../maps/mapTravel'
 import { useGameStore } from '../state/useGameStore'
 import { girlMotion } from '../hallway/GirlSilhouette'
 import { useHallwayStore } from '../hallway/useHallwayStore'
-import { lookInput, resetLook, ensureLookReady } from '../input/lookInput'
+import { lookInput, resetLook, ensureLookReady, ZOOM_MIN } from '../input/lookInput'
 import { readTouchUi } from '../input/useTouchUi'
-import { playerOrbitShot } from './orbitShot'
+import { phoneZoomMax, playerOrbitShot } from './orbitShot'
 import { hallwayLookAhead, hallwayWallShot, hallwayWallSide, mixHallwayShot, silhouetteLongShot } from './hallwayZones'
 
 type Props = {
@@ -54,6 +54,7 @@ export function GameCamera({ target }: Props) {
       resetLook()
       lookInput.yaw = playerMotion.yaw
       lookInput.pitch = 0.12
+      lookInput.zoom = Math.min(lookInput.zoom, phoneZoomMax(getRoom(currentRoom)))
     }
     const cameraOverride = liveOverride.current ?? storedOverride
     const shot = ROOM_SHOTS[currentRoom]
@@ -120,12 +121,14 @@ export function GameCamera({ target }: Props) {
         lookInput.pitch = THREE.MathUtils.damp(lookInput.pitch, 0.12, 5.1, dt)
       }
       followYaw.current = lookInput.yaw
+      const room = getRoom(currentRoom)
+      lookInput.zoom = Math.min(Math.max(lookInput.zoom, ZOOM_MIN), phoneZoomMax(room))
       const framed = playerOrbitShot(
         playerMotion.x,
         playerMotion.z,
         lookInput.yaw,
         lookInput.pitch,
-        getRoom(currentRoom),
+        room,
         lookInput.zoom,
       )
       hallDamp.current = lookInput.dragging ? 16 : moving ? 5.4 : 7.2
