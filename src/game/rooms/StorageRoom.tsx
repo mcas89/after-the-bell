@@ -63,7 +63,7 @@ export function StorageRoom() {
       { minX: width / 2, maxX: width / 2 + 0.12, minZ: -depth / 2, maxZ: door.z - door.half },
       { minX: width / 2, maxX: width / 2 + 0.12, minZ: door.z + door.half, maxZ: depth / 2 },
       ...doorCollidersAt(door.wallX, door.z, true),
-      { minX: -2.55, maxX: -1.55, minZ: 1.15, maxZ: 2.05 },
+      { minX: -2.38, maxX: -1.92, minZ: 1.34, maxZ: 1.76 },
       { minX: 0.45, maxX: 1.35, minZ: depth / 2 - 0.95, maxZ: depth / 2 - 0.15 },
       { minX: -width / 2, maxX: -width / 2 + 0.48, minZ: LOCKER_Z - 0.24, maxZ: LOCKER_Z + 0.24 },
       { minX: SKELETON_X - 0.3, maxX: SKELETON_X + 0.3, minZ: -depth / 2, maxZ: -depth / 2 + 0.52 },
@@ -155,7 +155,7 @@ export function StorageRoom() {
           url="/produtos_limpeza.glb"
           position={[-2.15, 0, 1.55]}
           rotationY={Math.PI / 2}
-          targetHeight={0.82}
+          targetHeight={0.41}
         />
       </Examinable>
       <Examinable id="zel-vac">

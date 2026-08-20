@@ -1,5 +1,5 @@
-import { Canvas } from '@react-three/fiber'
-import { Suspense } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
+import { Suspense, useLayoutEffect } from 'react'
 import { create } from 'zustand'
 import { duckMusic, holdAmbient, playSfx, SFX } from '../audio/mixer'
 import { useExamineStore } from '../examine/useExamineStore'
@@ -61,20 +61,31 @@ export function tryForceSkeletonCabinet() {
   return true
 }
 
+function ScareHeadCam() {
+  const { camera } = useThree()
+  useLayoutEffect(() => {
+    camera.position.set(0.48, 2.12, 0.02)
+    camera.lookAt(0, 2.02, 0)
+    camera.updateProjectionMatrix()
+  }, [camera])
+  return null
+}
+
 export function SkeletonScareOverlay() {
   const on = useSkeletonScareStore((s) => s.active)
   if (!on) return null
   return (
     <div className="skeleton-scare">
       <Canvas
-        camera={{ position: [1.42, 1.18, 0.12], fov: 24, near: 0.08, far: 12 }}
+        camera={{ position: [0.48, 2.12, 0.02], fov: 28, near: 0.04, far: 8 }}
         gl={{ antialias: true, alpha: false }}
         style={{ width: '100%', height: '100%' }}
       >
+        <ScareHeadCam />
         <color attach="background" args={['#070504']} />
         <ambientLight intensity={0.42} color="#c8b8a8" />
-        <directionalLight position={[1.6, 2.4, 0.8]} intensity={1.55} color="#efe2d0" />
-        <pointLight position={[0.2, 1.6, 1.1]} intensity={3.4} distance={5} decay={1.6} color="#f0d8c0" />
+        <directionalLight position={[1.2, 3.2, 0.4]} intensity={1.55} color="#efe2d0" />
+        <pointLight position={[0.35, 2.35, 0.4]} intensity={3.8} distance={4} decay={1.6} color="#f0d8c0" />
         <Suspense fallback={null}>
           <FurnitureModel
             url="/esqueleto.glb"

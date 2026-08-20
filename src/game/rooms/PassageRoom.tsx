@@ -196,7 +196,7 @@ function PatioCounter() {
       </mesh>
       <mesh position={[0, 1.48, -0.04]}>
         <boxGeometry args={[half * 2 - 0.22, 0.86, 0.06]} />
-        <meshStandardMaterial color="#1c1814" roughness={0.94} />
+        <meshStandardMaterial color="#3a5a68" roughness={0.28} metalness={0.22} emissive="#1a3040" emissiveIntensity={0.18} />
       </mesh>
       <mesh position={[0, 1.04, -0.16]} receiveShadow>
         <boxGeometry args={[half * 2 + 0.08, 0.1, 0.32]} />

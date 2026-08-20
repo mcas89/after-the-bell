@@ -125,7 +125,7 @@ export const LOBBY_PLANTER = {
 } as const
 
 export const LOBBY_COUNTER = { x: 0.28, z: LOBBY.maxZ, half: 0.74 }
-export const LOBBY_BENCH = { x: 2.92, z: 4.62, hx: 0.82, hz: 0.34 }
+export const LOBBY_BENCH = { x: 2.92, z: 4.62, hx: 0.2, hz: 0.09 }
 export const LOBBY_BIN = { x: 3.98, z: 0.48, hx: 0.22, hz: 0.22 }
 export const LOBBY_EXTINGUISHER = { x: -LOBBY.halfX + 0.14, z: 3.4 }
 
