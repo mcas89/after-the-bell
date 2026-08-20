@@ -13,10 +13,20 @@ const { width, depth, height } = CLASSROOM_1.size
 const wallT = 0.12
 const wall = { color: '#2f2c28', roughness: 0.92 }
 
+const westX = -width / 2 + 0.38
+const southZ = -depth / 2 + 0.38
+const northZ = depth / 2 - 0.38
+const eastX = width / 2 - 0.38
+
 const SHELVES = [
-  { url: '/estante_livros1.glb', x: -3.58, z: -1.2, rot: Math.PI / 2, hx: 0.34, hz: 1.12 },
-  { url: '/estante_livros2.glb', x: -3.58, z: 1.28, rot: Math.PI / 2, hx: 0.34, hz: 1.12 },
-  { url: '/estante_livros1.glb', x: 0.2, z: -2.88, rot: 0, hx: 1.12, hz: 0.34 },
+  { url: '/estante_livros1.glb', x: westX, z: -1.4, rot: -Math.PI / 2, hx: 0.34, hz: 1.08 },
+  { url: '/estante_livros2.glb', x: westX, z: 0.8, rot: -Math.PI / 2, hx: 0.34, hz: 1.08 },
+  { url: '/estante_livros1.glb', x: westX, z: 2.42, rot: -Math.PI / 2, hx: 0.34, hz: 1.08 },
+  { url: '/estante_livros2.glb', x: -1.75, z: southZ, rot: 0, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros1.glb', x: 0.5, z: southZ, rot: 0, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros2.glb', x: -2.35, z: northZ, rot: Math.PI, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros1.glb', x: 0.15, z: northZ, rot: Math.PI, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros2.glb', x: eastX, z: 1.35, rot: Math.PI / 2, hx: 0.34, hz: 1.08 },
 ] as const
 
 const TABLE = { x: 1.72, z: 1.22, hx: 0.72, hz: 0.42 }
@@ -116,8 +126,8 @@ export function LibraryRoom() {
         <HallwayDoor x={DOOR.wallX} z={DOOR.z} inward={-1} label="BIB" subtitle="BIBLIOTECA" open />
       </Examinable>
 
-      {SHELVES.map((shelf) => (
-        <Examinable key={`${shelf.x}-${shelf.z}`} id="lib-shelf">
+      {SHELVES.map((shelf, index) => (
+        <Examinable key={`lib-shelf-${index}`} id="lib-shelf">
           <FurnitureModel
             url={shelf.url}
             position={[shelf.x, 0, shelf.z]}
@@ -138,13 +148,30 @@ export function LibraryRoom() {
         <FurnitureModel url="/cadeira_madeira.glb" position={[CHAIR.x, 0, CHAIR.z]} rotationY={Math.PI} targetHeight={0.92} />
       </Examinable>
       <Examinable id="lib-ledger">
-        <FurnitureModel url="/livro_aberto.glb" position={[TABLE.x + 0.08, 0.78, TABLE.z + 0.04]} targetWidth={0.42} />
+        <FurnitureModel url="/livro_aberto.glb" position={[TABLE.x + 0.1, 0.78, TABLE.z + 0.02]} targetWidth={0.4} />
       </Examinable>
-      <FurnitureModel url="/pilha_livros1.glb" position={[TABLE.x - 0.38, 0.78, TABLE.z - 0.08]} targetHeight={0.22} pickable={false} />
+      <Examinable id="lib-stack">
+        <FurnitureModel url="/pilha_livros1.glb" position={[TABLE.x - 0.42, 0.78, TABLE.z - 0.12]} targetHeight={0.22} />
+      </Examinable>
+      <Examinable id="lib-pile">
+        <FurnitureModel url="/livros_pilhado.glb" position={[TABLE.x - 0.36, 0.78, TABLE.z + 0.18]} targetHeight={0.16} />
+      </Examinable>
       <Examinable id="lib-note">
-        <mesh position={[TABLE.x - 0.12, 0.8, TABLE.z + 0.22]} rotation={[-Math.PI / 2, 0, -0.4]}>
-          <boxGeometry args={[0.16, 0.22, 0.02]} />
+        <mesh position={[TABLE.x - 0.08, 0.8, TABLE.z + 0.28]} rotation={[-Math.PI / 2, 0, -0.4]}>
+          <boxGeometry args={[0.16, 0.22, 0.008]} />
           <meshStandardMaterial color="#cfc3a8" roughness={0.9} />
+        </mesh>
+      </Examinable>
+      <Examinable id="lib-hours">
+        <mesh position={[TABLE.x + 0.38, 0.8, TABLE.z - 0.16]} rotation={[-Math.PI / 2, 0, 0.22]}>
+          <boxGeometry args={[0.18, 0.12, 0.006]} />
+          <meshStandardMaterial color="#e6dcc4" roughness={0.88} />
+        </mesh>
+      </Examinable>
+      <Examinable id="lib-card">
+        <mesh position={[TABLE.x + 0.28, 0.798, TABLE.z + 0.26]} rotation={[-Math.PI / 2, 0, 0.5]}>
+          <boxGeometry args={[0.11, 0.07, 0.004]} />
+          <meshStandardMaterial color="#d2c4a4" roughness={0.86} />
         </mesh>
       </Examinable>
     </group>

@@ -13,7 +13,7 @@ import {
   LOBBY_DOOR_LIST,
   LOBBY_PLANTER,
   LOBBY_COUNTER,
-  LOBBY_BENCH,
+  LOBBY_BENCHES,
   LOBBY_BIN,
   LOBBY_EXTINGUISHER,
   lobbyColliders,
@@ -300,14 +300,16 @@ export function PassageRoom() {
       <Examinable id="lobby-counter">
         <PatioCounter />
       </Examinable>
-      <Examinable id="lobby-bench">
-        <FurnitureModel
-          url="/banco_patio.glb"
-          position={[LOBBY_BENCH.x, 0, LOBBY_BENCH.z]}
-          rotationY={Math.PI / 2}
-          targetWidth={LOBBY_BENCH.hx * 2}
-        />
-      </Examinable>
+      {LOBBY_BENCHES.map((bench) => (
+        <Examinable key={`lobby-bench-${bench.x}-${bench.z}`} id="lobby-bench">
+          <FurnitureModel
+            url="/banco_patio.glb"
+            position={[bench.x, 0, bench.z]}
+            rotationY={bench.rot}
+            targetWidth={bench.length}
+          />
+        </Examinable>
+      ))}
       <Examinable id="lobby-bin">
         <FurnitureModel url="/lixeira.glb" position={[LOBBY_BIN.x, 0, LOBBY_BIN.z]} targetHeight={0.62} />
       </Examinable>

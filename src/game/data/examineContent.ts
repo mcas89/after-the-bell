@@ -245,6 +245,18 @@ const SHARED: Record<string, ExamineEntry> = {
   'lib-note': {
     line: 'Essa frase de novo...',
   },
+  'lib-hours': {
+    line: 'Fecha às 17h. A porta estava aberta.',
+  },
+  'lib-card': {
+    line: 'Carteirinha. Sem foto. Sem nome.',
+  },
+  'lib-stack': {
+    line: 'Pilha. Nada na lombada.',
+  },
+  'lib-pile': {
+    line: 'Mais livros. Um está marcado.',
+  },
   'lib-chair': {
     line: 'Encostada.',
   },
