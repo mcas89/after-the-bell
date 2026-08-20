@@ -62,9 +62,9 @@ export const BATHROOM: RoomDef = {
 
 export const PASSAGE: RoomDef = {
   id: 'passage',
-  size: { width: 12, depth: 9.6, height: 3.2 },
-  spawn: [0, 0, 1.25],
-  bounds: { minX: -5.75, maxX: 5.75, minZ: -0.12, maxZ: 9.1 },
+  size: { width: 9.2, depth: 7.2, height: 3.15 },
+  spawn: [0, 0, 1.05],
+  bounds: { minX: -4.4, maxX: 4.4, minZ: -0.1, maxZ: 6.75 },
 }
 
 export const ROOMS: Record<RoomId, RoomDef> = {

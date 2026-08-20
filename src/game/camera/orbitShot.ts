@@ -15,7 +15,7 @@ function clamp(value: number, min: number, max: number) {
 const INNER = 0.52
 
 export function phoneZoomMax(room: RoomDef) {
-  if (room.id === 'passage') return 3.35
+  if (room.id === 'passage') return 2.65
   if (room.id === 'hallway') return 2.8
   const span = Math.min(room.bounds.maxX - room.bounds.minX, room.bounds.maxZ - room.bounds.minZ)
   return clamp(span * 0.36, 2.05, 3.05)

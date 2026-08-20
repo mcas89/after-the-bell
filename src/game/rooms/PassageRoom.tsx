@@ -11,7 +11,6 @@ import {
   LOBBY,
   LOBBY_DOORS,
   LOBBY_DOOR_LIST,
-  LOBBY_EAST_OPEN_FROM,
   LOBBY_PLANTER,
   lobbyColliders,
 } from './lobbyLayout'
@@ -24,7 +23,6 @@ const DIR_X = LOBBY_DOORS.office.x
 const wallT = 0.38
 const brick = { color: '#2c2a27', roughness: 0.94 }
 const brickDark = { color: '#23211e', roughness: 0.96 }
-const rail = { color: '#3a3d42', metalness: 0.55, roughness: 0.38 }
 
 type Opening = { at: number; half: number }
 
@@ -144,31 +142,6 @@ function RoomMass({
   )
 }
 
-function Parapet() {
-  const z0 = LOBBY_EAST_OPEN_FROM
-  const z1 = maxZ
-  const span = z1 - z0
-  const mid = (z0 + z1) / 2
-  return (
-    <group>
-      <mesh position={[halfX, 0.42, mid]} receiveShadow>
-        <boxGeometry args={[0.14, 0.84, span]} />
-        <meshStandardMaterial {...rail} />
-      </mesh>
-      {[-1.25, 0, 1.25].map((off) => (
-        <mesh key={off} position={[halfX, 0.92, mid + off]} castShadow>
-          <boxGeometry args={[0.06, 0.22, 0.06]} />
-          <meshStandardMaterial {...rail} />
-        </mesh>
-      ))}
-      <mesh position={[halfX, 1.04, mid]}>
-        <boxGeometry args={[0.08, 0.05, span]} />
-        <meshStandardMaterial color="#4a4e54" metalness={0.48} roughness={0.4} />
-      </mesh>
-    </group>
-  )
-}
-
 function Planter() {
   const { x, z, halfX: hx } = LOBBY_PLANTER
   return (
@@ -182,7 +155,7 @@ function Planter() {
 function PatioGate() {
   const door = LOBBY_DOORS.exit
   return (
-    <group position={[door.x, 0, door.z]} rotation={[0, door.yaw + Math.PI / 4, 0]}>
+    <group position={[door.x, 0, door.z + 0.08]} rotation={[0, door.yaw + Math.PI / 2, 0]}>
       <FurnitureModel url="/portao_saida.glb" position={[0, 0, 0]} targetHeight={2.05} pickable={false} />
     </group>
   )
@@ -191,10 +164,10 @@ function PatioGate() {
 function ExitStairs() {
   const door = LOBBY_DOORS.exit
   return (
-    <group position={[door.x, 0, door.z + 0.42]}>
-      <FurnitureModel url="/escada_saida.glb" position={[0, 0, 0.2]} rotationY={Math.PI} targetWidth={1.55} pickable={false} />
-      <mesh position={[0, -1.35, 2.15]}>
-        <boxGeometry args={[2.4, 2.4, 1.6]} />
+    <group position={[door.x, -1.12, door.z + 0.72]}>
+      <FurnitureModel url="/escada_saida.glb" position={[0, 0, 0.18]} rotationY={Math.PI} targetWidth={1.42} pickable={false} />
+      <mesh position={[0, -0.55, 1.85]}>
+        <boxGeometry args={[2.2, 2.2, 1.5]} />
         <meshBasicMaterial color="#05060a" />
       </mesh>
     </group>
@@ -241,10 +214,10 @@ export function PassageRoom() {
         <>
           <ambientLight intensity={0.22} color="#a8b8b0" />
           <hemisphereLight args={['#3a4c58', '#12100e', 0.3]} />
-          <pointLight position={[0, 2.15, 3.2]} color="#d8c8a8" intensity={1.25} distance={8.2} decay={2} />
-          <pointLight position={[0, 2.1, 6.6]} color="#efe6d0" intensity={1.45} distance={7.4} decay={2} />
-          <pointLight position={[-2.8, 2.0, 4.6]} color="#efe6d0" intensity={1.15} distance={6.4} decay={2} />
-          <pointLight position={[2.8, 2.0, 4.6]} color="#efe6d0" intensity={1.15} distance={6.4} decay={2} />
+          <pointLight position={[0, 2.05, 2.45]} color="#d8c8a8" intensity={1.15} distance={6.4} decay={2} />
+          <pointLight position={[0, 2.0, 5.05]} color="#efe6d0" intensity={1.3} distance={6.2} decay={2} />
+          <pointLight position={[-2.15, 1.9, 3.45]} color="#efe6d0" intensity={1.05} distance={5.4} decay={2} />
+          <pointLight position={[2.15, 1.9, 3.45]} color="#efe6d0" intensity={1.05} distance={5.4} decay={2} />
         </>
       ) : (
         <>
@@ -274,16 +247,14 @@ export function PassageRoom() {
         <meshBasicMaterial color="#07090e" />
       </mesh>
 
-      <RoomMass cx={-halfX - 2.05} cz={(minZ + LOBBY_EAST_OPEN_FROM) / 2} sx={4.1} sz={LOBBY_EAST_OPEN_FROM - minZ} />
-      <RoomMass cx={-halfX - 2.05} cz={(LOBBY_EAST_OPEN_FROM + maxZ) / 2} sx={4.1} sz={maxZ - LOBBY_EAST_OPEN_FROM} />
-      <RoomMass cx={halfX + 1.85} cz={(minZ + LOBBY_EAST_OPEN_FROM) / 2} sx={3.7} sz={LOBBY_EAST_OPEN_FROM - minZ} />
-      <RoomMass cx={DIR_X} cz={maxZ + 1.95} sx={6.2} sz={3.9} />
+      <RoomMass cx={-halfX - 1.95} cz={(minZ + maxZ) / 2} sx={3.9} sz={maxZ - minZ} />
+      <RoomMass cx={halfX + 1.85} cz={(minZ + maxZ) / 2} sx={3.7} sz={maxZ - minZ} />
+      <RoomMass cx={DIR_X} cz={maxZ + 1.85} sx={5.4} sz={3.7} />
 
       <WallAlongZ x={-halfX} from={minZ} to={maxZ} openings={westOpen} />
-      <WallAlongZ x={halfX} from={minZ} to={LOBBY_EAST_OPEN_FROM} openings={eastOpen} />
+      <WallAlongZ x={halfX} from={minZ} to={maxZ} openings={eastOpen} />
       <WallAlongX z={maxZ} from={-halfX} to={halfX} openings={northOpen} />
       <WallAlongX z={minZ} from={-halfX} to={halfX} openings={[{ at: 0, half: entranceHalf }]} />
-      <Parapet />
 
       <mesh position={[0, 1.55, minZ - 2.4]}>
         <planeGeometry args={[width + 10, 8]} />

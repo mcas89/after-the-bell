@@ -3,21 +3,21 @@ import type { RoomId } from '../data/rooms'
 import { HALL } from '../hallway/hallwayLayout'
 
 export const LOBBY = {
-  width: 12,
-  depth: 9.6,
-  height: 3.2,
-  halfX: 6,
-  minZ: -0.3,
-  maxZ: 9.3,
+  width: 9.2,
+  depth: 7.2,
+  height: 3.15,
+  halfX: 4.6,
+  minZ: -0.25,
+  maxZ: 6.95,
   doorHalf: HALL.doorHalf,
   doorH: HALL.doorH,
-  entranceHalf: 1.55,
+  entranceHalf: 1.42,
 } as const
 
-const NEAR_Z = 2.45
-const FAR_Z = 6.75
-const DIR_X = -2.4
-const GATE_X = 3.5
+const NEAR_Z = 1.85
+const FAR_Z = 4.95
+const DIR_X = -1.75
+const GATE_X = 2.45
 
 export type LobbyDoorId = 'library' | 'storage' | 'bathroom' | 'office' | 'exit'
 
@@ -119,12 +119,10 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
 
 export const LOBBY_PLANTER = {
   x: 0,
-  z: 4.55,
-  halfX: 0.92,
-  halfZ: 0.92,
+  z: 3.4,
+  halfX: 0.78,
+  halfZ: 0.78,
 } as const
-
-export const LOBBY_EAST_OPEN_FROM = 4.55
 
 export const LOBBY_DOOR_LIST = Object.values(LOBBY_DOORS)
 
@@ -137,7 +135,7 @@ export function nearLobbyDoor(px: number, pz: number, door: LobbyDoorDef, reach 
 }
 
 export function nearLobbyEntrance(px: number, pz: number) {
-  return pz < 1.7 && Math.abs(px) < 2.05
+  return pz < 1.45 && Math.abs(px) < 1.85
 }
 
 export function inLobbyDoorway(px: number, pz: number, door: LobbyDoorDef) {
@@ -190,18 +188,12 @@ export function lobbyColliders(): Aabb[] {
     minZ: part.start,
     maxZ: part.end,
   }))
-  const eastBath = wallRuns(LOBBY.minZ, LOBBY_EAST_OPEN_FROM, eastOpen).map((part) => ({
+  const east = wallRuns(LOBBY.minZ, LOBBY.maxZ, eastOpen).map((part) => ({
     minX: h - tIn,
     maxX: h + tOut,
     minZ: part.start,
     maxZ: part.end,
   }))
-  const eastRail = {
-    minX: h - 0.1,
-    maxX: h + 0.16,
-    minZ: LOBBY_EAST_OPEN_FROM,
-    maxZ: LOBBY.maxZ,
-  }
   const north = wallRuns(-h, h, northOpen).map((part) => ({
     minX: part.start,
     maxX: part.end,
@@ -217,8 +209,7 @@ export function lobbyColliders(): Aabb[] {
   const bed = LOBBY_PLANTER
   return [
     ...west,
-    ...eastBath,
-    eastRail,
+    ...east,
     ...north,
     ...south,
     ...LOBBY_DOOR_LIST.filter((door) => !door.open).map(doorBlock),
