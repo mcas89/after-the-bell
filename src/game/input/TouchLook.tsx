@@ -9,6 +9,7 @@ const DRAG = 10
 
 function canTouchLook() {
   if (!readTouchUi()) return false
+  if (!lookInput.follow) return false
   const game = useGameStore.getState()
   if (!game.prologueDone || game.interactionState !== 'gameplay') return false
   if (isPhoneOpen(usePhoneStore.getState().ui)) return false

@@ -166,7 +166,7 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Lá fora ainda está vazio.',
   },
   'lobby-library': {
-    line: 'Biblioteca. A porta está aberta.',
+    line: 'Biblioteca. Fechada.',
   },
   'lobby-storage': {
     line: 'Zeladoria. Fechada.',

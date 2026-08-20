@@ -116,7 +116,7 @@ export function Player({ groupRef }: Props) {
       group.position.x = next.x
       group.position.z = next.z
 
-      if (room === 'classroom1' || room === 'room12' || room === 'teachers' || room === 'room14' || room === 'library' || room === 'bathroom') {
+      if (room === 'classroom1' || room === 'room12' || room === 'teachers' || room === 'room14' || room === 'library') {
         const clamped = clampWithDoor(
           group.position.x,
           group.position.z,

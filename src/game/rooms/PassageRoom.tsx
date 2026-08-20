@@ -25,7 +25,6 @@ const wallT = 0.38
 const brick = { color: '#2c2a27', roughness: 0.94 }
 const brickDark = { color: '#23211e', roughness: 0.96 }
 const rail = { color: '#3a3d42', metalness: 0.55, roughness: 0.38 }
-const MOON = '#c3d2e4'
 
 type Opening = { at: number; half: number }
 
@@ -115,11 +114,13 @@ function EmergencyLamp({ x, y, z, on }: { x: number; y: number; z: number; on: b
         <meshStandardMaterial
           color="#9a8a62"
           emissive="#e6d08a"
-          emissiveIntensity={on ? 1.8 : 0.7}
+          emissiveIntensity={on ? 1.85 : 0.04}
           roughness={0.45}
         />
       </mesh>
-      <pointLight position={[0, -0.12, 0]} color="#efe6d0" intensity={on ? 1.75 : 0.72} distance={on ? 8.4 : 5.2} decay={2} />
+      {on ? (
+        <pointLight position={[0, -0.12, 0]} color="#efe6d0" intensity={1.85} distance={8.4} decay={2} />
+      ) : null}
     </group>
   )
 }
@@ -154,7 +155,7 @@ function Parapet() {
         <boxGeometry args={[0.14, 0.84, span]} />
         <meshStandardMaterial {...rail} />
       </mesh>
-      {[-1.6, -0.55, 0.55, 1.6].map((off) => (
+      {[-1.25, 0, 1.25].map((off) => (
         <mesh key={off} position={[halfX, 0.92, mid + off]} castShadow>
           <boxGeometry args={[0.06, 0.22, 0.06]} />
           <meshStandardMaterial {...rail} />
@@ -173,7 +174,7 @@ function Planter() {
   return (
     <group position={[x, 0, z]}>
       <FurnitureModel url="/canteiro.glb" position={[0, 0, 0]} targetWidth={hx * 2} pickable={false} />
-      <FurnitureModel url="/estatua_patio_cima.glb" position={[0, 0.42, 0]} targetHeight={2.15} pickable={false} />
+      <FurnitureModel url="/estatua_patio_cima.glb" position={[0, 0.32, 0]} targetHeight={1.72} pickable={false} />
     </group>
   )
 }
@@ -181,8 +182,8 @@ function Planter() {
 function PatioGate() {
   const door = LOBBY_DOORS.exit
   return (
-    <group position={[door.x, 0, door.z]} rotation={[0, door.yaw, 0]}>
-      <FurnitureModel url="/portao_saida.glb" position={[0, 0, 0]} targetHeight={2.28} pickable={false} />
+    <group position={[door.x, 0, door.z]} rotation={[0, door.yaw + Math.PI / 4, 0]}>
+      <FurnitureModel url="/portao_saida.glb" position={[0, 0, 0]} targetHeight={2.05} pickable={false} />
     </group>
   )
 }
@@ -238,26 +239,18 @@ export function PassageRoom() {
     <group>
       {lightsOn ? (
         <>
-          <ambientLight intensity={0.2} color="#a8b8b0" />
-          <hemisphereLight args={['#3a4c58', '#12100e', 0.28]} />
-          <pointLight position={[0, 2.2, 4.2]} color="#d8c8a8" intensity={1.15} distance={10} decay={2} />
-          <pointLight position={[0, 2.15, 9.2]} color="#efe6d0" intensity={1.35} distance={8.4} decay={2} />
-          <pointLight position={[-4.2, 2.05, 6.4]} color="#efe6d0" intensity={1.05} distance={7.2} decay={2} />
-          <pointLight position={[4.2, 2.05, 6.4]} color="#efe6d0" intensity={1.05} distance={7.2} decay={2} />
+          <ambientLight intensity={0.22} color="#a8b8b0" />
+          <hemisphereLight args={['#3a4c58', '#12100e', 0.3]} />
+          <pointLight position={[0, 2.15, 3.2]} color="#d8c8a8" intensity={1.25} distance={8.2} decay={2} />
+          <pointLight position={[0, 2.1, 6.6]} color="#efe6d0" intensity={1.45} distance={7.4} decay={2} />
+          <pointLight position={[-2.8, 2.0, 4.6]} color="#efe6d0" intensity={1.15} distance={6.4} decay={2} />
+          <pointLight position={[2.8, 2.0, 4.6]} color="#efe6d0" intensity={1.15} distance={6.4} decay={2} />
         </>
       ) : (
         <>
-          <ambientLight intensity={0.055} color="#7a90a8" />
-          <hemisphereLight args={[MOON, '#0a0c10', 0.42]} />
-          <directionalLight
-            position={[-6.2, 11, -4.5]}
-            intensity={0.38}
-            color={MOON}
-            castShadow
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
-          />
-          <pointLight position={[0, 3.4, 6.4]} color={MOON} intensity={0.22} distance={14} decay={2} />
+          <ambientLight intensity={0.012} color="#6a7c90" />
+          <hemisphereLight args={['#15202c', '#05060a', 0.07]} />
+          <directionalLight position={[-3.4, 8.5, -2.2]} intensity={0.06} color="#8aa6bc" />
         </>
       )}
 
@@ -281,10 +274,10 @@ export function PassageRoom() {
         <meshBasicMaterial color="#07090e" />
       </mesh>
 
-      <RoomMass cx={-halfX - 2.15} cz={(minZ + 6.35) / 2} sx={4.3} sz={6.35 - minZ} />
-      <RoomMass cx={-halfX - 2.15} cz={(6.35 + maxZ) / 2} sx={4.3} sz={maxZ - 6.35} />
-      <RoomMass cx={halfX + 1.95} cz={(minZ + LOBBY_EAST_OPEN_FROM) / 2} sx={3.9} sz={LOBBY_EAST_OPEN_FROM - minZ} />
-      <RoomMass cx={-3.55} cz={maxZ + 2.05} sx={7.4} sz={4.1} />
+      <RoomMass cx={-halfX - 2.05} cz={(minZ + LOBBY_EAST_OPEN_FROM) / 2} sx={4.1} sz={LOBBY_EAST_OPEN_FROM - minZ} />
+      <RoomMass cx={-halfX - 2.05} cz={(LOBBY_EAST_OPEN_FROM + maxZ) / 2} sx={4.1} sz={maxZ - LOBBY_EAST_OPEN_FROM} />
+      <RoomMass cx={halfX + 1.85} cz={(minZ + LOBBY_EAST_OPEN_FROM) / 2} sx={3.7} sz={LOBBY_EAST_OPEN_FROM - minZ} />
+      <RoomMass cx={DIR_X} cz={maxZ + 1.95} sx={6.2} sz={3.9} />
 
       <WallAlongZ x={-halfX} from={minZ} to={maxZ} openings={westOpen} />
       <WallAlongZ x={halfX} from={minZ} to={LOBBY_EAST_OPEN_FROM} openings={eastOpen} />
@@ -303,7 +296,7 @@ export function PassageRoom() {
       {LOBBY_DOOR_LIST.filter((door) => door.kind === 'door').map((door) => (
         <Examinable key={door.id} id={door.examineId}>
           <HallwayDoor
-            x={door.x}
+            x={door.wall === 'west' ? door.x - 0.16 : door.x}
             z={door.z}
             inward={door.inward}
             yaw={door.yaw}

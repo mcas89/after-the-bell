@@ -32,13 +32,20 @@ function RoomFog() {
     const fog = scene.fog as THREE.Fog | null
     const hallway = room === 'hallway'
     const patio = room === 'passage' || room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office'
-    const color = hallway || (patio && patioLit) ? '#0a1018' : patio ? '#0a1018' : '#0b0f15'
+    const color =
+      hallway || (room === 'passage' && patioLit)
+        ? '#0a1018'
+        : room === 'passage'
+          ? '#05070b'
+          : patio
+            ? '#0a1018'
+            : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
     if (fog) {
       fog.color.set(color)
-      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : room === 'passage' && patioLit ? 7.2 : room === 'passage' ? 7.2 : room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office' ? 4.2 : 6.4
-      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : room === 'passage' && patioLit ? 18.4 : room === 'passage' ? 28 : room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office' ? 11 : 14.2
+      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : room === 'passage' && patioLit ? 7.4 : room === 'passage' ? 2.2 : room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office' ? 4.2 : 6.4
+      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : room === 'passage' && patioLit ? 20 : room === 'passage' ? 8.2 : room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office' ? 11 : 14.2
     }
   }, [gl, hallOpen, patioLit, room, scene])
 

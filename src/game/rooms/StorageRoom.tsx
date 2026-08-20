@@ -1,7 +1,7 @@
 import { useLayoutEffect } from 'react'
 import type { Aabb } from '../data/furniture'
 import { getRoom } from '../data/rooms'
-import { DOOR, doorColliders } from '../door/doorLayout'
+import { doorCollidersAt, wallDoor } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
@@ -11,14 +11,15 @@ import { TexturedFloor } from './TexturedFloor'
 
 const room = getRoom('storage')
 const { width, depth, height } = room.size
+const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#322e2a', roughness: 0.94 }
 
 function DoorWall() {
-  const x = width / 2
-  const doorZ = DOOR.z
-  const doorHalf = DOOR.half
-  const doorH = DOOR.height
+  const x = door.wallX
+  const doorZ = door.z
+  const doorHalf = door.half
+  const doorH = door.height
   const lintelH = height - doorH
   const zA = -depth / 2
   const zB = doorZ - doorHalf
@@ -48,9 +49,9 @@ export function StorageRoom() {
       { minX: -width / 2, maxX: width / 2, minZ: -depth / 2 - 0.12, maxZ: -depth / 2 },
       { minX: -width / 2 - 0.12, maxX: -width / 2, minZ: -depth / 2, maxZ: depth / 2 },
       { minX: -width / 2, maxX: width / 2, minZ: depth / 2, maxZ: depth / 2 + 0.12 },
-      { minX: width / 2, maxX: width / 2 + 0.12, minZ: -depth / 2, maxZ: DOOR.z - DOOR.half },
-      { minX: width / 2, maxX: width / 2 + 0.12, minZ: DOOR.z + DOOR.half, maxZ: depth / 2 },
-      ...doorColliders(true),
+      { minX: width / 2, maxX: width / 2 + 0.12, minZ: -depth / 2, maxZ: door.z - door.half },
+      { minX: width / 2, maxX: width / 2 + 0.12, minZ: door.z + door.half, maxZ: depth / 2 },
+      ...doorCollidersAt(door.wallX, door.z, true),
     ]
     setRoomColliders('storage', walls)
     return () => clearRoomColliders('storage')
@@ -89,9 +90,9 @@ export function StorageRoom() {
       </mesh>
       <DoorWall />
 
-      <HallwayPeek />
+      <HallwayPeek wallX={door.wallX} z={door.z} />
       <Examinable id="side-door-storage">
-        <HallwayDoor x={DOOR.wallX} z={DOOR.z} inward={-1} label="ZEL" subtitle="ZELADORIA" open />
+        <HallwayDoor x={door.wallX} z={door.z} inward={-1} label="ZEL" subtitle="ZELADORIA" open />
       </Examinable>
 
       <Examinable id="lobby-switch">

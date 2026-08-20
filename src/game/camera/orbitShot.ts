@@ -15,7 +15,7 @@ function clamp(value: number, min: number, max: number) {
 const INNER = 0.52
 
 export function phoneZoomMax(room: RoomDef) {
-  if (room.id === 'passage') return 4.15
+  if (room.id === 'passage') return 3.35
   if (room.id === 'hallway') return 2.8
   const span = Math.min(room.bounds.maxX - room.bounds.minX, room.bounds.maxZ - room.bounds.minZ)
   return clamp(span * 0.36, 2.05, 3.05)
@@ -53,12 +53,12 @@ export function playerOrbitShot(
   const sx = Math.sin(yaw)
   const cz = Math.cos(yaw)
   const inner = phone ? INNER : 0.55
-  const yMax = room.id === 'passage' ? 2.95 : room.size.height - 0.4
+  const yMax = room.id === 'passage' ? 2.95 : room.size.height - 0.35
   const y = phone
-    ? clamp(1.48 + pitch * 0.34 + dist * 0.1, 1.38, yMax)
+    ? clamp(2.42 + pitch * 0.28 + dist * 0.16, 2.05, yMax)
     : clamp(1.52 + pitch * 0.34 + dist * 0.08, 1.28, room.size.height - 0.38)
-  const lookLift = phone ? clamp(0.92 + pitch * 0.7, 0.4, 2.1) : clamp(1.05 + pitch * 0.9, 0.42, 2.18)
-  const lookFwd = phone ? 0.12 : 0.85
+  const lookLift = phone ? clamp(0.62 + pitch * 0.22, 0.42, 1.15) : clamp(1.05 + pitch * 0.9, 0.42, 2.18)
+  const lookFwd = phone ? 0.08 : 0.85
   return {
     position: [
       clamp(px - sx * dist, room.bounds.minX + inner, room.bounds.maxX - inner),

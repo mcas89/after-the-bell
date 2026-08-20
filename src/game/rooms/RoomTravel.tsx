@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
-import { DOOR } from '../door/doorLayout'
+import { DOOR, roomWallDoor } from '../door/doorLayout'
 import { useDoorStore } from '../door/useDoorStore'
 import { HALL, HALL_DOORS, HALL_PROPS, hallwayStopZ, nearDoor } from '../hallway/hallwayLayout'
 import { hasDarkHallClues } from '../hallway/darkProgress'
@@ -11,6 +11,7 @@ import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { playerMotion } from '../player/playerMotion'
 import { useGameStore } from '../state/useGameStore'
 import { ITEM_IDS } from '../data/items'
+import type { RoomId } from '../data/rooms'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { LOBBY_DOOR_LIST, inLobbyDoorway, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
 
@@ -99,14 +100,15 @@ export function RoomTravel() {
     }
 
     if (isPatioRoom(game.currentRoom)) {
-      if (x >= DOOR.wallX + 0.42 && Math.abs(z - DOOR.z) < DOOR.half - 0.08) {
+      const door = roomWallDoor(game.currentRoom as RoomId)
+      if (x >= door.wallX + 0.42 && Math.abs(z - door.z) < door.half - 0.08) {
         interactGate.cool = 0.8
         hall.setPrompt(null)
         if (game.currentRoom === 'bathroom' && game.flags.bathWetSeen) game.addFlag('bathWetGone')
         requestMapTravel('passage', patioBack(game.currentRoom))
         return
       }
-      hall.setPrompt(Math.hypot(x - (DOOR.wallX - 0.35), z - DOOR.z) <= 1.55 ? 'E voltar' : null)
+      hall.setPrompt(Math.hypot(x - (door.wallX - 0.35), z - door.z) <= 1.55 ? 'E voltar' : null)
       return
     }
 

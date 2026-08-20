@@ -6,10 +6,13 @@ export const ZOOM_MIN = 1.55
 export const ZOOM_MAX = 4.15
 export const ZOOM_DEFAULT = 2.45
 
+const followListeners = new Set<() => void>()
+
 export const lookInput = {
   yaw: 0,
   pitch: 0.12,
   zoom: ZOOM_DEFAULT,
+  follow: false,
   dragging: false,
   consumed: false,
   ready: false,
@@ -20,11 +23,42 @@ export const lookInput = {
   startY: 0,
 }
 
+function notifyFollow() {
+  followListeners.forEach((fn) => fn())
+}
+
+export function subscribePhoneFollow(fn: () => void) {
+  followListeners.add(fn)
+  return () => followListeners.delete(fn)
+}
+
+export function setPhoneFollow(on: boolean) {
+  if (lookInput.follow === on) return
+  lookInput.follow = on
+  if (on) {
+    lookInput.yaw = playerMotion.yaw
+    lookInput.pitch = 0.52
+    lookInput.ready = true
+  } else {
+    lookInput.ready = false
+    lookInput.dragging = false
+  }
+  notifyFollow()
+}
+
+export function togglePhoneFollow() {
+  setPhoneFollow(!lookInput.follow)
+}
+
 export function resetLook() {
   lookInput.dragging = false
   lookInput.consumed = false
   lookInput.ready = false
   lookInput.pointerId = null
+  if (lookInput.follow) {
+    lookInput.follow = false
+    notifyFollow()
+  }
 }
 
 export function ensureLookReady() {

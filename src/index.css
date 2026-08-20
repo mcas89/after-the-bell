@@ -1258,6 +1258,32 @@ textarea {
   bottom: max(6.5rem, calc(env(safe-area-inset-bottom) + 5.2rem));
 }
 
+.touch-btn.is-cam {
+  right: max(1.2rem, env(safe-area-inset-right));
+  bottom: max(6.55rem, calc(env(safe-area-inset-bottom) + 5.35rem));
+  min-width: 3.7rem;
+  width: 3.7rem;
+  height: 3.7rem;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.touch-btn.is-cam svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.touch-btn.is-cam.is-on {
+  border-color: rgba(232, 220, 180, 0.62);
+  background: rgba(28, 26, 22, 0.88);
+  color: rgba(244, 236, 214, 0.98);
+}
+
+.touch-btn.is-act {
+  right: max(1.2rem, env(safe-area-inset-right));
+}
+
 @media (pointer: coarse) {
   .menu-actions {
     bottom: max(2rem, env(safe-area-inset-bottom));

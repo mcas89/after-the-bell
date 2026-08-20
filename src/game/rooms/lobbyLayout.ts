@@ -3,21 +3,21 @@ import type { RoomId } from '../data/rooms'
 import { HALL } from '../hallway/hallwayLayout'
 
 export const LOBBY = {
-  width: 18,
-  depth: 14,
-  height: 3.35,
-  halfX: 9,
-  minZ: -0.35,
-  maxZ: 13.65,
+  width: 12,
+  depth: 9.6,
+  height: 3.2,
+  halfX: 6,
+  minZ: -0.3,
+  maxZ: 9.3,
   doorHalf: HALL.doorHalf,
   doorH: HALL.doorH,
-  entranceHalf: 1.82,
+  entranceHalf: 1.55,
 } as const
 
-const NEAR_Z = 3.55
-const FAR_Z = 10.05
-const DIR_X = -3.55
-const GATE_X = 5.45
+const NEAR_Z = 2.45
+const FAR_Z = 6.75
+const DIR_X = -2.4
+const GATE_X = 3.5
 
 export type LobbyDoorId = 'library' | 'storage' | 'bathroom' | 'office' | 'exit'
 
@@ -50,9 +50,9 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
     label: 'BIB',
     subtitle: 'BIBLIOTECA',
     examineId: 'lobby-library',
-    lockedLine: 'Biblioteca.',
+    lockedLine: 'Biblioteca. Fechada.',
     dest: 'library',
-    open: true,
+    open: false,
     kind: 'door',
   },
   storage: {
@@ -119,12 +119,12 @@ export const LOBBY_DOORS: Record<LobbyDoorId, LobbyDoorDef> = {
 
 export const LOBBY_PLANTER = {
   x: 0,
-  z: 6.85,
-  halfX: 1.18,
-  halfZ: 1.18,
+  z: 4.55,
+  halfX: 0.92,
+  halfZ: 0.92,
 } as const
 
-export const LOBBY_EAST_OPEN_FROM = 6.35
+export const LOBBY_EAST_OPEN_FROM = 4.55
 
 export const LOBBY_DOOR_LIST = Object.values(LOBBY_DOORS)
 

@@ -53,11 +53,18 @@ export const ROOM_11: RoomDef = { ...SIDE_CLASSROOM, id: 'room11' }
 export const ROOM_12: RoomDef = { ...CLASSROOM_1, id: 'room12' }
 export const ROOM_14: RoomDef = { ...CLASSROOM_1, id: 'room14' }
 export const TEACHERS: RoomDef = { ...CLASSROOM_1, id: 'teachers' }
+export const BATHROOM: RoomDef = {
+  id: 'bathroom',
+  size: { width: 5.5, depth: 4.6, height: 2.85 },
+  spawn: [0.4, 0, -0.35],
+  bounds: { minX: -2.55, maxX: 2.55, minZ: -2.1, maxZ: 2.1 },
+}
+
 export const PASSAGE: RoomDef = {
   id: 'passage',
-  size: { width: 18, depth: 14, height: 3.35 },
-  spawn: [0, 0, 1.45],
-  bounds: { minX: -8.7, maxX: 8.7, minZ: -0.15, maxZ: 13.5 },
+  size: { width: 12, depth: 9.6, height: 3.2 },
+  spawn: [0, 0, 1.25],
+  bounds: { minX: -5.75, maxX: 5.75, minZ: -0.12, maxZ: 9.1 },
 }
 
 export const ROOMS: Record<RoomId, RoomDef> = {
@@ -70,7 +77,7 @@ export const ROOMS: Record<RoomId, RoomDef> = {
   room202: { ...ROOM_14, id: 'room202' },
   classroom2: { ...SIDE_CLASSROOM, id: 'classroom2' },
   library: { ...CLASSROOM_1, id: 'library' },
-  bathroom: { ...CLASSROOM_1, id: 'bathroom' },
+  bathroom: BATHROOM,
   office: { ...SIDE_CLASSROOM, id: 'office' },
   teachers: TEACHERS,
   storage: { ...SIDE_CLASSROOM, id: 'storage' },

@@ -77,7 +77,8 @@ export function GameCamera({ target }: Props) {
       cameraMode !== 'cutscene' &&
       cameraMode !== 'firstPerson' &&
       !silhouette &&
-      readTouchUi()
+      readTouchUi() &&
+      lookInput.follow
     const orbiting =
       cameraMode !== 'examine' &&
       cameraMode !== 'cutscene' &&
@@ -118,7 +119,7 @@ export function GameCamera({ target }: Props) {
       const moving = playerMotion.speed > 0.14 && !lookInput.dragging
       if (moving) {
         lookInput.yaw = dampAngle(lookInput.yaw, playerMotion.yaw, 5.1, dt)
-        lookInput.pitch = THREE.MathUtils.damp(lookInput.pitch, 0.12, 5.1, dt)
+        lookInput.pitch = THREE.MathUtils.damp(lookInput.pitch, 0.52, 5.1, dt)
       }
       followYaw.current = lookInput.yaw
       const room = getRoom(currentRoom)

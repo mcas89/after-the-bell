@@ -1,4 +1,4 @@
-import { DOOR } from '../door/doorLayout'
+import { DOOR, roomWallDoor } from '../door/doorLayout'
 import { HALL, HALL_DOORS } from '../hallway/hallwayLayout'
 import type { RoomId } from '../data/rooms'
 import { LOBBY_DOORS } from '../rooms/lobbyLayout'
@@ -7,6 +7,11 @@ export type SpawnPose = {
   x: number
   z: number
   yaw: number
+}
+
+function spawnAtRoomDoor(room: RoomId): SpawnPose {
+  const door = roomWallDoor(room)
+  return { x: door.wallX - 0.92, z: door.z, yaw: -Math.PI / 2 }
 }
 
 export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
@@ -35,23 +40,23 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
     'from-hallway': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
   },
   passage: {
-    'from-hallway': { x: 0, z: 1.45, yaw: 0 },
+    'from-hallway': { x: 0, z: 1.2, yaw: 0 },
     'from-library': { x: LOBBY_DOORS.library.x + 1.15, z: LOBBY_DOORS.library.z, yaw: Math.PI / 2 },
     'from-bathroom': { x: LOBBY_DOORS.bathroom.x - 1.15, z: LOBBY_DOORS.bathroom.z, yaw: -Math.PI / 2 },
     'from-storage': { x: LOBBY_DOORS.storage.x + 1.15, z: LOBBY_DOORS.storage.z, yaw: Math.PI / 2 },
     'from-office': { x: LOBBY_DOORS.office.x, z: LOBBY_DOORS.office.z - 1.15, yaw: Math.PI },
   },
   library: {
-    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+    'from-patio': spawnAtRoomDoor('library'),
   },
   bathroom: {
-    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+    'from-patio': spawnAtRoomDoor('bathroom'),
   },
   storage: {
-    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+    'from-patio': spawnAtRoomDoor('storage'),
   },
   office: {
-    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+    'from-patio': spawnAtRoomDoor('office'),
   },
 }
 

@@ -11,10 +11,11 @@ import { requestMapTravel, useMapTravelStore } from '../maps/mapTravel'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { playerMotion } from '../player/playerMotion'
 import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance } from '../rooms/lobbyLayout'
+import { DOOR, roomWallDoor } from '../door/doorLayout'
 import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { refreshControlLock } from '../systems/controlLock'
-import { DOOR } from '../door/doorLayout'
+import type { RoomId } from '../data/rooms'
 
 const DARK_LINE = 'Meu corpo não quer ir.'
 const COLD_LINE = 'Meu corpo não quer ir.'
@@ -202,7 +203,8 @@ export function tryInteract() {
   }
 
   if (isPatioRoom(game.currentRoom)) {
-    if (Math.hypot(x - (DOOR.wallX - 0.35), z - DOOR.z) > DOOR.reach) return false
+    const door = roomWallDoor(game.currentRoom as RoomId)
+    if (Math.hypot(x - (door.wallX - 0.35), z - door.z) > DOOR.reach) return false
     interactGate.cool = 0.8
     playSfx(SFX.doorOpen, 0.4)
     hall.setPrompt(null)

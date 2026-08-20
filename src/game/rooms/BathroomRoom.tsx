@@ -1,7 +1,7 @@
 import { useLayoutEffect } from 'react'
 import type { Aabb } from '../data/furniture'
-import { CLASSROOM_1 } from '../data/rooms'
-import { DOOR, doorColliders } from '../door/doorLayout'
+import { getRoom } from '../data/rooms'
+import { doorCollidersAt, wallDoor } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
@@ -9,21 +9,19 @@ import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import { TexturedFloor } from './TexturedFloor'
 
-const { width, depth, height } = CLASSROOM_1.size
+const room = getRoom('bathroom')
+const { width, depth, height } = room.size
+const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#3a3836', roughness: 0.9 }
 
-const STALLS = [
-  { z: -1.85 },
-  { z: -0.35 },
-  { z: 1.15 },
-] as const
+const STALLS = [{ z: -0.42 }, { z: 0.72 }] as const
 
 function DoorWall() {
-  const x = width / 2
-  const doorZ = DOOR.z
-  const doorHalf = DOOR.half
-  const doorH = DOOR.height
+  const x = door.wallX
+  const doorZ = door.z
+  const doorHalf = door.half
+  const doorH = door.height
   const lintelH = height - doorH
   const zA = -depth / 2
   const zB = doorZ - doorHalf
@@ -50,19 +48,19 @@ function DoorWall() {
 export function BathroomRoom() {
   useLayoutEffect(() => {
     const stallBoxes: Aabb[] = STALLS.flatMap((stall) => [
-      { minX: -4.05, maxX: -2.15, minZ: stall.z - 0.62, maxZ: stall.z - 0.52 },
-      { minX: -4.05, maxX: -2.15, minZ: stall.z + 0.52, maxZ: stall.z + 0.62 },
-      { minX: -4.05, maxX: -3.92, minZ: stall.z - 0.52, maxZ: stall.z + 0.52 },
+      { minX: -2.45, maxX: -0.85, minZ: stall.z - 0.52, maxZ: stall.z - 0.44 },
+      { minX: -2.45, maxX: -0.85, minZ: stall.z + 0.44, maxZ: stall.z + 0.52 },
+      { minX: -2.45, maxX: -2.32, minZ: stall.z - 0.44, maxZ: stall.z + 0.44 },
     ])
     const walls: Aabb[] = [
       { minX: -width / 2, maxX: width / 2, minZ: -depth / 2 - 0.12, maxZ: -depth / 2 },
       { minX: -width / 2 - 0.12, maxX: -width / 2, minZ: -depth / 2, maxZ: depth / 2 },
       { minX: -width / 2, maxX: width / 2, minZ: depth / 2, maxZ: depth / 2 + 0.12 },
-      { minX: width / 2, maxX: width / 2 + 0.12, minZ: -depth / 2, maxZ: DOOR.z - DOOR.half },
-      { minX: width / 2, maxX: width / 2 + 0.12, minZ: DOOR.z + DOOR.half, maxZ: depth / 2 },
-      ...doorColliders(true),
+      { minX: width / 2, maxX: width / 2 + 0.12, minZ: -depth / 2, maxZ: door.z - door.half },
+      { minX: width / 2, maxX: width / 2 + 0.12, minZ: door.z + door.half, maxZ: depth / 2 },
+      ...doorCollidersAt(door.wallX, door.z, true),
       ...stallBoxes,
-      { minX: 0.35, maxX: 3.1, minZ: 2.45, maxZ: 3.12 },
+      { minX: 0.15, maxX: 1.85, minZ: 1.62, maxZ: 2.18 },
     ]
     setRoomColliders('bathroom', walls)
     return () => clearRoomColliders('bathroom')
@@ -72,14 +70,14 @@ export function BathroomRoom() {
     <group>
       <ambientLight intensity={0.08} color="#8a9aa4" />
       <hemisphereLight args={['#3a4850', '#12100e', 0.16]} />
-      <pointLight position={[0.4, 2.15, 0.2]} color="#c8d0d4" intensity={0.42} distance={6.2} decay={2} />
-      <pointLight position={[-2.4, 1.7, -0.4]} color="#6a7880" intensity={0.16} distance={3.2} decay={2} />
+      <pointLight position={[0.2, 2.05, 0.1]} color="#c8d0d4" intensity={0.4} distance={5.2} decay={2} />
+      <pointLight position={[-1.4, 1.62, 0.15]} color="#6a7880" intensity={0.14} distance={2.6} decay={2} />
 
       <TexturedFloor
         src="/textura/piso_banheiro.png"
         width={width}
         depth={depth}
-        tile={1.05}
+        tile={0.85}
         color="#d4d8dc"
         roughness={0.55}
         metalness={0.08}
@@ -102,25 +100,25 @@ export function BathroomRoom() {
       </mesh>
       <DoorWall />
 
-      <HallwayPeek />
+      <HallwayPeek wallX={door.wallX} z={door.z} />
       <Examinable id="side-door-bathroom">
-        <HallwayDoor x={DOOR.wallX} z={DOOR.z} inward={-1} label="WC" subtitle="BANHEIRO" open />
+        <HallwayDoor x={door.wallX} z={door.z} inward={-1} label="WC" subtitle="BANHEIRO" open />
       </Examinable>
 
       {STALLS.map((stall, i) => (
-        <group key={stall.z} position={[-3.05, 0, stall.z]}>
-          <mesh position={[0, 1.05, -0.58]} receiveShadow>
-            <boxGeometry args={[1.85, 2.1, 0.06]} />
+        <group key={stall.z} position={[-1.62, 0, stall.z]}>
+          <mesh position={[0, 1.0, -0.48]} receiveShadow>
+            <boxGeometry args={[1.55, 2.0, 0.05]} />
             <meshStandardMaterial color="#6a6864" roughness={0.7} />
           </mesh>
-          <mesh position={[0, 1.05, 0.58]} receiveShadow>
-            <boxGeometry args={[1.85, 2.1, 0.06]} />
+          <mesh position={[0, 1.0, 0.48]} receiveShadow>
+            <boxGeometry args={[1.55, 2.0, 0.05]} />
             <meshStandardMaterial color="#6a6864" roughness={0.7} />
           </mesh>
-          <FurnitureModel url="/privada.glb" position={[-0.55, 0, 0]} rotationY={Math.PI / 2} targetHeight={0.82} pickable={false} />
-          <Examinable id={i === 1 ? 'bath-stall' : 'bath-stall-empty'}>
-            <mesh position={[0.82, 1.05, 0]} castShadow>
-              <boxGeometry args={[0.06, 2.1, 1.1]} />
+          <FurnitureModel url="/privada.glb" position={[-0.42, 0, 0]} rotationY={Math.PI / 2} targetHeight={0.72} pickable={false} />
+          <Examinable id={i === 0 ? 'bath-stall' : 'bath-stall-empty'}>
+            <mesh position={[0.72, 1.0, 0]} castShadow>
+              <boxGeometry args={[0.05, 2.0, 0.92]} />
               <meshStandardMaterial color="#5c5a56" roughness={0.62} metalness={0.12} />
             </mesh>
           </Examinable>
@@ -128,15 +126,15 @@ export function BathroomRoom() {
       ))}
 
       <Examinable id="bath-sink">
-        <group position={[1.05, 0, 2.72]}>
-          <FurnitureModel url="/pia.glb" position={[0, 0, 0]} targetHeight={0.96} pickable={false} />
+        <group position={[0.35, 0, 1.78]}>
+          <FurnitureModel url="/pia.glb" position={[0, 0, 0]} targetHeight={0.86} pickable={false} />
         </group>
       </Examinable>
-      <FurnitureModel url="/pia.glb" position={[2.35, 0, 2.72]} targetHeight={0.96} pickable={false} />
+      <FurnitureModel url="/pia.glb" position={[1.28, 0, 1.78]} targetHeight={0.86} pickable={false} />
 
       <Examinable id="bath-mirror">
-        <mesh position={[1.7, 1.55, depth / 2 - 0.08]}>
-          <boxGeometry args={[1.42, 0.92, 0.04]} />
+        <mesh position={[0.82, 1.42, depth / 2 - 0.07]}>
+          <boxGeometry args={[1.18, 0.72, 0.04]} />
           <meshStandardMaterial color="#9aa8b0" roughness={0.12} metalness={0.35} />
         </mesh>
       </Examinable>
