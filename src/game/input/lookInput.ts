@@ -1,7 +1,7 @@
 import { playerMotion } from '../player/playerMotion'
 
-export const PITCH_MIN = -0.42
-export const PITCH_MAX = 0.78
+export const PITCH_MIN = -0.92
+export const PITCH_MAX = 1.12
 export const ZOOM_MIN = 1.55
 export const ZOOM_MAX = 4.15
 export const ZOOM_DEFAULT = 2.45

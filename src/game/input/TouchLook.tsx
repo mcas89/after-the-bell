@@ -73,7 +73,7 @@ export function TouchLook() {
         lookInput.dragging = true
         lookInput.consumed = true
         if (lastPinch > 10 && next > 10) scaleZoom(next / lastPinch)
-        applyLookDelta(mid.x - lastMid.x, mid.y - lastMid.y, 0.0048, 0.0032)
+        applyLookDelta(mid.x - lastMid.x, mid.y - lastMid.y, 0.0048, 0.0052)
         lastPinch = next
         lastMid = mid
         return
@@ -90,7 +90,7 @@ export function TouchLook() {
         lookInput.consumed = true
       }
       event.preventDefault()
-      applyLookDelta(event.clientX - lastLook.x, event.clientY - lastLook.y)
+      applyLookDelta(event.clientX - lastLook.x, event.clientY - lastLook.y, 0.0058, 0.0064)
       lastLook = { x: event.clientX, y: event.clientY }
     }
 

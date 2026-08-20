@@ -53,24 +53,32 @@ export function playerOrbitShot(
   const sx = Math.sin(yaw)
   const cz = Math.cos(yaw)
   const inner = phone ? INNER : 0.55
-  const yMax = room.id === 'passage' ? 2.95 : room.size.height - 0.35
-  const y = phone
-    ? clamp(2.42 + pitch * 0.28 + dist * 0.16, 2.05, yMax)
-    : clamp(1.52 + pitch * 0.34 + dist * 0.08, 1.28, room.size.height - 0.38)
-  const lookLift = phone ? clamp(0.62 + pitch * 0.22, 0.42, 1.15) : clamp(1.05 + pitch * 0.9, 0.42, 2.18)
-  const lookFwd = phone ? 0.08 : 0.85
+  const yMax = room.id === 'passage' ? 2.95 : room.size.height - 0.32
+  if (phone) {
+    const camY = clamp(2.18 + (pitch - 0.52) * 1.2 + dist * 0.14, 0.62, yMax)
+    const lookY = clamp(0.88 + (0.52 - pitch) * 1.6, 0.08, room.size.height - 0.18)
+    const lookFwd = clamp(0.1 + Math.max(0, 0.52 - pitch) * 1.2 - Math.max(0, pitch - 0.52) * 0.45, -0.15, 1.9)
+    return {
+      position: [
+        clamp(px - sx * dist, room.bounds.minX + inner, room.bounds.maxX - inner),
+        camY,
+        clamp(pz - cz * dist, room.bounds.minZ + inner, room.bounds.maxZ - inner),
+      ],
+      lookAt: [px + sx * lookFwd, lookY, pz + cz * lookFwd],
+      fov: clamp(52 + dist * 0.7, 50, 58),
+      damp: 3.4,
+    }
+  }
+  const y = clamp(1.52 + pitch * 0.34 + dist * 0.08, 1.28, room.size.height - 0.38)
+  const lookLift = clamp(1.05 + pitch * 0.9, 0.42, 2.18)
   return {
     position: [
       clamp(px - sx * dist, room.bounds.minX + inner, room.bounds.maxX - inner),
       y,
       clamp(pz - cz * dist, room.bounds.minZ + inner, room.bounds.maxZ - inner),
     ],
-    lookAt: [
-      px + sx * lookFwd,
-      lookLift,
-      pz + cz * lookFwd,
-    ],
-    fov: phone ? clamp(52 + dist * 0.7, 50, 58) : clamp(58 - dist * 2.4, 42, 56),
+    lookAt: [px + sx * 0.85, lookLift, pz + cz * 0.85],
+    fov: clamp(58 - dist * 2.4, 42, 56),
     damp: 3.4,
   }
 }
