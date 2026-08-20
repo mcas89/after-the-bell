@@ -14,6 +14,7 @@ type LockerPinState = {
   openIds: string[]
   isOpen: (id: string | null | undefined) => boolean
   reset: (lockerId?: string | null) => void
+  openNow: (id: string) => void
   inputDigit: (digit: string) => void
   deleteDigit: () => void
   tryUnlock: () => void
@@ -31,6 +32,10 @@ export const useLockerPinStore = create<LockerPinState>((set, get) => ({
     window.clearTimeout(lineTimer)
     const already = Boolean(lockerId && get().openIds.includes(lockerId))
     set({ lockerId, pin: '', line: already ? 'Aberto.' : null, opened: already })
+  },
+  openNow: (id) => {
+    const openIds = get().openIds.includes(id) ? get().openIds : [...get().openIds, id]
+    set({ lockerId: id, pin: '', line: null, opened: true, openIds })
   },
   inputDigit: (digit) => {
     if (!/^\d$/.test(digit)) return

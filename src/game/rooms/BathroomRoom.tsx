@@ -7,11 +7,11 @@ import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
+import { TexturedFloor } from './TexturedFloor'
 
 const { width, depth, height } = CLASSROOM_1.size
 const wallT = 0.12
 const wall = { color: '#3a3836', roughness: 0.9 }
-const tile = { color: '#5a5854', roughness: 0.55, metalness: 0.08 }
 
 const STALLS = [
   { z: -1.85 },
@@ -62,7 +62,7 @@ export function BathroomRoom() {
       { minX: width / 2, maxX: width / 2 + 0.12, minZ: DOOR.z + DOOR.half, maxZ: depth / 2 },
       ...doorColliders(true),
       ...stallBoxes,
-      { minX: 0.85, maxX: 2.55, minZ: 2.55, maxZ: 3.05 },
+      { minX: 0.35, maxX: 3.1, minZ: 2.45, maxZ: 3.12 },
     ]
     setRoomColliders('bathroom', walls)
     return () => clearRoomColliders('bathroom')
@@ -75,10 +75,15 @@ export function BathroomRoom() {
       <pointLight position={[0.4, 2.15, 0.2]} color="#c8d0d4" intensity={0.42} distance={6.2} decay={2} />
       <pointLight position={[-2.4, 1.7, -0.4]} color="#6a7880" intensity={0.16} distance={3.2} decay={2} />
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial {...tile} />
-      </mesh>
+      <TexturedFloor
+        src="/textura/piso_banheiro.png"
+        width={width}
+        depth={depth}
+        tile={1.05}
+        color="#d4d8dc"
+        roughness={0.55}
+        metalness={0.08}
+      />
       <mesh position={[0, height, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[width, depth]} />
         <meshStandardMaterial color="#1c1c1a" roughness={1} />
@@ -123,10 +128,11 @@ export function BathroomRoom() {
       ))}
 
       <Examinable id="bath-sink">
-        <group position={[1.7, 0, 2.72]}>
+        <group position={[1.05, 0, 2.72]}>
           <FurnitureModel url="/pia.glb" position={[0, 0, 0]} targetHeight={0.96} pickable={false} />
         </group>
       </Examinable>
+      <FurnitureModel url="/pia.glb" position={[2.35, 0, 2.72]} targetHeight={0.96} pickable={false} />
 
       <Examinable id="bath-mirror">
         <mesh position={[1.7, 1.55, depth / 2 - 0.08]}>

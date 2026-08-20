@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { collectPromptFor, EXAMINE_IMG, getExamineEntry } from '../data/examineContent'
+import { collectPromptFor, collectPromptsFor, EXAMINE_IMG, getExamineEntry } from '../data/examineContent'
 import { useDoorStore } from '../door/useDoorStore'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { useGameStore } from '../state/useGameStore'
@@ -8,6 +8,7 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { getHallLocker, isHallLockerId, lockerPadLabel } from '../hallway/lockers'
 import { useLockerPinStore } from '../hallway/useLockerPin'
 import { ITEM_IDS } from '../data/items'
+import { tryCollect } from '../input/actions'
 import { HangmanBoard } from './HangmanBoard'
 import { useExamineStore } from './useExamineStore'
 import { LAB_ON_PC_ID } from '../computer/computerStore'
@@ -131,6 +132,8 @@ function LockerInside({ name }: { name: string }) {
 function LockerOpened({ lockerId }: { lockerId: string }) {
   const locker = getHallLocker(lockerId)
   const detailId = useExamineStore((s) => s.detailId)
+  const hasCells = useInventoryStore((s) => s.has(ITEM_IDS.batteries) || s.has(ITEM_IDS.flashlightLit))
+  const hasJanitorKey = useInventoryStore((s) => s.has(ITEM_IDS.janitorKey))
 
   if (!locker) return null
   if (detailId === 'locker-photo') return <ExaminePhoto src={EXAMINE_IMG.fotoVerso} />
@@ -141,7 +144,22 @@ function LockerOpened({ lockerId }: { lockerId: string }) {
       </ExaminePhoto>
     )
   }
-  if (locker.kind === 'marina') return <ExaminePhoto src={EXAMINE_IMG.armario5} />
+  if (locker.kind === 'marina') {
+    if (hasCells) return null
+    return (
+      <ExaminePhoto src={EXAMINE_IMG.armario5}>
+        <PhotoSpot id="locker-batteries" label="Pilhas" box="is-locker-batteries" taken={hasCells} />
+      </ExaminePhoto>
+    )
+  }
+  if (locker.kind === 'janitor') {
+    if (hasJanitorKey) return null
+    return (
+      <ExaminePhoto src={EXAMINE_IMG.ultimoArmario}>
+        <PhotoSpot id="locker-janitor-key" label="Chave" box="is-locker-janitor-key" taken={hasJanitorKey} />
+      </ExaminePhoto>
+    )
+  }
   return <LockerInside name={locker.name} />
 }
 
@@ -156,7 +174,10 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
   useEffect(() => {
-    useLockerPinStore.getState().reset(lockerId)
+    const store = useLockerPinStore.getState()
+    store.reset(lockerId)
+    const current = getHallLocker(lockerId)
+    if (current?.kind === 'janitor') store.openNow(current.id)
     return () => useLockerPinStore.getState().reset(null)
   }, [lockerId])
 
@@ -177,7 +198,7 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
   }, [deleteDigit, inputDigit])
 
   if (!locker) return null
-  if (opened) return <LockerOpened lockerId={lockerId} />
+  if (locker.kind === 'janitor' || opened) return <LockerOpened lockerId={lockerId} />
 
   return (
     <div className="locker-pad">
@@ -218,6 +239,7 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
 function TeachersCabinet() {
   const hasFlash = useInventoryStore((s) => s.has(ITEM_IDS.flashlight) || s.has(ITEM_IDS.flashlightLit))
   const hasKey = useInventoryStore((s) => s.has(ITEM_IDS.officeKey))
+  if (hasFlash && hasKey) return null
 
   return (
     <ExaminePhoto src={EXAMINE_IMG.professores}>
@@ -234,7 +256,6 @@ function promptLine(
   touch: boolean,
 ) {
   if (touch) {
-    if (examiningId === 'teachers-cabinet' && !detailId) return 'Toque na chave ou na lanterna'
     const locker = getHallLocker(examiningId)
     if (locker?.kind === 'livia' && useLockerPinStore.getState().isOpen(locker.id) && !detailId) {
       return 'Toque na foto'
@@ -263,6 +284,7 @@ export function ExamineHud() {
   const phoneOpen = usePhoneStore((s) => isPhoneOpen(s.ui))
   const entry = examiningId ? getExamineEntry(detailId ?? examiningId) : null
   const prompt = collectPromptFor(examiningId, detailId)
+  const takes = collectPromptsFor(examiningId, detailId)
 
   useInventoryStore((s) => s.items)
   useLockerPinStore((s) => s.openIds)
@@ -332,6 +354,24 @@ export function ExamineHud() {
             </svg>
           </button>
           {inspectHint ? <p className="prompt-hud">{inspectHint}</p> : null}
+          {takes.length ? (
+            <div className="examine-takes">
+              {takes.map((take) => (
+                <button
+                  key={take.id}
+                  className="examine-take"
+                  type="button"
+                  onPointerDown={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    tryCollect(take.id)
+                  }}
+                >
+                  coletar {take.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </>
       ) : null}
       {touch ? null : interaction === 'gameplay' && canOpenDoor ? (

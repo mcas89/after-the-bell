@@ -1,11 +1,8 @@
-import { collectPromptFor } from '../data/examineContent'
 import { canOpenClassroomDoor, useDoorStore } from '../door/useDoorStore'
-import { useExamineStore } from '../examine/useExamineStore'
-import { tryCollect, tryInteract } from '../input/actions'
+import { tryInteract } from '../input/actions'
 import { useTouchUi } from '../input/useTouchUi'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { useGameStore } from '../state/useGameStore'
-import { useInventoryStore } from '../state/useInventoryStore'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { Joystick } from '../ui/Joystick'
 
@@ -17,10 +14,6 @@ export function TouchControls() {
   const hallPrompt = useHallwayStore((s) => s.prompt)
   const doorPhase = useDoorStore((s) => s.phase)
   const doorNear = useDoorStore((s) => s.near)
-  const examiningId = useExamineStore((s) => s.examiningId)
-  const detailId = useExamineStore((s) => s.detailId)
-  useInventoryStore((s) => s.items)
-  const collect = collectPromptFor(examiningId, detailId)
   const act = hallPrompt
     ? hallPrompt.replace(/^E /, '')
     : doorPhase === 'ajar' && doorNear && canOpenClassroomDoor()
@@ -35,13 +28,13 @@ export function TouchControls() {
     interaction === 'door-beat' ||
     interaction === 'opening-door' ||
     interaction === 'girl-glimpse' ||
-    interaction === 'map-travel'
+    interaction === 'map-travel' ||
+    interaction === 'examining-object'
   ) {
     return null
   }
 
   const walking = interaction === 'gameplay'
-  const examining = interaction === 'examining-object'
 
   return (
     <div className="touch-hud">
@@ -53,15 +46,6 @@ export function TouchControls() {
           tryInteract()
         }}>
           {act}
-        </button>
-      ) : null}
-      {examining && collect ? (
-        <button className="touch-btn is-take" type="button" onPointerDown={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          tryCollect()
-        }}>
-          pegar
         </button>
       ) : null}
     </div>

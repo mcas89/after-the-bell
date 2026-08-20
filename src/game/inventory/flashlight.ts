@@ -57,13 +57,9 @@ export function tryFlipLobbySwitch() {
     hall.speak('Já está ligado.')
     return true
   }
-  if (!game.flags[FLASHLIGHT_ON]) {
-    hall.speak('Não vejo.')
-    return false
-  }
   game.addFlag(LOBBY_LIGHTS)
   saveManager.save()
-  hall.speak('A luz voltou. Pouca.')
+  hall.speak('A luz voltou.')
   playSfx(SFX.clickItem, 0.52)
   return true
 }

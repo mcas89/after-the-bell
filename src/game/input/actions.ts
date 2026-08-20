@@ -1,5 +1,5 @@
 import { playSfx, SFX } from '../audio/mixer'
-import { collectPromptFor } from '../data/examineContent'
+import { collectPromptsFor } from '../data/examineContent'
 import { ITEM_IDS } from '../data/items'
 import { canOpenClassroomDoor, useDoorStore } from '../door/useDoorStore'
 import { useExamineStore } from '../examine/useExamineStore'
@@ -43,8 +43,8 @@ function hasKey(id: string | null) {
 function hasOtherKey(needed: string | null) {
   if (!needed) return false
   const inv = useInventoryStore.getState()
-  const other = needed === ITEM_IDS.key ? ITEM_IDS.officeKey : ITEM_IDS.key
-  return inv.has(other) && !inv.has(needed)
+  if (inv.has(needed)) return false
+  return inv.has(ITEM_IDS.key) || inv.has(ITEM_IDS.officeKey) || inv.has(ITEM_IDS.janitorKey)
 }
 
 function tryClassroomDoor(id: keyof typeof HALL_DOORS) {
@@ -99,6 +99,17 @@ function tryLobbyDoor(px: number, pz: number) {
     }
     return true
   }
+  if (door.id === 'storage') {
+    if (hasKey(ITEM_IDS.janitorKey) && door.dest) {
+      playSfx(SFX.doorOpen, 0.52)
+      hall.setPrompt(null)
+      requestMapTravel(door.dest, 'from-patio')
+      return true
+    }
+    hall.rattleHandle()
+    hall.speak(hasOtherKey(ITEM_IDS.janitorKey) ? 'Não é essa.' : door.lockedLine)
+    return true
+  }
   if (door.open && door.dest) {
     playSfx(SFX.doorOpen, 0.45)
     hall.setPrompt(null)
@@ -111,11 +122,14 @@ function tryLobbyDoor(px: number, pz: number) {
 }
 
 function isPatioRoom(room: string) {
-  return room === 'library' || room === 'bathroom'
+  return room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office'
 }
 
 function patioBack(room: string) {
-  return room === 'library' ? 'from-library' : 'from-bathroom'
+  if (room === 'library') return 'from-library'
+  if (room === 'bathroom') return 'from-bathroom'
+  if (room === 'storage') return 'from-storage'
+  return 'from-office'
 }
 
 export function tryInteract() {
@@ -215,21 +229,25 @@ export function tryInteract() {
   return false
 }
 
-export function tryCollect() {
+export function tryCollect(itemId?: string) {
   const game = useGameStore.getState()
   if (!game.prologueDone) return false
   if (isPhoneOpen(usePhoneStore.getState().ui)) return false
   if (game.interactionState !== 'examining-object') return false
   const examine = useExamineStore.getState()
   const inventory = useInventoryStore.getState()
-  const prompt = collectPromptFor(examine.examiningId, examine.detailId)
+  const prompts = collectPromptsFor(examine.examiningId, examine.detailId)
+  const prompt = itemId ? prompts.find((entry) => entry.id === itemId) : prompts[0]
   if (!prompt || inventory.has(prompt.id)) return false
   inventory.collect(prompt.id)
   if (examine.examiningId === 'teachers-cabinet') {
     if (examine.detailId) useExamineStore.setState({ detailId: null })
     return true
   }
-  if (isHallLockerId(examine.examiningId)) return true
+  if (isHallLockerId(examine.examiningId)) {
+    if (examine.detailId) useExamineStore.setState({ detailId: null })
+    return true
+  }
   useExamineStore.getState().stopInspect()
   return true
 }

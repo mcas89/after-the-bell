@@ -7,6 +7,7 @@ export type ItemDef = {
 export const ITEM_IDS = {
   key: 'item-key',
   officeKey: 'item-key-diretoria',
+  janitorKey: 'item-key-zeladoria',
   batteries: 'item-batteries',
   flashlight: 'item-flashlight',
   flashlightLit: 'item-flashlight-lit',
@@ -22,6 +23,11 @@ export const ITEMS: Record<string, ItemDef> = {
     id: ITEM_IDS.officeKey,
     title: 'Chave grande',
     description: 'Pesada e fria ao toque.',
+  },
+  [ITEM_IDS.janitorKey]: {
+    id: ITEM_IDS.janitorKey,
+    title: 'Chave gasta',
+    description: 'Um pouco maior. Fria.',
   },
   [ITEM_IDS.batteries]: {
     id: ITEM_IDS.batteries,
@@ -41,7 +47,7 @@ export const ITEMS: Record<string, ItemDef> = {
 }
 
 export function isKeyItem(id: string) {
-  return id === ITEM_IDS.key || id === ITEM_IDS.officeKey
+  return id === ITEM_IDS.key || id === ITEM_IDS.officeKey || id === ITEM_IDS.janitorKey
 }
 
 export function getItemDef(id: string) {

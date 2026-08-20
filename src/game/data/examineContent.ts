@@ -42,6 +42,10 @@ export const EXAMINE_IMG = {
   armario4: '/image/dentro-armario-4.png',
   armario5: '/image/dentro-armario-5.png',
   professores: '/image/dentro-armario-professores.png',
+  ultimoArmario: '/image/ultimo_armario.png',
+  selfieLivia1: '/image/selfie-livia1.png',
+  selfieLivia2: '/image/selfie-livia2.png',
+  selfieLiviaMenina: '/image/selfie-livia-e-menina.png',
 } as const
 
 export type CollectPrompt = { id: string; label: string }
@@ -49,6 +53,7 @@ export type CollectPrompt = { id: string; label: string }
 const COLLECT_LABEL: Record<string, string> = {
   [ITEM_IDS.key]: 'chave',
   [ITEM_IDS.officeKey]: 'chave',
+  [ITEM_IDS.janitorKey]: 'chave',
   [ITEM_IDS.batteries]: 'pilhas',
   [ITEM_IDS.flashlight]: 'lanterna',
 }
@@ -199,6 +204,15 @@ const SHARED: Record<string, ExamineEntry> = {
   'side-door-bathroom': {
     line: 'O pátio está do outro lado.',
   },
+  'side-door-storage': {
+    line: 'O pátio está do outro lado.',
+  },
+  'side-door-office': {
+    line: 'O pátio está do outro lado.',
+  },
+  'office-desk': {
+    line: 'Mesa da direção. Ninguém.',
+  },
   'lib-shelf': {
     line: 'Estantes. A maior parte some no escuro.',
   },
@@ -292,6 +306,14 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'O verso. Só isso.',
     image: EXAMINE_IMG.fotoVerso,
   },
+  'locker-batteries': {
+    line: 'Pilhas. Alguém deixou.',
+    collectibleId: 'item-batteries',
+  },
+  'locker-janitor-key': {
+    line: 'Uma chave.',
+    collectibleId: 'item-key-zeladoria',
+  },
 }
 
 const ALIAS: Record<string, string> = {
@@ -335,6 +357,10 @@ function hasBatteries() {
   return inv.has(ITEM_IDS.batteries) || inv.has(ITEM_IDS.flashlightLit)
 }
 
+function hasJanitorKey() {
+  return useInventoryStore.getState().has(ITEM_IDS.janitorKey)
+}
+
 export function getExamineEntry(id: string): ExamineEntry | null {
   const key = ALIAS[id] ?? id
   if (key === 'porta') {
@@ -366,30 +392,43 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   if (key === 'teachers-cabinet') {
     const takenFlash = hasFlashlight()
     const takenKey = useInventoryStore.getState().has(ITEM_IDS.officeKey)
-    const line =
-      takenFlash && takenKey
-        ? 'Vazio.'
-        : takenFlash
-          ? 'A chave ainda está no gancho.'
-          : takenKey
-            ? 'A lanterna ainda está no chão.'
-            : 'Quatro ganchos. Uma chave. No chão, uma lanterna.'
+    if (takenFlash && takenKey) return { line: 'Armário está vazio.' }
+    const line = takenFlash
+      ? 'A chave ainda está no gancho.'
+      : takenKey
+        ? 'A lanterna ainda está no chão.'
+        : 'Quatro ganchos. Uma chave. No chão, uma lanterna.'
     return { line, image: EXAMINE_IMG.professores }
   }
   if (key === 'teachers-flashlight') {
     return hasFlashlight()
-      ? { line: 'Não tem mais nada.' }
+      ? { line: useInventoryStore.getState().has(ITEM_IDS.officeKey) ? 'Armário está vazio.' : 'A chave ainda está no gancho.' }
       : { line: 'Pesada. Sem pilhas.', collectibleId: ITEM_IDS.flashlight }
   }
   if (key === 'teachers-key') {
-    return useInventoryStore.getState().has(ITEM_IDS.officeKey)
-      ? { line: 'Não tem mais nada.' }
-      : { line: 'Pesada. Fria.', collectibleId: ITEM_IDS.officeKey }
+    const takenKey = useInventoryStore.getState().has(ITEM_IDS.officeKey)
+    if (takenKey) {
+      return { line: hasFlashlight() ? 'Armário está vazio.' : 'A lanterna ainda está no chão.' }
+    }
+    return { line: 'Pesada. Fria.', collectibleId: ITEM_IDS.officeKey }
+  }
+  if (key === 'locker-batteries') {
+    return hasBatteries()
+      ? { line: 'Armário está vazio.' }
+      : { line: 'Pilhas. Alguém deixou.', collectibleId: ITEM_IDS.batteries }
+  }
+  if (key === 'locker-janitor-key') {
+    return hasJanitorKey()
+      ? { line: 'Armário está vazio.' }
+      : { line: 'Uma chave.', collectibleId: ITEM_IDS.janitorKey }
   }
   if (key === 'lobby-switch') {
     return useGameStore.getState().flags.lobbyLights
-      ? { line: 'A luz voltou. Pouca.' }
+      ? { line: 'A luz voltou.' }
       : { line: 'Interruptor.' }
+  }
+  if (key === 'lobby-storage') {
+    return hasJanitorKey() ? { line: 'Zeladoria.' } : { line: 'Zeladoria. Fechada.' }
   }
   if (key === 'lobby-exit') {
     const flags = useGameStore.getState().flags
@@ -408,13 +447,18 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   }
   const locker = getHallLocker(key)
   if (locker) {
+    if (locker.kind === 'janitor') {
+      return hasJanitorKey()
+        ? { line: 'Armário está vazio.' }
+        : { line: 'Uma chave. Alguns panos.', collectibleId: ITEM_IDS.janitorKey, image: EXAMINE_IMG.ultimoArmario }
+    }
     if (useLockerPinStore.getState().isOpen(locker.id)) {
       if (locker.kind === 'livia') {
         return { line: 'Cadernos. Uma foto virada. Meu moletom.', image: EXAMINE_IMG.armario4 }
       }
       if (locker.kind === 'marina') {
         return hasBatteries()
-          ? { line: 'Quase vazio.', image: EXAMINE_IMG.armario5 }
+          ? { line: 'Armário está vazio.' }
           : { line: 'Pilhas. Alguém deixou.', image: EXAMINE_IMG.armario5, collectibleId: ITEM_IDS.batteries }
       }
       return { line: 'Quase vazio.' }
@@ -426,39 +470,52 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   return SHARED[key] ?? null
 }
 
-export function collectPromptFor(
+export function collectPromptsFor(
   examiningId: string | null,
   detailId: string | null,
-): CollectPrompt | null {
-  if (!examiningId) return null
+): CollectPrompt[] {
+  if (!examiningId) return []
   const inv = useInventoryStore.getState()
+  const label = (id: string) => COLLECT_LABEL[id] ?? 'item'
 
   if (examiningId === 'teachers-cabinet') {
     if (detailId === 'teachers-flashlight') {
-      if (hasFlashlight()) return null
-      return { id: ITEM_IDS.flashlight, label: COLLECT_LABEL[ITEM_IDS.flashlight] }
+      return hasFlashlight() ? [] : [{ id: ITEM_IDS.flashlight, label: label(ITEM_IDS.flashlight) }]
     }
     if (detailId === 'teachers-key') {
-      if (inv.has(ITEM_IDS.officeKey)) return null
-      return { id: ITEM_IDS.officeKey, label: COLLECT_LABEL[ITEM_IDS.officeKey] }
+      return inv.has(ITEM_IDS.officeKey) ? [] : [{ id: ITEM_IDS.officeKey, label: label(ITEM_IDS.officeKey) }]
     }
-    return null
+    const list: CollectPrompt[] = []
+    if (!hasFlashlight()) list.push({ id: ITEM_IDS.flashlight, label: label(ITEM_IDS.flashlight) })
+    if (!inv.has(ITEM_IDS.officeKey)) list.push({ id: ITEM_IDS.officeKey, label: label(ITEM_IDS.officeKey) })
+    return list
   }
 
   const locker = getHallLocker(examiningId)
   if (locker?.kind === 'marina' && useLockerPinStore.getState().isOpen(locker.id)) {
-    if (hasBatteries()) return null
-    return { id: ITEM_IDS.batteries, label: COLLECT_LABEL[ITEM_IDS.batteries] }
+    if (detailId && detailId !== 'locker-batteries') return []
+    return hasBatteries() ? [] : [{ id: ITEM_IDS.batteries, label: label(ITEM_IDS.batteries) }]
+  }
+  if (locker?.kind === 'janitor') {
+    if (detailId && detailId !== 'locker-janitor-key') return []
+    return hasJanitorKey() ? [] : [{ id: ITEM_IDS.janitorKey, label: label(ITEM_IDS.janitorKey) }]
   }
 
   const looking = detailId ?? examiningId
   const entry = getExamineEntry(looking)
-  if (!entry?.collectibleId || inv.has(entry.collectibleId)) return null
-  return { id: entry.collectibleId, label: COLLECT_LABEL[entry.collectibleId] ?? 'item' }
+  if (!entry?.collectibleId || inv.has(entry.collectibleId)) return []
+  return [{ id: entry.collectibleId, label: label(entry.collectibleId) }]
+}
+
+export function collectPromptFor(
+  examiningId: string | null,
+  detailId: string | null,
+): CollectPrompt | null {
+  return collectPromptsFor(examiningId, detailId)[0] ?? null
 }
 
 export function examineHoldSeconds(id: string) {
-  if (isHallLockerId(id) || id === 'quadro-negro' || id === 'teachers-cabinet') return 0
+  if (isHallLockerId(id) || id === 'quadro-negro' || id === 'teachers-cabinet' || id === 'lobby-switch') return 0
   if (id === 'mochila-fechada' || id === 'mochila-aberta') return 0
   const entry = getExamineEntry(id)
   if (!entry) return 3.2

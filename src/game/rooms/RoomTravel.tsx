@@ -10,6 +10,8 @@ import { requestMapTravel, useMapTravelStore } from '../maps/mapTravel'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { playerMotion } from '../player/playerMotion'
 import { useGameStore } from '../state/useGameStore'
+import { ITEM_IDS } from '../data/items'
+import { useInventoryStore } from '../state/useInventoryStore'
 import { LOBBY_DOOR_LIST, inLobbyDoorway, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
 
 const DARK_LINE = 'Meu corpo não quer ir.'
@@ -31,16 +33,19 @@ function lobbyPrompt(x: number, z: number) {
   const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(x, z, item))
   if (!door) return null
   if (door.kind === 'gate') return 'E empurrar'
-  if (door.open) return 'E entrar'
+  if (door.open || (door.id === 'storage' && useInventoryStore.getState().has(ITEM_IDS.janitorKey))) return 'E entrar'
   return 'E abrir'
 }
 
 function isPatioRoom(room: string) {
-  return room === 'library' || room === 'bathroom'
+  return room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office'
 }
 
 function patioBack(room: string) {
-  return room === 'library' ? 'from-library' : 'from-bathroom'
+  if (room === 'library') return 'from-library'
+  if (room === 'bathroom') return 'from-bathroom'
+  if (room === 'storage') return 'from-storage'
+  return 'from-office'
 }
 
 function hallwayPrompt(x: number, z: number) {

@@ -5,6 +5,7 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
+import { LOBBY_LIGHTS } from '../inventory/flashlight'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import {
   LOBBY,
@@ -14,6 +15,7 @@ import {
   LOBBY_PLANTER,
   lobbyColliders,
 } from './lobbyLayout'
+import { TexturedFloor } from './TexturedFloor'
 
 const { width, depth, height, halfX, minZ, maxZ, doorH, doorHalf, entranceHalf } = LOBBY
 const NEAR_Z = LOBBY_DOORS.library.z
@@ -105,14 +107,19 @@ function WallAlongX({
   )
 }
 
-function EmergencyLamp({ x, y, z }: { x: number; y: number; z: number }) {
+function EmergencyLamp({ x, y, z, on }: { x: number; y: number; z: number; on: boolean }) {
   return (
     <group position={[x, y, z]}>
       <mesh>
         <boxGeometry args={[0.22, 0.08, 0.1]} />
-        <meshStandardMaterial color="#9a8a62" emissive="#e6d08a" emissiveIntensity={0.7} roughness={0.45} />
+        <meshStandardMaterial
+          color="#9a8a62"
+          emissive="#e6d08a"
+          emissiveIntensity={on ? 1.8 : 0.7}
+          roughness={0.45}
+        />
       </mesh>
-      <pointLight position={[0, -0.12, 0]} color="#e8d6a0" intensity={0.72} distance={5.2} decay={2} />
+      <pointLight position={[0, -0.12, 0]} color="#efe6d0" intensity={on ? 1.75 : 0.72} distance={on ? 8.4 : 5.2} decay={2} />
     </group>
   )
 }
@@ -162,18 +169,11 @@ function Parapet() {
 }
 
 function Planter() {
-  const { x, z, halfX: hx, halfZ: hz } = LOBBY_PLANTER
+  const { x, z, halfX: hx } = LOBBY_PLANTER
   return (
     <group position={[x, 0, z]}>
-      <mesh position={[0, 0.18, 0]} castShadow receiveShadow>
-        <boxGeometry args={[hx * 2, 0.36, hz * 2]} />
-        <meshStandardMaterial color="#4a433c" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 0.38, 0]} receiveShadow>
-        <boxGeometry args={[hx * 2 - 0.18, 0.08, hz * 2 - 0.18]} />
-        <meshStandardMaterial color="#2a221c" roughness={1} />
-      </mesh>
-      <FurnitureModel url="/estatua_patio_cima.glb" position={[0, 0.4, 0]} targetHeight={2.15} pickable={false} />
+      <FurnitureModel url="/canteiro.glb" position={[0, 0, 0]} targetWidth={hx * 2} pickable={false} />
+      <FurnitureModel url="/estatua_patio_cima.glb" position={[0, 0.42, 0]} targetHeight={2.15} pickable={false} />
     </group>
   )
 }
@@ -182,20 +182,7 @@ function PatioGate() {
   const door = LOBBY_DOORS.exit
   return (
     <group position={[door.x, 0, door.z]} rotation={[0, door.yaw, 0]}>
-      <mesh position={[0, 1.12, 0]} receiveShadow>
-        <boxGeometry args={[0.1, 2.24, 1.28]} />
-        <meshStandardMaterial color="#2a2c30" metalness={0.55} roughness={0.42} />
-      </mesh>
-      {[-0.46, -0.23, 0, 0.23, 0.46].map((bar) => (
-        <mesh key={bar} position={[-0.02, 1.1, bar]} castShadow>
-          <boxGeometry args={[0.04, 2.12, 0.045]} />
-          <meshStandardMaterial color="#3a3d42" metalness={0.62} roughness={0.35} />
-        </mesh>
-      ))}
-      <mesh position={[-0.02, 2.16, 0]}>
-        <boxGeometry args={[0.06, 0.08, 1.22]} />
-        <meshStandardMaterial color="#4a4e54" metalness={0.5} roughness={0.38} />
-      </mesh>
+      <FurnitureModel url="/portao_saida.glb" position={[0, 0, 0]} targetHeight={2.28} pickable={false} />
     </group>
   )
 }
@@ -203,13 +190,8 @@ function PatioGate() {
 function ExitStairs() {
   const door = LOBBY_DOORS.exit
   return (
-    <group position={[door.x, 0, door.z + 0.55]}>
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <mesh key={i} position={[0, -0.18 * i - 0.08, 0.32 * i]} receiveShadow>
-          <boxGeometry args={[1.35, 0.16, 0.34]} />
-          <meshStandardMaterial color="#2a2c28" roughness={0.92} />
-        </mesh>
-      ))}
+    <group position={[door.x, 0, door.z + 0.42]}>
+      <FurnitureModel url="/escada_saida.glb" position={[0, 0, 0.2]} rotationY={Math.PI} targetWidth={1.55} pickable={false} />
       <mesh position={[0, -1.35, 2.15]}>
         <boxGeometry args={[2.4, 2.4, 1.6]} />
         <meshBasicMaterial color="#05060a" />
@@ -219,6 +201,7 @@ function ExitStairs() {
 }
 
 export function PassageRoom() {
+  const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   useLayoutEffect(() => {
     setRoomColliders('passage', lobbyColliders())
     return () => clearRoomColliders('passage')
@@ -253,27 +236,46 @@ export function PassageRoom() {
 
   return (
     <group>
-      <ambientLight intensity={0.055} color="#7a90a8" />
-      <hemisphereLight args={[MOON, '#0a0c10', 0.42]} />
-      <directionalLight
-        position={[-6.2, 11, -4.5]}
-        intensity={0.38}
-        color={MOON}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+      {lightsOn ? (
+        <>
+          <ambientLight intensity={0.2} color="#a8b8b0" />
+          <hemisphereLight args={['#3a4c58', '#12100e', 0.28]} />
+          <pointLight position={[0, 2.2, 4.2]} color="#d8c8a8" intensity={1.15} distance={10} decay={2} />
+          <pointLight position={[0, 2.15, 9.2]} color="#efe6d0" intensity={1.35} distance={8.4} decay={2} />
+          <pointLight position={[-4.2, 2.05, 6.4]} color="#efe6d0" intensity={1.05} distance={7.2} decay={2} />
+          <pointLight position={[4.2, 2.05, 6.4]} color="#efe6d0" intensity={1.05} distance={7.2} decay={2} />
+        </>
+      ) : (
+        <>
+          <ambientLight intensity={0.055} color="#7a90a8" />
+          <hemisphereLight args={[MOON, '#0a0c10', 0.42]} />
+          <directionalLight
+            position={[-6.2, 11, -4.5]}
+            intensity={0.38}
+            color={MOON}
+            castShadow
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+          />
+          <pointLight position={[0, 3.4, 6.4]} color={MOON} intensity={0.22} distance={14} decay={2} />
+        </>
+      )}
+
+      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={NEAR_Z} on={lightsOn} />
+      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={FAR_Z} on={lightsOn} />
+      <EmergencyLamp x={halfX - 0.28} y={2.48} z={NEAR_Z} on={lightsOn} />
+      <EmergencyLamp x={DIR_X} y={2.52} z={maxZ - 0.28} on={lightsOn} />
+
+      <TexturedFloor
+        src="/textura/piso_patio_interno.png"
+        width={width}
+        depth={depth}
+        z={(minZ + maxZ) / 2}
+        tile={4}
+        color="#d8d6d2"
+        roughness={0.92}
+        metalness={0.03}
       />
-      <pointLight position={[0, 3.4, 6.4]} color={MOON} intensity={0.22} distance={14} decay={2} />
-
-      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={NEAR_Z} />
-      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={FAR_Z} />
-      <EmergencyLamp x={halfX - 0.28} y={2.48} z={NEAR_Z} />
-      <EmergencyLamp x={DIR_X} y={2.52} z={maxZ - 0.28} />
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, (minZ + maxZ) / 2]} receiveShadow>
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial color="#3a3936" roughness={0.96} metalness={0.03} />
-      </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.08, (minZ + maxZ) / 2]}>
         <planeGeometry args={[70, 70]} />
         <meshBasicMaterial color="#07090e" />

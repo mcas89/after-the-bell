@@ -382,24 +382,70 @@ textarea {
 }
 
 .examine-hotspot.is-teachers-key {
-  left: 48%;
-  top: 20%;
-  width: 18%;
-  height: 34%;
+  left: 57%;
+  top: 14%;
+  width: 16%;
+  height: 32%;
 }
 
 .examine-hotspot.is-teachers-flash {
-  left: 14%;
-  top: 62%;
-  width: 48%;
+  left: 9%;
+  top: 58%;
+  width: 38%;
   height: 24%;
 }
 
 .examine-hotspot.is-locker-photo {
-  left: 50%;
-  top: 54%;
-  width: 24%;
-  height: 26%;
+  left: 38%;
+  top: 66%;
+  width: 22%;
+  height: 18%;
+}
+
+.examine-hotspot.is-locker-batteries {
+  left: 46%;
+  top: 62%;
+  width: 28%;
+  height: 20%;
+}
+
+.examine-hotspot.is-locker-janitor-key {
+  left: 36.5%;
+  top: 50.5%;
+  width: 8%;
+  height: 19%;
+}
+
+.examine-takes {
+  position: fixed;
+  right: max(1.1rem, env(safe-area-inset-right));
+  bottom: max(1.45rem, env(safe-area-inset-bottom));
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.48rem;
+  pointer-events: auto;
+}
+
+.examine-take {
+  min-width: 8.2rem;
+  padding: 0.82rem 1.05rem;
+  border: 1px solid rgba(214, 204, 188, 0.34);
+  border-radius: 0.85rem;
+  background: rgba(8, 10, 14, 0.82);
+  color: rgba(236, 228, 216, 0.96);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.examine-take:hover {
+  border-color: rgba(232, 220, 180, 0.55);
+  background: rgba(16, 18, 24, 0.9);
 }
 
 .keychain-draw {

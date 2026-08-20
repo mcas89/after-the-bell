@@ -129,11 +129,32 @@ export const PHONE_PHOTOS: PhonePhoto[] = [
     line: 'Essa foto está estranha.',
   },
   {
+    id: 'selfie-1',
+    name: 'IMG_1982.jpg',
+    time: '13/10 11:16',
+    image: EXAMINE_IMG.selfieLivia1,
+    line: 'Sou eu.',
+  },
+  {
+    id: 'selfie-2',
+    name: 'IMG_1988.jpg',
+    time: '13/10 11:22',
+    image: EXAMINE_IMG.selfieLivia2,
+    line: 'Eu. No corredor.',
+  },
+  {
     id: 'bag',
     name: 'IMG_2041.jpg',
     time: '14/10 20:54',
     image: EXAMINE_IMG.mochilaLivia,
     line: 'Eu estava levando isso tudo pra algum lugar.',
+  },
+  {
+    id: 'selfie-her',
+    name: 'IMG_2106.jpg',
+    time: '14/10 22:41',
+    image: EXAMINE_IMG.selfieLiviaMenina,
+    line: 'O rosto dela não aparece.',
   },
   {
     id: 'gap',

@@ -4,7 +4,7 @@ export type HallLocker = {
   id: `hall-locker-${number}`
   name: string
   fullName: string
-  kind: 'livia' | 'marina' | 'other'
+  kind: 'livia' | 'marina' | 'janitor' | 'other'
   pin?: string
 }
 
@@ -18,7 +18,7 @@ export const HALL_LOCKERS: HallLocker[] = [
   { id: 'hall-locker-6', name: 'Marcela', fullName: 'Marcela Rocha', kind: 'other' },
   { id: 'hall-locker-7', name: 'Maitê', fullName: 'Maitê Pinto', kind: 'other' },
   { id: 'hall-locker-8', name: 'Mayara', fullName: 'Mayara Souza', kind: 'other' },
-  { id: 'hall-locker-9', name: 'Mônica', fullName: 'Mônica Lima', kind: 'other' },
+  { id: 'hall-locker-9', name: 'Mônica', fullName: 'Mônica Lima', kind: 'janitor' },
 ]
 
 export function isHallLockerId(id: string | null | undefined): id is HallLocker['id'] {

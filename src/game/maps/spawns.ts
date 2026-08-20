@@ -38,11 +38,19 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
     'from-hallway': { x: 0, z: 1.45, yaw: 0 },
     'from-library': { x: LOBBY_DOORS.library.x + 1.15, z: LOBBY_DOORS.library.z, yaw: Math.PI / 2 },
     'from-bathroom': { x: LOBBY_DOORS.bathroom.x - 1.15, z: LOBBY_DOORS.bathroom.z, yaw: -Math.PI / 2 },
+    'from-storage': { x: LOBBY_DOORS.storage.x + 1.15, z: LOBBY_DOORS.storage.z, yaw: Math.PI / 2 },
+    'from-office': { x: LOBBY_DOORS.office.x, z: LOBBY_DOORS.office.z - 1.15, yaw: Math.PI },
   },
   library: {
     'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
   },
   bathroom: {
+    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+  },
+  storage: {
+    'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
+  },
+  office: {
     'from-patio': { x: DOOR.wallX - 0.92, z: DOOR.z, yaw: -Math.PI / 2 },
   },
 }
