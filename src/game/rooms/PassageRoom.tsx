@@ -12,6 +12,10 @@ import {
   LOBBY_DOORS,
   LOBBY_DOOR_LIST,
   LOBBY_PLANTER,
+  LOBBY_COUNTER,
+  LOBBY_BENCH,
+  LOBBY_BIN,
+  LOBBY_EXTINGUISHER,
   lobbyColliders,
 } from './lobbyLayout'
 import { TexturedFloor } from './TexturedFloor'
@@ -182,6 +186,26 @@ function ExitStairs() {
   )
 }
 
+function PatioCounter() {
+  const { x, z, half } = LOBBY_COUNTER
+  return (
+    <group position={[x, 0, z - 0.02]}>
+      <mesh position={[0, 1.48, 0]} receiveShadow>
+        <boxGeometry args={[half * 2, 1.08, 0.12]} />
+        <meshStandardMaterial color="#4a4038" roughness={0.88} />
+      </mesh>
+      <mesh position={[0, 1.48, -0.04]}>
+        <boxGeometry args={[half * 2 - 0.22, 0.86, 0.06]} />
+        <meshStandardMaterial color="#1c1814" roughness={0.94} />
+      </mesh>
+      <mesh position={[0, 1.04, -0.16]} receiveShadow>
+        <boxGeometry args={[half * 2 + 0.08, 0.1, 0.32]} />
+        <meshStandardMaterial color="#6a5a48" roughness={0.82} />
+      </mesh>
+    </group>
+  )
+}
+
 export function PassageRoom() {
   const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   useLayoutEffect(() => {
@@ -272,6 +296,29 @@ export function PassageRoom() {
 
       <Planter />
       <ExitStairs />
+
+      <Examinable id="lobby-counter">
+        <PatioCounter />
+      </Examinable>
+      <Examinable id="lobby-bench">
+        <FurnitureModel
+          url="/banco_patio.glb"
+          position={[LOBBY_BENCH.x, 0, LOBBY_BENCH.z]}
+          rotationY={Math.PI / 2}
+          targetWidth={LOBBY_BENCH.hx * 2}
+        />
+      </Examinable>
+      <Examinable id="lobby-bin">
+        <FurnitureModel url="/lixeira.glb" position={[LOBBY_BIN.x, 0, LOBBY_BIN.z]} targetHeight={0.62} />
+      </Examinable>
+      <Examinable id="lobby-extinguisher">
+        <FurnitureModel
+          url="/extintor.glb"
+          position={[LOBBY_EXTINGUISHER.x, 0, LOBBY_EXTINGUISHER.z]}
+          rotationY={Math.PI / 2}
+          targetHeight={0.72}
+        />
+      </Examinable>
 
       {LOBBY_DOOR_LIST.filter((door) => door.kind === 'door').map((door) => (
         <Examinable key={door.id} id={door.examineId}>

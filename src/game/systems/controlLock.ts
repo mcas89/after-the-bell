@@ -1,5 +1,6 @@
 import { playerMotion } from '../player/playerMotion'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
+import { isSkeletonScare } from '../rooms/skeletonCabinet'
 import { useGameStore } from '../state/useGameStore'
 
 export function refreshControlLock() {
@@ -9,5 +10,6 @@ export function refreshControlLock() {
     game.bootScreen === 'menu' ||
     !game.prologueDone ||
     phoneOpen ||
-    game.interactionState !== 'gameplay'
+    game.interactionState !== 'gameplay' ||
+    isSkeletonScare()
 }

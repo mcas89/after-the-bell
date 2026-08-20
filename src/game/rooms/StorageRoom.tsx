@@ -1,5 +1,6 @@
 import { useLayoutEffect } from 'react'
 import type { Aabb } from '../data/furniture'
+import { ITEM_IDS } from '../data/items'
 import { getRoom } from '../data/rooms'
 import { doorCollidersAt, wallDoor } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
@@ -8,6 +9,8 @@ import { HallwayDoor } from '../hallway/HallwayDoor'
 import { LOBBY_LIGHTS } from '../inventory/flashlight'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { useGameStore } from '../state/useGameStore'
+import { useInventoryStore } from '../state/useInventoryStore'
+import { ZEL_SKELETON_OPEN } from './skeletonCabinet'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import { TexturedFloor } from './TexturedFloor'
 
@@ -16,6 +19,8 @@ const { width, depth, height } = room.size
 const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#322e2a', roughness: 0.94 }
+const LOCKER_Z = -0.92
+const SKELETON_X = 0.72
 
 function DoorWall() {
   const x = door.wallX
@@ -47,6 +52,8 @@ function DoorWall() {
 
 export function StorageRoom() {
   const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
+  const lockerOpen = useInventoryStore((s) => s.has(ITEM_IDS.bibKey))
+  const skeletonOpen = useGameStore((s) => Boolean(s.flags[ZEL_SKELETON_OPEN]))
 
   useLayoutEffect(() => {
     const walls: Aabb[] = [
@@ -56,6 +63,10 @@ export function StorageRoom() {
       { minX: width / 2, maxX: width / 2 + 0.12, minZ: -depth / 2, maxZ: door.z - door.half },
       { minX: width / 2, maxX: width / 2 + 0.12, minZ: door.z + door.half, maxZ: depth / 2 },
       ...doorCollidersAt(door.wallX, door.z, true),
+      { minX: -2.55, maxX: -1.55, minZ: 1.15, maxZ: 2.05 },
+      { minX: 0.45, maxX: 1.35, minZ: depth / 2 - 0.95, maxZ: depth / 2 - 0.15 },
+      { minX: -width / 2, maxX: -width / 2 + 0.48, minZ: LOCKER_Z - 0.24, maxZ: LOCKER_Z + 0.24 },
+      { minX: SKELETON_X - 0.3, maxX: SKELETON_X + 0.3, minZ: -depth / 2, maxZ: -depth / 2 + 0.52 },
     ]
     setRoomColliders('storage', walls)
     return () => clearRoomColliders('storage')
@@ -135,6 +146,62 @@ export function StorageRoom() {
           </mesh>
         </group>
       </Examinable>
+
+      <Examinable id="zel-broom">
+        <FurnitureModel url="/vassoura.glb" position={[-width / 2 + 0.28, 0, -1.85]} rotationY={0.35} targetHeight={1.22} />
+      </Examinable>
+      <Examinable id="zel-products">
+        <FurnitureModel
+          url="/produtos_limpeza.glb"
+          position={[-2.15, 0, 1.55]}
+          rotationY={Math.PI / 2}
+          targetHeight={0.82}
+        />
+      </Examinable>
+      <Examinable id="zel-vac">
+        <FurnitureModel url="/aspirador.glb" position={[0.85, 0, depth / 2 - 0.55]} rotationY={Math.PI} targetHeight={0.72} />
+      </Examinable>
+
+      <group position={[-width / 2, 0, LOCKER_Z]}>
+        <Examinable id="zel-locker">
+          <FurnitureModel
+            url={lockerOpen ? '/armario_aberto.glb' : '/armario_fechado.glb'}
+            position={[0, 0, 0]}
+            rotationY={0}
+            targetHeight={1.72}
+            pickable={false}
+          />
+          <mesh position={[0.14, 0.86, 0]}>
+            <boxGeometry args={[0.36, 1.7, 0.34]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+        </Examinable>
+      </group>
+
+      <group position={[SKELETON_X, 0, -depth / 2]} rotation={[0, -Math.PI / 2, 0]}>
+        <Examinable id="zel-skeleton">
+          <FurnitureModel
+            url="/armario_esqueleto.glb"
+            position={[0, 0, 0]}
+            rotationY={0}
+            targetHeight={1.78}
+            pickable={false}
+          />
+          {skeletonOpen ? (
+            <FurnitureModel
+              url="/esqueleto.glb"
+              position={[0.22, 0, 0]}
+              rotationY={Math.PI / 2}
+              targetHeight={1.58}
+              pickable={false}
+            />
+          ) : null}
+          <mesh position={[0.16, 0.9, 0]}>
+            <boxGeometry args={[0.42, 1.78, 0.46]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+        </Examinable>
+      </group>
     </group>
   )
 }

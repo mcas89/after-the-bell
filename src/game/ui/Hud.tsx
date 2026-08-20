@@ -18,6 +18,7 @@ import { LookPad } from './LookPad'
 import { useTouchUi } from '../input/useTouchUi'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { ComputerSystem } from '../computer/ComputerSystem'
+import { SkeletonScareOverlay } from '../rooms/skeletonCabinet'
 
 export function Hud() {
   useKeyboard()
@@ -62,6 +63,7 @@ export function Hud() {
       <SaveHistory />
       {showHint && !touch ? <p className="hud has-look">WASD para andar</p> : null}
       <MapFade />
+      <SkeletonScareOverlay />
     </div>
   )
 }

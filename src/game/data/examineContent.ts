@@ -54,6 +54,7 @@ const COLLECT_LABEL: Record<string, string> = {
   [ITEM_IDS.key]: 'chave',
   [ITEM_IDS.officeKey]: 'chave',
   [ITEM_IDS.janitorKey]: 'chave',
+  [ITEM_IDS.bibKey]: 'chave',
   [ITEM_IDS.batteries]: 'pilhas',
   [ITEM_IDS.flashlight]: 'lanterna',
 }
@@ -181,7 +182,16 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Um portão. Tem escada descendo.',
   },
   'lobby-counter': {
-    line: 'Balcão da diretoria. Ninguém.',
+    line: 'Fechado. Ninguém.',
+  },
+  'lobby-bench': {
+    line: 'Banco frio.',
+  },
+  'lobby-bin': {
+    line: 'Vazia.',
+  },
+  'lobby-extinguisher': {
+    line: 'Lacre intacto.',
   },
   'lobby-switch': {
     line: 'Interruptor.',
@@ -213,6 +223,18 @@ const SHARED: Record<string, ExamineEntry> = {
   'office-desk': {
     line: 'Mesa da direção. Ninguém.',
   },
+  'office-chair': {
+    line: 'Encostada. Não vou sentar.',
+  },
+  'office-files': {
+    line: 'Arquivos. Fechado.',
+  },
+  'office-folder': {
+    line: 'Uma pasta.',
+  },
+  'office-counter': {
+    line: 'Fechado do outro lado.',
+  },
   'lib-shelf': {
     line: 'Estantes. A maior parte some no escuro.',
   },
@@ -222,6 +244,9 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'lib-note': {
     line: 'Essa frase de novo...',
+  },
+  'lib-chair': {
+    line: 'Encostada.',
   },
   'bath-mirror': {
     line: 'Eu pareço péssima.',
@@ -234,6 +259,25 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'bath-sink': {
     line: 'Ainda está molhado...',
+  },
+  'bath-bin': {
+    line: 'Vazio.',
+  },
+  'zel-broom': {
+    line: 'Cerdas duras.',
+  },
+  'zel-products': {
+    line: 'Cheiro forte.',
+  },
+  'zel-vac': {
+    line: 'Pesado.',
+  },
+  'zel-locker': {
+    line: 'Uma chave.',
+    collectibleId: 'item-key-bib',
+  },
+  'zel-skeleton': {
+    line: 'Emperrado.',
   },
   'lab-pc': {
     line: 'Computador desligado.',
@@ -361,6 +405,10 @@ function hasJanitorKey() {
   return useInventoryStore.getState().has(ITEM_IDS.janitorKey)
 }
 
+function hasBibKey() {
+  return useInventoryStore.getState().has(ITEM_IDS.bibKey)
+}
+
 export function getExamineEntry(id: string): ExamineEntry | null {
   const key = ALIAS[id] ?? id
   if (key === 'porta') {
@@ -429,6 +477,15 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   }
   if (key === 'lobby-storage') {
     return hasJanitorKey() ? { line: 'Zeladoria.' } : { line: 'Zeladoria. Fechada.' }
+  }
+  if (key === 'lobby-library') {
+    return hasBibKey() ? { line: 'Biblioteca.' } : { line: 'Biblioteca. Fechada.' }
+  }
+  if (key === 'zel-locker') {
+    return hasBibKey() ? { line: 'Vazio.' } : { line: 'Uma chave.', collectibleId: ITEM_IDS.bibKey }
+  }
+  if (key === 'zel-skeleton') {
+    return useGameStore.getState().flags.zelSkeletonOpen ? { line: 'Aberto.' } : { line: 'Emperrado.' }
   }
   if (key === 'lobby-exit') {
     const flags = useGameStore.getState().flags
@@ -515,7 +572,16 @@ export function collectPromptFor(
 }
 
 export function examineHoldSeconds(id: string) {
-  if (isHallLockerId(id) || id === 'quadro-negro' || id === 'teachers-cabinet' || id === 'lobby-switch') return 0
+  if (
+    isHallLockerId(id) ||
+    id === 'quadro-negro' ||
+    id === 'teachers-cabinet' ||
+    id === 'lobby-switch' ||
+    id === 'zel-locker' ||
+    id === 'zel-skeleton'
+  ) {
+    return 0
+  }
   if (id === 'mochila-fechada' || id === 'mochila-aberta') return 0
   const entry = getExamineEntry(id)
   if (!entry) return 3.2

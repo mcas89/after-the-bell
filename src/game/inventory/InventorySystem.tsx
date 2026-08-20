@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { tryCollect } from '../input/actions'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
+import { isSkeletonScare } from '../rooms/skeletonCabinet'
 import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { refreshControlLock } from '../systems/controlLock'
@@ -25,6 +26,7 @@ export function InventorySystem() {
       if (!game.prologueDone) return
       if (isPhoneOpen(usePhoneStore.getState().ui)) return
       if (game.interactionState === 'viewing-fragments') return
+      if (isSkeletonScare()) return
 
       const inventory = useInventoryStore.getState()
 

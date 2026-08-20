@@ -124,6 +124,11 @@ export const LOBBY_PLANTER = {
   halfZ: 0.78,
 } as const
 
+export const LOBBY_COUNTER = { x: 0.28, z: LOBBY.maxZ, half: 0.74 }
+export const LOBBY_BENCH = { x: 2.92, z: 4.62, hx: 0.82, hz: 0.34 }
+export const LOBBY_BIN = { x: 3.98, z: 0.48, hx: 0.22, hz: 0.22 }
+export const LOBBY_EXTINGUISHER = { x: -LOBBY.halfX + 0.14, z: 3.4 }
+
 export const LOBBY_DOOR_LIST = Object.values(LOBBY_DOORS)
 
 export function nearLobbyDoor(px: number, pz: number, door: LobbyDoorDef, reach = 1.55) {
@@ -207,6 +212,8 @@ export function lobbyColliders(): Aabb[] {
     maxZ: LOBBY.minZ + tIn + 0.16,
   }))
   const bed = LOBBY_PLANTER
+  const bench = LOBBY_BENCH
+  const bin = LOBBY_BIN
   return [
     ...west,
     ...east,
@@ -218,6 +225,18 @@ export function lobbyColliders(): Aabb[] {
       maxX: bed.x + bed.halfX,
       minZ: bed.z - bed.halfZ,
       maxZ: bed.z + bed.halfZ,
+    },
+    {
+      minX: bench.x - bench.hx,
+      maxX: bench.x + bench.hx,
+      minZ: bench.z - bench.hz,
+      maxZ: bench.z + bench.hz,
+    },
+    {
+      minX: bin.x - bin.hx,
+      maxX: bin.x + bin.hx,
+      minZ: bin.z - bin.hz,
+      maxZ: bin.z + bin.hz,
     },
   ]
 }

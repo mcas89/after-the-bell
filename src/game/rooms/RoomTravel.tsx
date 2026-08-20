@@ -14,6 +14,7 @@ import { ITEM_IDS } from '../data/items'
 import type { RoomId } from '../data/rooms'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { LOBBY_DOOR_LIST, inLobbyDoorway, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
+import { isSkeletonScare } from './skeletonCabinet'
 
 const DARK_LINE = 'Meu corpo não quer ir.'
 const COLD_LINE = 'Meu corpo não quer ir.'
@@ -25,7 +26,8 @@ function canAct() {
     game.prologueDone &&
     game.interactionState === 'gameplay' &&
     !isPhoneOpen(usePhoneStore.getState().ui) &&
-    !useMapTravelStore.getState().busy
+    !useMapTravelStore.getState().busy &&
+    !isSkeletonScare()
   )
 }
 
@@ -34,7 +36,14 @@ function lobbyPrompt(x: number, z: number) {
   const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(x, z, item))
   if (!door) return null
   if (door.kind === 'gate') return 'E empurrar'
-  if (door.open || (door.id === 'storage' && useInventoryStore.getState().has(ITEM_IDS.janitorKey))) return 'E entrar'
+  const inv = useInventoryStore.getState()
+  if (
+    door.open ||
+    (door.id === 'storage' && inv.has(ITEM_IDS.janitorKey)) ||
+    (door.id === 'library' && inv.has(ITEM_IDS.bibKey))
+  ) {
+    return 'E entrar'
+  }
   return 'E abrir'
 }
 

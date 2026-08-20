@@ -5,19 +5,22 @@ import { DOOR, doorColliders } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
+import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
+import { TexturedFloor } from './TexturedFloor'
 
 const { width, depth, height } = CLASSROOM_1.size
 const wallT = 0.12
 const wall = { color: '#2f2c28', roughness: 0.92 }
 
 const SHELVES = [
-  { x: -2.55, z: -0.15, hx: 0.28, hz: 2.15 },
-  { x: -0.35, z: -0.15, hx: 0.28, hz: 2.15 },
-  { x: 1.85, z: -1.35, hx: 0.28, hz: 1.05 },
+  { url: '/estante_livros1.glb', x: -3.58, z: -1.2, rot: Math.PI / 2, hx: 0.34, hz: 1.12 },
+  { url: '/estante_livros2.glb', x: -3.58, z: 1.28, rot: Math.PI / 2, hx: 0.34, hz: 1.12 },
+  { url: '/estante_livros1.glb', x: 0.2, z: -2.88, rot: 0, hx: 1.12, hz: 0.34 },
 ] as const
 
-const TABLE = { x: 1.55, z: 1.35, hx: 0.62, hz: 0.38 }
+const TABLE = { x: 1.72, z: 1.22, hx: 0.72, hz: 0.42 }
+const CHAIR = { x: 1.72, z: 2.12, hx: 0.28, hz: 0.32 }
 
 function DoorWall() {
   const x = width / 2
@@ -47,21 +50,6 @@ function DoorWall() {
   )
 }
 
-function Shelf({ x, z, hx, hz }: { x: number; z: number; hx: number; hz: number }) {
-  return (
-    <group position={[x, 0, z]}>
-      <mesh position={[0, 1.12, 0]} castShadow receiveShadow>
-        <boxGeometry args={[hx * 2, 2.24, hz * 2]} />
-        <meshStandardMaterial color="#3d342c" roughness={0.88} />
-      </mesh>
-      <mesh position={[hx + 0.01, 1.12, 0]}>
-        <boxGeometry args={[0.04, 2.1, hz * 2 - 0.12]} />
-        <meshStandardMaterial color="#1a1612" roughness={1} />
-      </mesh>
-    </group>
-  )
-}
-
 export function LibraryRoom() {
   useLayoutEffect(() => {
     const walls: Aabb[] = [
@@ -78,6 +66,12 @@ export function LibraryRoom() {
         minZ: TABLE.z - TABLE.hz,
         maxZ: TABLE.z + TABLE.hz,
       },
+      {
+        minX: CHAIR.x - CHAIR.hx,
+        maxX: CHAIR.x + CHAIR.hx,
+        minZ: CHAIR.z - CHAIR.hz,
+        maxZ: CHAIR.z + CHAIR.hz,
+      },
     ]
     setRoomColliders('library', walls)
     return () => clearRoomColliders('library')
@@ -90,10 +84,15 @@ export function LibraryRoom() {
       <pointLight position={[1.6, 1.85, 1.4]} color="#d8c8a0" intensity={0.55} distance={4.2} decay={2} />
       <pointLight position={[-2.4, 1.7, -1.6]} color="#6a5848" intensity={0.18} distance={3.4} decay={2} />
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial color="#3a342e" roughness={0.92} />
-      </mesh>
+      <TexturedFloor
+        src="/textura/piso_madeira.png"
+        width={width}
+        depth={depth}
+        tile={1.45}
+        color="#b7a898"
+        roughness={0.82}
+        metalness={0.04}
+      />
       <mesh position={[0, height, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[width, depth]} />
         <meshStandardMaterial color="#141210" roughness={1} />
@@ -119,25 +118,31 @@ export function LibraryRoom() {
 
       {SHELVES.map((shelf) => (
         <Examinable key={`${shelf.x}-${shelf.z}`} id="lib-shelf">
-          <Shelf {...shelf} />
+          <FurnitureModel
+            url={shelf.url}
+            position={[shelf.x, 0, shelf.z]}
+            rotationY={shelf.rot}
+            targetHeight={2.18}
+          />
         </Examinable>
       ))}
 
-      <Examinable id="lib-ledger">
-        <group position={[TABLE.x, 0, TABLE.z]}>
-          <mesh position={[0, 0.38, 0]} castShadow receiveShadow>
-            <boxGeometry args={[TABLE.hx * 2, 0.76, TABLE.hz * 2]} />
-            <meshStandardMaterial color="#5a4a3c" roughness={0.82} />
-          </mesh>
-          <mesh position={[0.08, 0.78, 0.04]} rotation={[-Math.PI / 2, 0, 0.2]} castShadow>
-            <boxGeometry args={[0.28, 0.36, 0.03]} />
-            <meshStandardMaterial color="#d8cbb0" roughness={0.88} />
-          </mesh>
-        </group>
+      <FurnitureModel
+        url="/mesa_madeiracomgavetas.glb"
+        position={[TABLE.x, 0, TABLE.z]}
+        rotationY={Math.PI}
+        targetWidth={TABLE.hx * 2}
+        pickable={false}
+      />
+      <Examinable id="lib-chair">
+        <FurnitureModel url="/cadeira_madeira.glb" position={[CHAIR.x, 0, CHAIR.z]} rotationY={Math.PI} targetHeight={0.92} />
       </Examinable>
-
+      <Examinable id="lib-ledger">
+        <FurnitureModel url="/livro_aberto.glb" position={[TABLE.x + 0.08, 0.78, TABLE.z + 0.04]} targetWidth={0.42} />
+      </Examinable>
+      <FurnitureModel url="/pilha_livros1.glb" position={[TABLE.x - 0.38, 0.78, TABLE.z - 0.08]} targetHeight={0.22} pickable={false} />
       <Examinable id="lib-note">
-        <mesh position={[TABLE.x - 0.28, 0.79, TABLE.z - 0.08]} rotation={[-Math.PI / 2, 0, -0.4]}>
+        <mesh position={[TABLE.x - 0.12, 0.8, TABLE.z + 0.22]} rotation={[-Math.PI / 2, 0, -0.4]}>
           <boxGeometry args={[0.16, 0.22, 0.02]} />
           <meshStandardMaterial color="#cfc3a8" roughness={0.9} />
         </mesh>

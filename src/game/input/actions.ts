@@ -1,6 +1,7 @@
 import { playSfx, SFX } from '../audio/mixer'
 import { collectPromptsFor } from '../data/examineContent'
 import { ITEM_IDS } from '../data/items'
+import { tryForceSkeletonCabinet } from '../rooms/skeletonCabinet'
 import { canOpenClassroomDoor, useDoorStore } from '../door/useDoorStore'
 import { useExamineStore } from '../examine/useExamineStore'
 import { hasDarkHallClues } from '../hallway/darkProgress'
@@ -10,6 +11,7 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { requestMapTravel, useMapTravelStore } from '../maps/mapTravel'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { playerMotion } from '../player/playerMotion'
+import { isSkeletonScare } from '../rooms/skeletonCabinet'
 import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance } from '../rooms/lobbyLayout'
 import { DOOR, roomWallDoor } from '../door/doorLayout'
 import { useGameStore } from '../state/useGameStore'
@@ -32,7 +34,8 @@ function canAct() {
     game.prologueDone &&
     game.interactionState === 'gameplay' &&
     !isPhoneOpen(usePhoneStore.getState().ui) &&
-    !useMapTravelStore.getState().busy
+    !useMapTravelStore.getState().busy &&
+    !isSkeletonScare()
   )
 }
 
@@ -45,7 +48,12 @@ function hasOtherKey(needed: string | null) {
   if (!needed) return false
   const inv = useInventoryStore.getState()
   if (inv.has(needed)) return false
-  return inv.has(ITEM_IDS.key) || inv.has(ITEM_IDS.officeKey) || inv.has(ITEM_IDS.janitorKey)
+  return (
+    inv.has(ITEM_IDS.key) ||
+    inv.has(ITEM_IDS.officeKey) ||
+    inv.has(ITEM_IDS.janitorKey) ||
+    inv.has(ITEM_IDS.bibKey)
+  )
 }
 
 function tryClassroomDoor(id: keyof typeof HALL_DOORS) {
@@ -109,6 +117,17 @@ function tryLobbyDoor(px: number, pz: number) {
     }
     hall.rattleHandle()
     hall.speak(hasOtherKey(ITEM_IDS.janitorKey) ? 'Não é essa.' : door.lockedLine)
+    return true
+  }
+  if (door.id === 'library') {
+    if (hasKey(ITEM_IDS.bibKey) && door.dest) {
+      playSfx(SFX.doorOpen, 0.52)
+      hall.setPrompt(null)
+      requestMapTravel(door.dest, 'from-patio')
+      return true
+    }
+    hall.rattleHandle()
+    hall.speak(hasOtherKey(ITEM_IDS.bibKey) ? 'Não é essa.' : door.lockedLine)
     return true
   }
   if (door.open && door.dest) {
@@ -237,6 +256,10 @@ export function tryCollect(itemId?: string) {
   if (isPhoneOpen(usePhoneStore.getState().ui)) return false
   if (game.interactionState !== 'examining-object') return false
   const examine = useExamineStore.getState()
+  if (examine.examiningId === 'zel-skeleton') {
+    tryForceSkeletonCabinet()
+    return true
+  }
   const inventory = useInventoryStore.getState()
   const prompts = collectPromptsFor(examine.examiningId, examine.detailId)
   const prompt = itemId ? prompts.find((entry) => entry.id === itemId) : prompts[0]

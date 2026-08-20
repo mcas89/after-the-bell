@@ -10,6 +10,7 @@ import { useLockerPinStore } from '../hallway/useLockerPin'
 import { ITEM_IDS } from '../data/items'
 import { tryCollect } from '../input/actions'
 import { LOBBY_LIGHTS, tryFlipLobbySwitch } from '../inventory/flashlight'
+import { tryForceSkeletonCabinet, ZEL_SKELETON_OPEN } from '../rooms/skeletonCabinet'
 import { HangmanBoard } from './HangmanBoard'
 import { useExamineStore } from './useExamineStore'
 import { LAB_ON_PC_ID } from '../computer/computerStore'
@@ -264,6 +265,9 @@ function promptLine(
     return null
   }
   if (prompt) return `F pegar ${prompt.label} · Esc ou X fechar`
+  if (examiningId === 'zel-skeleton' && !useGameStore.getState().flags[ZEL_SKELETON_OPEN]) {
+    return 'F forçar · Esc ou X fechar'
+  }
   if (examiningId === 'teachers-cabinet' && !detailId) {
     return 'Clique na chave ou na lanterna · Esc ou X fechar'
   }
@@ -291,6 +295,7 @@ export function ExamineHud() {
   useLockerPinStore((s) => s.openIds)
   useGameStore((s) => s.flags.hangmanAmizade)
   const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
+  const skeletonOpen = useGameStore((s) => Boolean(s.flags[ZEL_SKELETON_OPEN]))
   const doorPhase = useDoorStore((s) => s.phase)
   const doorNear = useDoorStore((s) => s.near)
   const canOpenDoor = doorPhase === 'ajar' && doorNear && interaction === 'gameplay'
@@ -322,7 +327,9 @@ export function ExamineHud() {
     <>
       {interaction === 'examining-object' && examiningId ? (
         <>
-          {examiningId === 'lobby-switch' ? null : <div className="examine-dim" />}
+          {examiningId === 'lobby-switch' || examiningId === 'zel-skeleton' || examiningId === 'zel-locker'
+            ? null
+            : <div className="examine-dim" />}
           {examiningId === 'quadro-negro' ? <HangmanBoard /> : null}
           {examiningId === 'teachers-cabinet' ? <TeachersCabinet /> : null}
           {showEntryImage && entry?.image ? <ExaminePhoto src={entry.image} /> : null}
@@ -381,6 +388,20 @@ export function ExamineHud() {
                 }}
               >
                 desligar luzes
+              </button>
+            </div>
+          ) : examiningId === 'zel-skeleton' && !skeletonOpen ? (
+            <div className="examine-takes">
+              <button
+                className="examine-take"
+                type="button"
+                onPointerDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  tryForceSkeletonCabinet()
+                }}
+              >
+                forçar
               </button>
             </div>
           ) : takes.length ? (

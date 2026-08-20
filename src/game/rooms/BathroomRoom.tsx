@@ -61,6 +61,7 @@ export function BathroomRoom() {
       ...doorCollidersAt(door.wallX, door.z, true),
       ...stallBoxes,
       { minX: 0.15, maxX: 1.85, minZ: 1.62, maxZ: 2.18 },
+      { minX: 1.86, maxX: 2.28, minZ: -1.78, maxZ: -1.32 },
     ]
     setRoomColliders('bathroom', walls)
     return () => clearRoomColliders('bathroom')
@@ -133,10 +134,15 @@ export function BathroomRoom() {
       <FurnitureModel url="/pia.glb" position={[1.28, 0, 1.78]} targetHeight={0.86} pickable={false} />
 
       <Examinable id="bath-mirror">
-        <mesh position={[0.82, 1.42, depth / 2 - 0.07]}>
-          <boxGeometry args={[1.18, 0.72, 0.04]} />
-          <meshStandardMaterial color="#9aa8b0" roughness={0.12} metalness={0.35} />
-        </mesh>
+        <FurnitureModel
+          url="/espelho.glb"
+          position={[0.82, 1.42, depth / 2 - 0.08]}
+          targetWidth={1.12}
+          anchor="center"
+        />
+      </Examinable>
+      <Examinable id="bath-bin">
+        <FurnitureModel url="/lixeira.glb" position={[2.05, 0, -1.55]} targetHeight={0.58} />
       </Examinable>
     </group>
   )

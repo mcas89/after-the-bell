@@ -15,6 +15,8 @@ const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#3a342e', roughness: 0.9 }
 const DESK = { x: 0, z: -0.35, hx: 1.05, hz: 0.62 }
+const FILES = { x: -2.15, z: 1.85, hx: 0.42, hz: 0.55 }
+const CHAIR = { x: 0, z: 0.82, hx: 0.32, hz: 0.34 }
 
 function DoorWall() {
   const x = door.wallX
@@ -58,6 +60,18 @@ export function OfficeRoom() {
         maxX: DESK.x + DESK.hx,
         minZ: DESK.z - DESK.hz,
         maxZ: DESK.z + DESK.hz,
+      },
+      {
+        minX: FILES.x - FILES.hx,
+        maxX: FILES.x + FILES.hx,
+        minZ: FILES.z - FILES.hz,
+        maxZ: FILES.z + FILES.hz,
+      },
+      {
+        minX: CHAIR.x - CHAIR.hx,
+        maxX: CHAIR.x + CHAIR.hx,
+        minZ: CHAIR.z - CHAIR.hz,
+        maxZ: CHAIR.z + CHAIR.hz,
       },
     ]
     setRoomColliders('office', walls)
@@ -109,6 +123,36 @@ export function OfficeRoom() {
           rotationY={Math.PI}
           targetWidth={2.05}
         />
+      </Examinable>
+      <Examinable id="office-chair">
+        <FurnitureModel url="/cadeira_madeira.glb" position={[CHAIR.x, 0, CHAIR.z]} rotationY={Math.PI} targetHeight={0.92} />
+      </Examinable>
+      <Examinable id="office-files">
+        <FurnitureModel
+          url="/armario_arquivos.glb"
+          position={[FILES.x, 0, FILES.z]}
+          rotationY={Math.PI / 2}
+          targetHeight={1.42}
+        />
+      </Examinable>
+      <Examinable id="office-folder">
+        <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.52, 0.78, DESK.z + 0.08]} targetWidth={0.36} />
+      </Examinable>
+      <Examinable id="office-counter">
+        <group position={[width / 2 - 0.04, 0, 0.55]}>
+          <mesh position={[0, 1.48, 0]} receiveShadow>
+            <boxGeometry args={[0.12, 1.08, 1.48]} />
+            <meshStandardMaterial color="#4a4038" roughness={0.88} />
+          </mesh>
+          <mesh position={[-0.04, 1.48, 0]}>
+            <boxGeometry args={[0.06, 0.86, 1.26]} />
+            <meshStandardMaterial color="#1c1814" roughness={0.94} />
+          </mesh>
+          <mesh position={[-0.16, 1.04, 0]} receiveShadow>
+            <boxGeometry args={[0.32, 0.1, 1.56]} />
+            <meshStandardMaterial color="#6a5a48" roughness={0.82} />
+          </mesh>
+        </group>
       </Examinable>
     </group>
   )

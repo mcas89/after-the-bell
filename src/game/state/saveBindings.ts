@@ -11,6 +11,7 @@ import { useDoorStore } from '../door/useDoorStore'
 import { useHallwayStore } from '../hallway/useHallwayStore'
 import { useComputerStore } from '../computer/computerStore'
 import { useGameStore } from './useGameStore'
+import { resetSkeletonCabinet } from '../rooms/skeletonCabinet'
 
 function progressFromLists(save: GameSave): Record<string, ClueProgress> {
   if (save.clues.progress && Object.keys(save.clues.progress).length > 0) {
@@ -176,6 +177,7 @@ function applyGameSave(save: GameSave) {
   useDoorStore.getState().hydrate(save.story)
   useHallwayStore.getState().hydrate(save.story)
   useComputerStore.getState().hydrate(Boolean(save.flags.computerUnlocked))
+  resetSkeletonCabinet()
 
   refreshControlLock()
 }
