@@ -15,14 +15,19 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { LAB_ON_PC_ID, useComputerStore } from '../computer/computerStore'
 import { lookInput } from '../input/lookInput'
 import { readTouchUi } from '../input/useTouchUi'
-import { tryFlipLobbySwitch } from '../inventory/flashlight'
 import { useGameStore } from '../state/useGameStore'
 
 const lightPos = new THREE.Vector3()
 const box = new THREE.Box3()
 
 function isHudInspect(id: string) {
-  return isHallLockerId(id) || id === 'teachers-cabinet' || id === 'mochila-fechada' || id === 'mochila-aberta'
+  return (
+    isHallLockerId(id) ||
+    id === 'teachers-cabinet' ||
+    id === 'mochila-fechada' ||
+    id === 'mochila-aberta' ||
+    id === 'lobby-switch'
+  )
 }
 
 function beginInspect(
@@ -33,7 +38,6 @@ function beginInspect(
 ) {
   const record = getExamineRecord(id)
   if (!record) return
-  if (id === 'lobby-switch') tryFlipLobbySwitch()
   useExamineStore.getState().inspect(id)
   inspectId.current = id
   holdLeft.current = examineHoldSeconds(id)

@@ -424,7 +424,7 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   }
   if (key === 'lobby-switch') {
     return useGameStore.getState().flags.lobbyLights
-      ? { line: 'A luz voltou.' }
+      ? { line: 'Ligado.' }
       : { line: 'Interruptor.' }
   }
   if (key === 'lobby-storage') {

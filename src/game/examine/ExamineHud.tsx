@@ -9,6 +9,7 @@ import { getHallLocker, isHallLockerId, lockerPadLabel } from '../hallway/locker
 import { useLockerPinStore } from '../hallway/useLockerPin'
 import { ITEM_IDS } from '../data/items'
 import { tryCollect } from '../input/actions'
+import { LOBBY_LIGHTS, tryFlipLobbySwitch } from '../inventory/flashlight'
 import { HangmanBoard } from './HangmanBoard'
 import { useExamineStore } from './useExamineStore'
 import { LAB_ON_PC_ID } from '../computer/computerStore'
@@ -289,6 +290,7 @@ export function ExamineHud() {
   useInventoryStore((s) => s.items)
   useLockerPinStore((s) => s.openIds)
   useGameStore((s) => s.flags.hangmanAmizade)
+  const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   const doorPhase = useDoorStore((s) => s.phase)
   const doorNear = useDoorStore((s) => s.near)
   const canOpenDoor = doorPhase === 'ajar' && doorNear && interaction === 'gameplay'
@@ -320,7 +322,7 @@ export function ExamineHud() {
     <>
       {interaction === 'examining-object' && examiningId ? (
         <>
-          <div className="examine-dim" />
+          {examiningId === 'lobby-switch' ? null : <div className="examine-dim" />}
           {examiningId === 'quadro-negro' ? <HangmanBoard /> : null}
           {examiningId === 'teachers-cabinet' ? <TeachersCabinet /> : null}
           {showEntryImage && entry?.image ? <ExaminePhoto src={entry.image} /> : null}
@@ -354,7 +356,34 @@ export function ExamineHud() {
             </svg>
           </button>
           {inspectHint ? <p className="prompt-hud">{inspectHint}</p> : null}
-          {takes.length ? (
+          {examiningId === 'lobby-switch' ? (
+            <div className="examine-takes">
+              <button
+                className="examine-take"
+                type="button"
+                disabled={lightsOn}
+                onPointerDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  tryFlipLobbySwitch(true)
+                }}
+              >
+                ligar luzes
+              </button>
+              <button
+                className="examine-take"
+                type="button"
+                disabled={!lightsOn}
+                onPointerDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  tryFlipLobbySwitch(false)
+                }}
+              >
+                desligar luzes
+              </button>
+            </div>
+          ) : takes.length ? (
             <div className="examine-takes">
               {takes.map((take) => (
                 <button

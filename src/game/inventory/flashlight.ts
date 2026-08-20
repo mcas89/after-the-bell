@@ -50,16 +50,17 @@ export function combineFlashlight() {
   return true
 }
 
-export function tryFlipLobbySwitch() {
+export function tryFlipLobbySwitch(want?: boolean) {
   const game = useGameStore.getState()
   const hall = useHallwayStore.getState()
-  if (game.flags[LOBBY_LIGHTS]) {
-    hall.speak('Já está ligado.')
+  const on = want ?? !game.flags[LOBBY_LIGHTS]
+  if (Boolean(game.flags[LOBBY_LIGHTS]) === on) {
+    hall.speak(on ? 'Já está ligado.' : 'Já está apagado.')
     return true
   }
-  game.addFlag(LOBBY_LIGHTS)
+  useGameStore.setState({ flags: { ...game.flags, [LOBBY_LIGHTS]: on } })
   saveManager.save()
-  hall.speak('A luz voltou.')
+  hall.speak(on ? 'A luz voltou.' : 'Apagou.')
   playSfx(SFX.clickItem, 0.52)
   return true
 }

@@ -448,6 +448,16 @@ textarea {
   background: rgba(16, 18, 24, 0.9);
 }
 
+.examine-take:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.examine-take:disabled:hover {
+  border-color: rgba(214, 204, 188, 0.34);
+  background: rgba(8, 10, 14, 0.82);
+}
+
 .keychain-draw {
   display: block;
   width: 100%;

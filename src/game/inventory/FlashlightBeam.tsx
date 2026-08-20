@@ -35,7 +35,7 @@ export function FlashlightBeam() {
       fill.current.position.set(ox, oy, oz)
     }
     if (target.current) {
-      target.current.position.set(x + fx * 4.2, 0.92, z + fz * 4.2)
+      target.current.position.set(x + fx * 6.4, 0.88, z + fz * 6.4)
       target.current.updateMatrixWorld()
     }
     light.current?.target.updateMatrixWorld()
@@ -47,14 +47,14 @@ export function FlashlightBeam() {
     <>
       <spotLight
         ref={light}
-        intensity={28}
-        angle={0.4}
-        penumbra={0.58}
-        distance={9.2}
-        decay={1.8}
-        color="#f2e4bc"
+        intensity={86}
+        angle={0.52}
+        penumbra={0.4}
+        distance={16}
+        decay={1.22}
+        color="#fff6dc"
       />
-      <pointLight ref={fill} intensity={1.15} distance={2.6} decay={2} color="#efe6d0" />
+      <pointLight ref={fill} intensity={16} distance={5.4} decay={1.35} color="#ffe9c4" />
       <object3D ref={target} />
     </>
   )

@@ -18,7 +18,7 @@ import { StorageRoom } from './StorageRoom'
 import { TeachersRoom } from './TeachersRoom'
 import { RoomTravel } from './RoomTravel'
 import { hasDarkHallClues } from '../hallway/darkProgress'
-import { LOBBY_LIGHTS } from '../inventory/flashlight'
+import { FLASHLIGHT_ON, LOBBY_LIGHTS } from '../inventory/flashlight'
 import { FlashlightBeam } from '../inventory/FlashlightBeam'
 import { useFragmentsStore } from '../state/useFragmentsStore'
 
@@ -26,28 +26,60 @@ function RoomFog() {
   const room = useGameStore((s) => s.currentRoom)
   const hallOpen = useFragmentsStore((s) => hasDarkHallClues(s.entries))
   const patioLit = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
+  const flashOn = useGameStore((s) => Boolean(s.flags[FLASHLIGHT_ON]))
   const { scene, gl } = useThree()
 
   useLayoutEffect(() => {
     const fog = scene.fog as THREE.Fog | null
     const hallway = room === 'hallway'
-    const patio = room === 'passage' || room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office'
+    const switched = room === 'passage' || room === 'storage'
+    const patio = room === 'library' || room === 'bathroom' || room === 'office'
+    const beam = switched && !patioLit && flashOn
     const color =
-      hallway || (room === 'passage' && patioLit)
-        ? '#0a1018'
-        : room === 'passage'
-          ? '#05070b'
-          : patio
-            ? '#0a1018'
-            : '#0b0f15'
+      switched && patioLit
+        ? '#121820'
+        : hallway
+          ? '#0a1018'
+          : switched
+            ? '#05070b'
+            : patio
+              ? '#0a1018'
+              : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
+    gl.toneMappingExposure = switched && patioLit ? 0.94 : 0.84
     if (fog) {
       fog.color.set(color)
-      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : room === 'passage' && patioLit ? 7.4 : room === 'passage' ? 2.2 : room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office' ? 4.2 : 6.4
-      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : room === 'passage' && patioLit ? 20 : room === 'passage' ? 8.2 : room === 'library' || room === 'bathroom' || room === 'storage' || room === 'office' ? 11 : 14.2
+      fog.near =
+        hallway && hallOpen
+          ? 10
+          : hallway
+            ? 7.2
+            : switched && patioLit
+              ? 10
+              : beam
+                ? 4.2
+                : switched
+                  ? 2.2
+                  : patio
+                    ? 4.2
+                    : 6.4
+      fog.far =
+        hallway && hallOpen
+          ? 26
+          : hallway
+            ? 18.4
+            : switched && patioLit
+              ? 28
+              : beam
+                ? 16
+                : switched
+                  ? 8.2
+                  : patio
+                    ? 11
+                    : 14.2
     }
-  }, [gl, hallOpen, patioLit, room, scene])
+  }, [flashOn, gl, hallOpen, patioLit, room, scene])
 
   return null
 }

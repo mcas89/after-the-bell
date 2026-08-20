@@ -108,18 +108,26 @@ function EmergencyLamp({ x, y, z, on }: { x: number; y: number; z: number; on: b
   return (
     <group position={[x, y, z]}>
       <mesh>
-        <boxGeometry args={[0.22, 0.08, 0.1]} />
-        <meshStandardMaterial
-          color="#9a8a62"
-          emissive="#e6d08a"
-          emissiveIntensity={on ? 1.85 : 0.04}
-          roughness={0.45}
-        />
+        <boxGeometry args={[0.28, 0.1, 0.14]} />
+        {on ? (
+          <meshStandardMaterial color="#f2ead4" emissive="#f0e2c4" emissiveIntensity={2.2} roughness={0.35} />
+        ) : (
+          <meshStandardMaterial color="#3a3428" emissive="#e6d08a" emissiveIntensity={0.04} roughness={0.45} />
+        )}
       </mesh>
       {on ? (
-        <pointLight position={[0, -0.12, 0]} color="#efe6d0" intensity={1.85} distance={8.4} decay={2} />
+        <pointLight position={[0, -0.55, 0]} color="#f0e2c4" intensity={5.2} distance={10} decay={1.65} />
       ) : null}
     </group>
+  )
+}
+
+function CeilingStrip({ x, z, span, on }: { x: number; z: number; span: number; on: boolean }) {
+  return (
+    <mesh position={[x, height - 0.04, z]} rotation={[Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[0.16, span]} />
+      <meshBasicMaterial color={on ? '#f2ead4' : '#1c1a14'} fog={false} />
+    </mesh>
   )
 }
 
@@ -212,12 +220,11 @@ export function PassageRoom() {
     <group>
       {lightsOn ? (
         <>
-          <ambientLight intensity={0.22} color="#a8b8b0" />
-          <hemisphereLight args={['#3a4c58', '#12100e', 0.3]} />
-          <pointLight position={[0, 2.05, 2.45]} color="#d8c8a8" intensity={1.15} distance={6.4} decay={2} />
-          <pointLight position={[0, 2.0, 5.05]} color="#efe6d0" intensity={1.3} distance={6.2} decay={2} />
-          <pointLight position={[-2.15, 1.9, 3.45]} color="#efe6d0" intensity={1.05} distance={5.4} decay={2} />
-          <pointLight position={[2.15, 1.9, 3.45]} color="#efe6d0" intensity={1.05} distance={5.4} decay={2} />
+          <ambientLight intensity={0.32} color="#b8c4bc" />
+          <hemisphereLight args={['#4a5c68', '#161410', 0.4]} />
+          <pointLight position={[0, 2.35, 2.45]} color="#f0e2c4" intensity={8.4} distance={11} decay={1.6} />
+          <pointLight position={[0, 2.35, 5.05]} color="#f0e2c4" intensity={8.4} distance={11} decay={1.6} />
+          <pointLight position={[0, 2.2, 3.55]} color="#efe6d0" intensity={6.8} distance={12} decay={1.6} />
         </>
       ) : (
         <>
@@ -227,6 +234,8 @@ export function PassageRoom() {
         </>
       )}
 
+      <CeilingStrip x={-1.65} z={3.4} span={4.6} on={lightsOn} />
+      <CeilingStrip x={1.65} z={3.4} span={4.6} on={lightsOn} />
       <EmergencyLamp x={-halfX + 0.28} y={2.48} z={NEAR_Z} on={lightsOn} />
       <EmergencyLamp x={-halfX + 0.28} y={2.48} z={FAR_Z} on={lightsOn} />
       <EmergencyLamp x={halfX - 0.28} y={2.48} z={NEAR_Z} on={lightsOn} />
