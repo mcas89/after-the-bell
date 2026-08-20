@@ -10,7 +10,7 @@ import { LOBBY_LIGHTS } from '../inventory/flashlight'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
-import { ZEL_SKELETON_OPEN } from './skeletonCabinet'
+import { ZEL_SKELETON_AIM, ZEL_SKELETON_OPEN } from './skeletonCabinet'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import { TexturedFloor } from './TexturedFloor'
 
@@ -20,7 +20,7 @@ const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#322e2a', roughness: 0.94 }
 const LOCKER_Z = -0.92
-const SKELETON_X = 0.72
+const SKELETON_X = ZEL_SKELETON_AIM.x
 
 function DoorWall() {
   const x = door.wallX

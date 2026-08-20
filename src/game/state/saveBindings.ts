@@ -121,6 +121,8 @@ function applyGameSave(save: GameSave) {
   playerMotion.yaw = save.player.rotation
   playerMotion.faceYaw = null
   playerMotion.flinch = 0
+  playerMotion.forcePulse = 0
+  playerMotion.forceFacing = false
   playerMotion.distanceWalked = save.story.phoneIntroduced
     ? Math.max(save.player.walked ?? 0, 99)
     : (save.player.walked ?? 0)

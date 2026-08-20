@@ -10,6 +10,7 @@ import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 
 export const ZEL_SKELETON_OPEN = 'zelSkeletonOpen'
+export const ZEL_SKELETON_AIM = { x: 0.72, z: -3.2 }
 
 const NEED_PULLS = 6
 const LINES = ['Não sai.', 'Trava.', 'Não sai.', 'Quase.', 'Vai.']
@@ -25,6 +26,11 @@ export function isSkeletonScare() {
 
 export function resetSkeletonCabinet() {
   pulls = 0
+  playerMotion.forcePulse = 0
+  if (playerMotion.forceFacing) {
+    playerMotion.faceYaw = null
+    playerMotion.forceFacing = false
+  }
   window.clearTimeout(scareTimer)
   useSkeletonScareStore.setState({ active: false })
 }
@@ -36,6 +42,7 @@ export function tryForceSkeletonCabinet() {
   if (useExamineStore.getState().examiningId !== 'zel-skeleton') return false
 
   pulls += 1
+  playerMotion.forcePulse = 1
   const hall = useHallwayStore.getState()
   hall.rattleHandle()
   playSfx(SFX.clickItem, 0.46)
