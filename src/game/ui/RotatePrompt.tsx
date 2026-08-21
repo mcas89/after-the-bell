@@ -1,11 +1,8 @@
 import { useEffect } from 'react'
 import { refreshControlLock } from '../systems/controlLock'
-import { useGameStore } from '../state/useGameStore'
 import { PORTRAIT_QUERY, tryLockLandscape } from './landscape'
 
 export function RotatePrompt() {
-  const playing = useGameStore((s) => s.bootScreen === 'playing')
-
   useEffect(() => {
     const mq = window.matchMedia(PORTRAIT_QUERY)
     const sync = () => refreshControlLock()
@@ -17,8 +14,6 @@ export function RotatePrompt() {
       window.removeEventListener('orientationchange', sync)
     }
   }, [])
-
-  if (!playing) return null
 
   return (
     <div

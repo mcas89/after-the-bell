@@ -724,6 +724,11 @@ textarea {
   .rotate-prompt {
     display: flex;
   }
+
+  .menu-screen {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 .menu-screen {
