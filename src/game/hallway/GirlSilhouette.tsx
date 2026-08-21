@@ -41,7 +41,7 @@ function paintShadow(root: THREE.Object3D) {
 function MarinaShade({ shown }: { shown: boolean }) {
   const startZ = useHallwayStore((s) => s.girlZ)
   const walking = useHallwayStore((s) => s.girlWalking)
-  const vrm = useVrm('/characters/Livia.vrm?silhouette=1')
+  const vrm = useVrm('/characters/marina.vrm?silhouette=1')
   const idleJson = useLoader(
     THREE.FileLoader,
     '/animation/vida_completo.json',

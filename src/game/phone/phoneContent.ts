@@ -29,6 +29,28 @@ export type PhoneThread = {
 
 export const PHONE_THREADS: PhoneThread[] = [
   {
+    id: 'm',
+    from: 'M',
+    time: '02:52',
+    preview: 'acho que a chave está na zeladoria !',
+    messages: [
+      { who: 'me', time: '20:31', text: 'a gente fica?' },
+      { who: 'them', time: '20:32', text: 'vc é louca kkkkk' },
+      { who: 'me', time: '20:32', text: 'vai ser de boa' },
+      { who: 'them', time: '20:40', text: 'e se trancar depois das 22h?' },
+      { who: 'me', time: '20:41', text: 'a gente acha as chaves' },
+      { who: 'them', time: '20:42', text: 'acho que a chave está na zeladoria !' },
+      { who: 'them', time: '21:08', text: 'se precisar o meu armário é o quinto' },
+      { who: 'them', time: '21:08', text: 'código: meu niver' },
+      { who: 'me', time: '21:09', text: 'relaxa' },
+      { who: 'them', time: '22:18', text: 'eu quero ir embora' },
+      { who: 'me', time: '22:19', text: 'espera mais um pouco' },
+      { who: 'them', time: '02:51', text: 'livia' },
+      { who: 'them', time: '02:52', text: 'a biblioteca tem uma planta da escola' },
+    ],
+    line: 'M. Eu respondi ela o tempo todo.',
+  },
+  {
     id: 'mae',
     from: 'Mãe',
     time: '21:45',
@@ -59,7 +81,7 @@ export const PHONE_THREADS: PhoneThread[] = [
     preview: 'vcs são lokas eu nao tenho coragem essa escola é estranha a noite !!!',
     messages: [
       { who: 'them', time: '20:18', text: 'vcs ainda tão na escola?' },
-      { who: 'me', time: '20:19', text: 'um pouco' },
+      { who: 'me', time: '20:19', text: 'a gente vai ficar a noite toda' },
       { who: 'them', time: '20:22', text: 'vcs são lokas eu nao tenho coragem essa escola é estranha a noite !!!' },
     ],
   },
@@ -72,15 +94,6 @@ export const PHONE_THREADS: PhoneThread[] = [
       { who: 'them', time: '19:02', text: 'não esqueçam o trabalho para segunda' },
       { who: 'them', time: '19:31', text: 'não vi vcs saindo da escola hoje esta td bem ?' },
     ],
-  },
-  {
-    id: 'locked',
-    from: '',
-    time: '—',
-    preview: 'Conversa indisponível',
-    locked: true,
-    messages: [],
-    line: 'Por que só essa não abre?',
   },
 ]
 

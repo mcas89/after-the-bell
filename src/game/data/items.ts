@@ -9,6 +9,7 @@ export const ITEM_IDS = {
   officeKey: 'item-key-diretoria',
   janitorKey: 'item-key-zeladoria',
   bibKey: 'item-key-bib',
+  dirKey: 'item-key-dir',
   batteries: 'item-batteries',
   flashlight: 'item-flashlight',
   flashlightLit: 'item-flashlight-lit',
@@ -35,6 +36,11 @@ export const ITEMS: Record<string, ItemDef> = {
     title: 'Chave média',
     description: 'Média. Um pouco fria.',
   },
+  [ITEM_IDS.dirKey]: {
+    id: ITEM_IDS.dirKey,
+    title: 'Chave pesada',
+    description: 'Mais pesada. Fria.',
+  },
   [ITEM_IDS.batteries]: {
     id: ITEM_IDS.batteries,
     title: 'Duas pilhas',
@@ -54,7 +60,11 @@ export const ITEMS: Record<string, ItemDef> = {
 
 export function isKeyItem(id: string) {
   return (
-    id === ITEM_IDS.key || id === ITEM_IDS.officeKey || id === ITEM_IDS.janitorKey || id === ITEM_IDS.bibKey
+    id === ITEM_IDS.key ||
+    id === ITEM_IDS.officeKey ||
+    id === ITEM_IDS.janitorKey ||
+    id === ITEM_IDS.bibKey ||
+    id === ITEM_IDS.dirKey
   )
 }
 

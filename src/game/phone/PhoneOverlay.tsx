@@ -8,7 +8,7 @@ import {
 } from './phoneContent'
 
 const APPS: Array<{ id: Exclude<PhoneApp, 'home'>; label: string; tone: string; badge?: number }> = [
-  { id: 'messages', label: 'Mensagens', tone: 'is-messages', badge: 4 },
+  { id: 'messages', label: 'Mensagens', tone: 'is-messages', badge: 5 },
   { id: 'calls', label: 'Telefone', tone: 'is-phone' },
   { id: 'photos', label: 'Fotos', tone: 'is-photos' },
   { id: 'notes', label: 'Notas', tone: 'is-notes' },

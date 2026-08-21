@@ -35,12 +35,13 @@ function lobbyPrompt(x: number, z: number) {
   if (nearLobbyEntrance(x, z)) return 'E voltar'
   const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(x, z, item))
   if (!door) return null
-  if (door.kind === 'gate') return 'E empurrar'
+  if (door.kind === 'gate') return useGameStore.getState().flags.officeFallSeen ? 'E descer' : 'E empurrar'
   const inv = useInventoryStore.getState()
   if (
     door.open ||
     (door.id === 'storage' && inv.has(ITEM_IDS.janitorKey)) ||
-    (door.id === 'library' && inv.has(ITEM_IDS.bibKey))
+    (door.id === 'library' && inv.has(ITEM_IDS.bibKey)) ||
+    (door.id === 'office' && inv.has(ITEM_IDS.dirKey))
   ) {
     return 'E entrar'
   }
@@ -191,6 +192,11 @@ export function RoomTravel() {
         return
       }
       hall.setPrompt(lobbyPrompt(x, z))
+      return
+    }
+
+    if (game.currentRoom === 'backyard') {
+      hall.setPrompt(z > 1.42 ? 'E voltar' : null)
       return
     }
 

@@ -60,6 +60,13 @@ export const BATHROOM: RoomDef = {
   bounds: { minX: -2.55, maxX: 2.55, minZ: -2.1, maxZ: 2.1 },
 }
 
+export const BACKYARD: RoomDef = {
+  id: 'backyard',
+  size: { width: 4.4, depth: 5.4, height: 2.7 },
+  spawn: [0, 0, 1.55],
+  bounds: { minX: -1.85, maxX: 1.85, minZ: -2.15, maxZ: 2.25 },
+}
+
 export const PASSAGE: RoomDef = {
   id: 'passage',
   size: { width: 9.2, depth: 7.2, height: 3.15 },
@@ -81,7 +88,7 @@ export const ROOMS: Record<RoomId, RoomDef> = {
   office: { ...SIDE_CLASSROOM, id: 'office' },
   teachers: TEACHERS,
   storage: { ...SIDE_CLASSROOM, id: 'storage' },
-  backyard: { ...HALLWAY, id: 'backyard' },
+  backyard: BACKYARD,
   passage: PASSAGE,
 }
 

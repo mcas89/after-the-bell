@@ -17,6 +17,7 @@ const wall = { color: '#3a342e', roughness: 0.9 }
 const DESK = { x: 0, z: -0.35, hx: 1.05, hz: 0.62 }
 const FILES = { x: -2.15, z: 1.85, hx: 0.42, hz: 0.55 }
 const CHAIR = { x: 0, z: 0.82, hx: 0.32, hz: 0.34 }
+const WIN = { z: 0.18, half: 0.58, sill: 0.92, h: 1.32 }
 
 function DoorWall() {
   const x = door.wallX
@@ -137,6 +138,22 @@ export function OfficeRoom() {
       </Examinable>
       <Examinable id="office-folder">
         <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.52, 0.78, DESK.z + 0.08]} targetWidth={0.36} />
+      </Examinable>
+      <Examinable id="office-window">
+        <group position={[-width / 2 + 0.04, WIN.sill + WIN.h / 2, WIN.z]}>
+          <mesh position={[0.01, 0, 0]}>
+            <boxGeometry args={[0.04, WIN.h + 0.1, WIN.half * 2 + 0.1]} />
+            <meshStandardMaterial color="#2a2622" roughness={0.88} />
+          </mesh>
+          <mesh position={[-0.02, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[WIN.half * 2 - 0.1, WIN.h - 0.1]} />
+            <meshBasicMaterial color="#07090e" />
+          </mesh>
+          <mesh position={[0.12, 0.02, -0.22]} rotation={[0, 0.55, 0]}>
+            <boxGeometry args={[0.018, WIN.h - 0.18, WIN.half * 0.92]} />
+            <meshStandardMaterial color="#8aa0b0" roughness={0.18} metalness={0.22} transparent opacity={0.18} />
+          </mesh>
+        </group>
       </Examinable>
       <Examinable id="office-counter">
         <group position={[width / 2 - 0.04, 0, 0.55]}>

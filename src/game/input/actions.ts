@@ -52,7 +52,8 @@ function hasOtherKey(needed: string | null) {
     inv.has(ITEM_IDS.key) ||
     inv.has(ITEM_IDS.officeKey) ||
     inv.has(ITEM_IDS.janitorKey) ||
-    inv.has(ITEM_IDS.bibKey)
+    inv.has(ITEM_IDS.bibKey) ||
+    inv.has(ITEM_IDS.dirKey)
   )
 }
 
@@ -96,6 +97,12 @@ function tryLobbyDoor(px: number, pz: number) {
   if (!door) return false
   const game = useGameStore.getState()
   if (door.kind === 'gate') {
+    if (game.flags.officeFallSeen) {
+      playSfx(SFX.doorOpen, 0.45)
+      hall.setPrompt(null)
+      requestMapTravel('backyard', 'from-gate')
+      return true
+    }
     hall.rattleHandle()
     if (!game.flags.patioGatePushed) {
       game.addFlag('patioGatePushed')
@@ -128,6 +135,17 @@ function tryLobbyDoor(px: number, pz: number) {
     }
     hall.rattleHandle()
     hall.speak(hasOtherKey(ITEM_IDS.bibKey) ? 'Não é essa.' : door.lockedLine)
+    return true
+  }
+  if (door.id === 'office') {
+    if (hasKey(ITEM_IDS.dirKey) && door.dest) {
+      playSfx(SFX.doorOpen, 0.52)
+      hall.setPrompt(null)
+      requestMapTravel(door.dest, 'from-patio')
+      return true
+    }
+    hall.rattleHandle()
+    hall.speak(hasOtherKey(ITEM_IDS.dirKey) ? 'Não é essa.' : door.lockedLine)
     return true
   }
   if (door.open && door.dest) {
@@ -221,6 +239,15 @@ export function tryInteract() {
     return false
   }
 
+  if (game.currentRoom === 'backyard') {
+    if (z < 1.42) return false
+    interactGate.cool = 0.8
+    playSfx(SFX.doorOpen, 0.4)
+    hall.setPrompt(null)
+    requestMapTravel('passage', 'from-stairs')
+    return true
+  }
+
   if (isPatioRoom(game.currentRoom)) {
     const door = roomWallDoor(game.currentRoom as RoomId)
     if (Math.hypot(x - (door.wallX - 0.35), z - door.z) > DOOR.reach) return false
@@ -257,14 +284,18 @@ export function tryCollect(itemId?: string) {
   if (game.interactionState !== 'examining-object') return false
   const examine = useExamineStore.getState()
   if (examine.examiningId === 'zel-skeleton') {
-    tryForceSkeletonCabinet()
-    return true
+    if (!useGameStore.getState().flags.zelSkeletonOpen) {
+      tryForceSkeletonCabinet()
+      return true
+    }
   }
   const inventory = useInventoryStore.getState()
   const prompts = collectPromptsFor(examine.examiningId, examine.detailId)
   const prompt = itemId ? prompts.find((entry) => entry.id === itemId) : prompts[0]
   if (!prompt || inventory.has(prompt.id)) return false
   inventory.collect(prompt.id)
+  if (prompt.id === ITEM_IDS.bibKey) useHallwayStore.getState().speak('Biblioteca.')
+  if (prompt.id === ITEM_IDS.dirKey) useHallwayStore.getState().speak('Diretoria.')
   if (examine.examiningId === 'teachers-cabinet') {
     if (examine.detailId) useExamineStore.setState({ detailId: null })
     return true

@@ -17,6 +17,8 @@ export type SheetKind =
   | 'quadro'
   | 'aviso'
   | 'ronda'
+  | 'pasta'
+  | 'manutencao'
 
 export type ExamineEntry = {
   line: string | null
@@ -46,6 +48,8 @@ export const EXAMINE_IMG = {
   selfieLivia1: '/image/selfie-livia1.png',
   selfieLivia2: '/image/selfie-livia2.png',
   selfieLiviaMenina: '/image/selfie-livia-e-menina.png',
+  plantaPavimento: '/image/planta-segundo-andar.png',
+  gavetaChaves: '/image/gaveta-chaves-fechamento.png',
 } as const
 
 export type CollectPrompt = { id: string; label: string }
@@ -55,6 +59,7 @@ const COLLECT_LABEL: Record<string, string> = {
   [ITEM_IDS.officeKey]: 'chave',
   [ITEM_IDS.janitorKey]: 'chave',
   [ITEM_IDS.bibKey]: 'chave',
+  [ITEM_IDS.dirKey]: 'chave',
   [ITEM_IDS.batteries]: 'pilhas',
   [ITEM_IDS.flashlight]: 'lanterna',
 }
@@ -85,7 +90,7 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Algumas canetas estão vazias. Alguém escreveu muito.',
   },
   'bloco-folhas': {
-    line: 'L + M. “O meu é o quinto. Código: meu niver.” Quem é M?',
+    line: 'L + M. O quinto armário. O código é o niver dela. Quem é M?',
     fragmentId: 'clue-lm',
     sheet: 'bloco',
   },
@@ -239,7 +244,7 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Estantes. A maior parte some no escuro.',
   },
   'lib-ledger': {
-    line: 'M.A...\nM.',
+    line: 'M.A. É M.',
     fragmentId: 'clue-ma',
   },
   'lib-note': {
@@ -255,7 +260,13 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Pilha. Nada na lombada.',
   },
   'lib-pile': {
-    line: 'Mais livros. Um está marcado.',
+    line: 'DIR circulado. Telefone. Chaves. A saída.',
+    fragmentId: 'clue-plan',
+    image: EXAMINE_IMG.plantaPavimento,
+  },
+  'lib-drawer': {
+    line: 'Acho que a chave está na zeladoria.',
+    image: EXAMINE_IMG.gavetaChaves,
   },
   'lib-chair': {
     line: 'Encostada.',
@@ -274,6 +285,16 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'bath-bin': {
     line: 'Vazio.',
+  },
+  'bath-elastic': {
+    line: 'Elástico. Cor de vinho.',
+  },
+  'office-window': {
+    line: 'Aberta. Sem grade.',
+  },
+  'yard-body': {
+    line: 'Você morreu aqui. Por minha causa.',
+    fragmentId: 'clue-body',
   },
   'zel-broom': {
     line: 'Cerdas duras.',
@@ -421,6 +442,10 @@ function hasBibKey() {
   return useInventoryStore.getState().has(ITEM_IDS.bibKey)
 }
 
+function hasDirKey() {
+  return useInventoryStore.getState().has(ITEM_IDS.dirKey)
+}
+
 export function getExamineEntry(id: string): ExamineEntry | null {
   const key = ALIAS[id] ?? id
   if (key === 'porta') {
@@ -488,19 +513,36 @@ export function getExamineEntry(id: string): ExamineEntry | null {
       : { line: 'Interruptor.' }
   }
   if (key === 'lobby-storage') {
+    if (useGameStore.getState().flags.libDrawerSeen && !hasDirKey()) {
+      return hasJanitorKey() ? { line: 'A chave da diretoria deve estar aqui.' } : { line: 'Acho que a chave está na zeladoria.' }
+    }
     return hasJanitorKey() ? { line: 'Zeladoria.' } : { line: 'Zeladoria. Fechada.' }
   }
   if (key === 'lobby-library') {
     return hasBibKey() ? { line: 'Biblioteca.' } : { line: 'Biblioteca. Fechada.' }
   }
+  if (key === 'lobby-office') {
+    return hasDirKey() ? { line: 'Diretoria.' } : { line: 'Diretoria. Trancada.' }
+  }
+  if (key === 'lib-drawer') {
+    const game = useGameStore.getState()
+    if (!game.flags.libDrawerSeen) game.addFlag('libDrawerSeen')
+    return SHARED['lib-drawer']
+  }
   if (key === 'zel-locker') {
     return hasBibKey() ? { line: 'Vazio.' } : { line: 'Uma chave.', collectibleId: ITEM_IDS.bibKey }
   }
   if (key === 'zel-skeleton') {
-    return useGameStore.getState().flags.zelSkeletonOpen ? { line: 'Aberto.' } : { line: 'Emperrado.' }
+    const game = useGameStore.getState()
+    if (!game.flags.zelSkeletonOpen) return { line: 'Emperrado.' }
+    if (game.flags.libDrawerSeen && !hasDirKey()) {
+      return { line: 'A chave da diretoria.', collectibleId: ITEM_IDS.dirKey }
+    }
+    return { line: 'Aberto.' }
   }
   if (key === 'lobby-exit') {
     const flags = useGameStore.getState().flags
+    if (flags.officeFallSeen) return { line: 'Tem alguma coisa lá embaixo...' }
     if (flags.patioGateAgain) return { line: 'Tem alguma coisa lá embaixo...' }
     if (flags.patioGatePushed) return { line: 'Não abre. Tem uma escada descendo.' }
     return { line: 'Um portão. Tem escada descendo.' }
@@ -510,6 +552,33 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     if (game.flags.bathWetGone) return { line: 'Sumiu.' }
     if (!game.flags.bathWetSeen) game.addFlag('bathWetSeen')
     return { line: 'Ainda está molhado...' }
+  }
+  if (key === 'bath-mirror') {
+    if (hasDirKey()) {
+      return { line: 'Ela queria ir embora.', fragmentId: 'clue-wanted-out' }
+    }
+    return { line: 'Eu pareço péssima.' }
+  }
+  if (key === 'bath-elastic') {
+    return hasDirKey() ? { line: 'O dela.' } : { line: 'Elástico. Cor de vinho.' }
+  }
+  if (key === 'office-folder') {
+    const game = useGameStore.getState()
+    if (!game.flags.marinaFolderSeen) game.addFlag('marinaFolderSeen')
+    return {
+      line: 'Marina Alves. 2º B.\nA gente ria tanto.',
+      fragmentId: 'clue-marina',
+      sheet: 'pasta',
+    }
+  }
+  if (key === 'office-window') {
+    const flags = useGameStore.getState().flags
+    if (!flags.marinaFolderSeen) return { line: 'Aberta. Sem grade.' }
+    if (!flags.officeWindowNote) return { line: 'Alguém tirou a grade.', sheet: 'manutencao' }
+    if (!flags.officeFallSeen) {
+      return { line: 'Ela estava aqui. Comigo.\nEla caiu. 03:17.', fragmentId: 'clue-fall' }
+    }
+    return { line: '03:17. Ainda agora.' }
   }
   if (key === 'quadro-negro' && useGameStore.getState().flags.hangmanAmizade) {
     return { ...SHARED[key], line: 'A palavra era AMIZADE.' }
@@ -533,7 +602,7 @@ export function getExamineEntry(id: string): ExamineEntry | null {
       return { line: 'Quase vazio.' }
     }
     if (locker.kind === 'livia') return { line: 'Meu armário.' }
-    if (locker.kind === 'marina') return { line: 'Todo mundo tem nome... menos esse.' }
+    if (locker.kind === 'marina') return { line: 'O quinto. Sem nome. O código é o niver.' }
     return { line: `Armário da ${locker.name}.` }
   }
   return SHARED[key] ?? null
@@ -604,7 +673,9 @@ export function examineHoldSeconds(id: string) {
     entry.sheet === 'prontuario' ||
     entry.sheet === 'quadro' ||
     entry.sheet === 'aviso' ||
-    entry.sheet === 'ronda'
+    entry.sheet === 'ronda' ||
+    entry.sheet === 'pasta' ||
+    entry.sheet === 'manutencao'
   ) {
     return 6.8
   }

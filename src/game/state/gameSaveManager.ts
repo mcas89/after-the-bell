@@ -208,6 +208,9 @@ const ROOM_LABEL: Record<string, string> = {
   passage: 'Pátio',
   library: 'Biblioteca',
   bathroom: 'Banheiro',
+  storage: 'Zeladoria',
+  office: 'Diretoria',
+  backyard: 'Escada',
 }
 
 export function describeSave(save: GameSave) {

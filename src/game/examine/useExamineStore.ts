@@ -56,8 +56,14 @@ export const useExamineStore = create<ExamineState>((set, get) => ({
       set({ detailId: null })
       return
     }
+    const closedId = get().examiningId
     set({ examiningId: null, hoveredId: null, detailId: null })
     setInteraction('gameplay')
     useFragmentsStore.getState().flushPendingToast()
+    if (closedId === 'office-window') {
+      const game = useGameStore.getState()
+      if (game.flags.marinaFolderSeen && !game.flags.officeWindowNote) game.addFlag('officeWindowNote')
+      else if (game.flags.officeWindowNote && !game.flags.officeFallSeen) game.addFlag('officeFallSeen')
+    }
   },
 }))

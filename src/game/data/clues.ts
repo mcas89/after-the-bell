@@ -47,6 +47,11 @@ export const CLUE_IDS = {
   closingNotice: 'clue-closing-notice',
   secondFloor: 'clue-second-floor',
   ma: 'clue-ma',
+  plan: 'clue-plan',
+  wantedOut: 'clue-wanted-out',
+  marina: 'clue-marina',
+  fall: 'clue-fall',
+  body: 'clue-body',
 } as const
 
 export const CLUES: ClueDef[] = [
@@ -105,7 +110,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'L + M',
-        description: 'L + M. “O meu é o quinto. Código: meu niver.” Quem é M?',
+        description: 'L + M. O quinto armário. O código é o niver dela. Quem é M?',
       },
     ],
   },
@@ -182,7 +187,62 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'M.A.',
-        description: 'Encontrei as iniciais M.A. num registro. M não era só um rabisco.',
+        description: 'M.A. no registro. É M.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.plan,
+    kind: 'fragment',
+    chapter: 'library',
+    stages: [
+      {
+        title: 'A planta',
+        description: 'DIR circulado. Telefone. Chaves. A saída. A chave da diretoria ficou na zeladoria.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.wantedOut,
+    kind: 'fragment',
+    chapter: 'bathroom',
+    stages: [
+      {
+        title: 'Ir embora',
+        description: 'Ela queria ir embora. Eu que insisti.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.marina,
+    kind: 'fragment',
+    chapter: 'office',
+    stages: [
+      {
+        title: 'Marina Alves',
+        description: 'Marina Alves. 2º B. A gente ria tanto.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.fall,
+    kind: 'fragment',
+    chapter: 'office',
+    stages: [
+      {
+        title: '03:17',
+        description: 'A janela. Ela caiu. 03:17. Foi agora.',
+      },
+    ],
+  },
+  {
+    id: CLUE_IDS.body,
+    kind: 'fragment',
+    chapter: 'backyard',
+    stages: [
+      {
+        title: 'Por minha causa',
+        description: 'Você morreu aqui. Por minha causa.',
       },
     ],
   },

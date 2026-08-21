@@ -23,8 +23,8 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
         <p className="sheet-mark">L + M</p>
         <p className="sheet-hand">depois de todos irem a</p>
         <p className="sheet-hand is-yell">eu nao sei esperar !!!</p>
-        <p className="sheet-hand is-m">se precisar o meu e o quinto</p>
-        <p className="sheet-hand is-m">codigo meu niver</p>
+        <p className="sheet-hand is-m">o meu armário é o quinto</p>
+        <p className="sheet-hand is-m">código: meu niver</p>
       </article>
     )
   }
@@ -75,6 +75,32 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
         <p>Portaria — chaves · ok</p>
         <p className="sheet-muted">Plantão H. Costa · saída 22:04</p>
         <p className="sheet-note">levei as chaves da externa</p>
+      </article>
+    )
+  }
+  if (kind === 'pasta') {
+    return (
+      <article className="examine-sheet is-file">
+        <h2>Escola Estadual Francis Milton</h2>
+        <p className="sheet-kicker">2º Ano B — Pasta do aluno</p>
+        <p>
+          <strong>Marina Alves</strong>
+        </p>
+        <p className="sheet-muted">Nascimento: 21/07</p>
+        <p className="sheet-muted">Nº 5 · 2º B</p>
+        <p className="sheet-muted">Frequência · notas · ocorrência</p>
+        <p className="sheet-note">A gente ria tanto.</p>
+      </article>
+    )
+  }
+  if (kind === 'manutencao') {
+    return (
+      <article className="examine-sheet is-file">
+        <h2>Escola Estadual Francis Milton</h2>
+        <p className="sheet-kicker">Manutenção — Diretoria</p>
+        <p>Janela do fundo — 2º pavimento</p>
+        <p>Grade removida.</p>
+        <p className="sheet-muted">Não recolocar até nova ordem.</p>
       </article>
     )
   }
@@ -293,7 +319,7 @@ export function ExamineHud() {
 
   useInventoryStore((s) => s.items)
   useLockerPinStore((s) => s.openIds)
-  useGameStore((s) => s.flags.hangmanAmizade)
+  useGameStore((s) => s.flags)
   const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   const skeletonOpen = useGameStore((s) => Boolean(s.flags[ZEL_SKELETON_OPEN]))
   const doorPhase = useDoorStore((s) => s.phase)

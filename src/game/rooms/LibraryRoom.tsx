@@ -22,10 +22,10 @@ const SHELVES = [
   { url: '/estante_livros1.glb', x: westX, z: -1.4, rot: -Math.PI / 2, hx: 0.34, hz: 1.08 },
   { url: '/estante_livros2.glb', x: westX, z: 0.8, rot: -Math.PI / 2, hx: 0.34, hz: 1.08 },
   { url: '/estante_livros1.glb', x: westX, z: 2.42, rot: -Math.PI / 2, hx: 0.34, hz: 1.08 },
-  { url: '/estante_livros2.glb', x: -1.75, z: southZ, rot: 0, hx: 1.08, hz: 0.34 },
-  { url: '/estante_livros1.glb', x: 0.5, z: southZ, rot: 0, hx: 1.08, hz: 0.34 },
-  { url: '/estante_livros2.glb', x: -2.35, z: northZ, rot: Math.PI, hx: 1.08, hz: 0.34 },
-  { url: '/estante_livros1.glb', x: 0.15, z: northZ, rot: Math.PI, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros2.glb', x: -1.75, z: southZ, rot: Math.PI, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros1.glb', x: 0.5, z: southZ, rot: Math.PI, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros2.glb', x: -2.35, z: northZ, rot: 0, hx: 1.08, hz: 0.34 },
+  { url: '/estante_livros1.glb', x: 0.15, z: northZ, rot: 0, hx: 1.08, hz: 0.34 },
   { url: '/estante_livros2.glb', x: eastX, z: 1.35, rot: Math.PI / 2, hx: 0.34, hz: 1.08 },
 ] as const
 
@@ -172,6 +172,12 @@ export function LibraryRoom() {
         <mesh position={[TABLE.x + 0.28, 0.798, TABLE.z + 0.26]} rotation={[-Math.PI / 2, 0, 0.5]}>
           <boxGeometry args={[0.11, 0.07, 0.004]} />
           <meshStandardMaterial color="#d2c4a4" roughness={0.86} />
+        </mesh>
+      </Examinable>
+      <Examinable id="lib-drawer">
+        <mesh position={[TABLE.x + 0.18, 0.28, TABLE.z + 0.4]}>
+          <boxGeometry args={[0.42, 0.22, 0.08]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
       </Examinable>
     </group>

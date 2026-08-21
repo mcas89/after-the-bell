@@ -9,6 +9,7 @@ import { ClassroomPlaceholder } from '../scenes/ClassroomPlaceholder'
 import { WindowTerror } from '../atmosphere/WindowTerror'
 import { useGameStore } from '../state/useGameStore'
 import { ArtsRoom } from './ArtsRoom'
+import { BackyardRoom } from './BackyardRoom'
 import { BathroomRoom } from './BathroomRoom'
 import { LibraryRoom } from './LibraryRoom'
 import { OfficeRoom } from './OfficeRoom'
@@ -34,6 +35,7 @@ function RoomFog() {
     const hallway = room === 'hallway'
     const switched = room === 'passage' || room === 'storage'
     const patio = room === 'library' || room === 'bathroom' || room === 'office'
+    const stairs = room === 'backyard'
     const beam = switched && !patioLit && flashOn
     const color =
       switched && patioLit
@@ -44,7 +46,9 @@ function RoomFog() {
             ? '#05070b'
             : patio
               ? '#0a1018'
-              : '#0b0f15'
+              : stairs
+                ? '#05070b'
+                : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
     gl.toneMappingExposure = switched && patioLit ? 0.94 : 0.84
@@ -63,7 +67,9 @@ function RoomFog() {
                   ? 2.2
                   : patio
                     ? 4.2
-                    : 6.4
+                    : stairs
+                      ? 2.4
+                      : 6.4
       fog.far =
         hallway && hallOpen
           ? 26
@@ -77,7 +83,9 @@ function RoomFog() {
                   ? 8.2
                   : patio
                     ? 11
-                    : 14.2
+                    : stairs
+                      ? 8.4
+                      : 14.2
     }
   }, [flashOn, gl, hallOpen, patioLit, room, scene])
 
@@ -113,6 +121,7 @@ export function RoomWorld() {
       {room === 'bathroom' ? <BathroomRoom /> : null}
       {room === 'storage' ? <StorageRoom /> : null}
       {room === 'office' ? <OfficeRoom /> : null}
+      {room === 'backyard' ? <BackyardRoom /> : null}
       <RoomTravel />
     </>
   )

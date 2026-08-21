@@ -141,6 +141,12 @@ export function BathroomRoom() {
           anchor="center"
         />
       </Examinable>
+      <Examinable id="bath-elastic">
+        <mesh position={[-0.86, 1.12, STALLS[0].z]} rotation={[0.2, 0.35, 0.8]}>
+          <torusGeometry args={[0.05, 0.012, 8, 18]} />
+          <meshStandardMaterial color="#6a2032" roughness={0.52} />
+        </mesh>
+      </Examinable>
       <Examinable id="bath-bin">
         <FurnitureModel url="/lixeira.glb" position={[2.05, 0, -1.55]} targetHeight={0.58} />
       </Examinable>

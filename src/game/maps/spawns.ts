@@ -45,6 +45,7 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
     'from-bathroom': { x: LOBBY_DOORS.bathroom.x - 1.15, z: LOBBY_DOORS.bathroom.z, yaw: -Math.PI / 2 },
     'from-storage': { x: LOBBY_DOORS.storage.x + 1.15, z: LOBBY_DOORS.storage.z, yaw: Math.PI / 2 },
     'from-office': { x: LOBBY_DOORS.office.x, z: LOBBY_DOORS.office.z - 1.15, yaw: Math.PI },
+    'from-stairs': { x: LOBBY_DOORS.exit.x, z: LOBBY_DOORS.exit.z - 1.2, yaw: Math.PI },
   },
   library: {
     'from-patio': spawnAtRoomDoor('library'),
@@ -57,6 +58,9 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
   },
   office: {
     'from-patio': spawnAtRoomDoor('office'),
+  },
+  backyard: {
+    'from-gate': { x: 0, z: 1.65, yaw: Math.PI },
   },
 }
 

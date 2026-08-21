@@ -306,7 +306,8 @@ export function PassageRoom() {
             url="/banco_patio.glb"
             position={[bench.x, 0, bench.z]}
             rotationY={bench.rot}
-            targetWidth={bench.length}
+            targetHeight={bench.height}
+            targetWidth={bench.width}
           />
         </Examinable>
       ))}

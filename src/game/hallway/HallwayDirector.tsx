@@ -34,11 +34,10 @@ export function beginGirlScare() {
   saveManager.checkpoint('Antes da silhueta')
   scareStarting = true
 
-  holdAmbient(9800)
-  duckMusic(0.08, 8600)
+  holdAmbient(12800)
+  duckMusic(0.08, 11600)
   playSfx(SFX.scareMoment, 0.96)
   if (!hall.girlVisible) hall.showGirl()
-  hall.startGirlWalk()
 
   playerMotion.faceYaw = 0
   useGameStore.getState().setInteractionState('girl-glimpse')
@@ -55,18 +54,23 @@ export function beginGirlScare() {
   )
   scareTimers.push(
     window.setTimeout(() => {
+      useHallwayStore.getState().startGirlWalk()
+    }, 3200),
+  )
+  scareTimers.push(
+    window.setTimeout(() => {
       useHallwayStore.getState().speak('Não vai!!', 2300)
-    }, 5000),
+    }, 6200),
   )
   scareTimers.push(
     window.setTimeout(() => {
       useHallwayStore.getState().hideGirl()
-    }, 7400),
+    }, 10800),
   )
   scareTimers.push(
     window.setTimeout(() => {
       endGirlScare()
-    }, 8400),
+    }, 11800),
   )
 }
 
