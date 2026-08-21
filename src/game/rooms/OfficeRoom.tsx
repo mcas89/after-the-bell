@@ -156,17 +156,29 @@ export function OfficeRoom() {
         </group>
       </Examinable>
       <Examinable id="office-counter">
-        <group position={[width / 2 - 0.04, 0, 0.55]}>
-          <mesh position={[0, 1.48, 0]} receiveShadow>
-            <boxGeometry args={[0.12, 1.08, 1.48]} />
-            <meshStandardMaterial color="#4a4038" roughness={0.88} />
+        <group position={[width / 2 - 0.12, 0, 0.55]}>
+          <mesh position={[0.02, 1.52, 0]} receiveShadow>
+            <boxGeometry args={[0.1, 1.24, 1.66]} />
+            <meshStandardMaterial color="#3a342e" roughness={0.9} />
           </mesh>
-          <mesh position={[-0.04, 1.48, 0]}>
-            <boxGeometry args={[0.06, 0.86, 1.26]} />
-            <meshStandardMaterial color="#3a5a68" roughness={0.28} metalness={0.22} emissive="#1a3040" emissiveIntensity={0.18} />
+          <mesh position={[-0.04, 1.5, -0.34]}>
+            <boxGeometry args={[0.05, 0.94, 0.6]} />
+            <meshStandardMaterial color="#5c4c3a" roughness={0.78} />
           </mesh>
-          <mesh position={[-0.16, 1.04, 0]} receiveShadow>
-            <boxGeometry args={[0.32, 0.1, 1.56]} />
+          <mesh position={[-0.04, 1.5, 0.34]}>
+            <boxGeometry args={[0.05, 0.94, 0.6]} />
+            <meshStandardMaterial color="#534634" roughness={0.78} />
+          </mesh>
+          <mesh position={[-0.055, 1.5, 0]}>
+            <boxGeometry args={[0.06, 0.94, 0.04]} />
+            <meshStandardMaterial color="#2e2822" roughness={0.7} metalness={0.18} />
+          </mesh>
+          <mesh position={[-0.08, 1.48, 0.08]}>
+            <boxGeometry args={[0.03, 0.04, 0.08]} />
+            <meshStandardMaterial color="#8a7a58" roughness={0.45} metalness={0.35} />
+          </mesh>
+          <mesh position={[-0.14, 1.02, 0]} receiveShadow>
+            <boxGeometry args={[0.3, 0.08, 1.72]} />
             <meshStandardMaterial color="#6a5a48" roughness={0.82} />
           </mesh>
         </group>

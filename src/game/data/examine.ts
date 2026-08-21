@@ -122,7 +122,7 @@ export const EXAMINE_ITEMS: Record<string, ExamineTuning> = {
   'bath-stall-empty': { radius: 2.15, pick: 'large', pickRadius: 0.55, examineDistance: 0.9 },
   'bath-sink': { radius: 2.2, pick: 'small', pickRadius: 0.42, examineDistance: 0.7 },
   'bath-bin': { radius: 2.15, pick: 'small', pickRadius: 0.28, examineDistance: 0.7 },
-  'bath-elastic': { radius: 2.1, pick: 'small', pickRadius: 0.16, examineDistance: 0.42, fov: 32 },
+  'bath-elastic': { radius: 2.15, pick: 'small', pickRadius: 0.22, examineDistance: 0.48, fov: 32 },
   'office-window': { radius: 2.45, pick: 'large', pickRadius: 0.48, examineDistance: 1.35, examineFacing: [1, 0, 0] },
   'yard-body': { radius: 2.2, pick: 'large', pickRadius: 0.55, examineDistance: 0.95 },
   'zel-broom': { radius: 2.2, pick: 'small', pickRadius: 0.28, examineDistance: 0.7 },

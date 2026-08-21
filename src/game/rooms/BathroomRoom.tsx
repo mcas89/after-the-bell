@@ -61,7 +61,7 @@ export function BathroomRoom() {
       ...doorCollidersAt(door.wallX, door.z, true),
       ...stallBoxes,
       { minX: 0.15, maxX: 1.85, minZ: 1.62, maxZ: 2.18 },
-      { minX: 1.86, maxX: 2.28, minZ: -1.78, maxZ: -1.32 },
+      { minX: 2.12, maxX: 2.52, minZ: 0.22, maxZ: 0.68 },
     ]
     setRoomColliders('bathroom', walls)
     return () => clearRoomColliders('bathroom')
@@ -116,12 +116,13 @@ export function BathroomRoom() {
             <boxGeometry args={[1.55, 2.0, 0.05]} />
             <meshStandardMaterial color="#6a6864" roughness={0.7} />
           </mesh>
-          <FurnitureModel url="/privada.glb" position={[-0.42, 0, 0]} rotationY={Math.PI / 2} targetHeight={0.72} pickable={false} />
           <Examinable id={i === 0 ? 'bath-stall' : 'bath-stall-empty'}>
-            <mesh position={[0.72, 1.0, 0]} castShadow>
-              <boxGeometry args={[0.05, 2.0, 0.92]} />
-              <meshStandardMaterial color="#5c5a56" roughness={0.62} metalness={0.12} />
-            </mesh>
+            <FurnitureModel
+              url="/privada.glb"
+              position={[-0.55, 0, 0]}
+              rotationY={-Math.PI / 2}
+              targetHeight={0.72}
+            />
           </Examinable>
         </group>
       ))}
@@ -136,19 +137,19 @@ export function BathroomRoom() {
       <Examinable id="bath-mirror">
         <FurnitureModel
           url="/espelho.glb"
-          position={[0.82, 1.42, depth / 2 - 0.08]}
+          position={[0.82, 1.42, depth / 2 - 0.28]}
           targetWidth={1.12}
           anchor="center"
         />
       </Examinable>
       <Examinable id="bath-elastic">
-        <mesh position={[-0.86, 1.12, STALLS[0].z]} rotation={[0.2, 0.35, 0.8]}>
-          <torusGeometry args={[0.05, 0.012, 8, 18]} />
+        <mesh position={[-1.18, 0.02, STALLS[0].z + 0.16]} rotation={[-Math.PI / 2, 0.4, 0]}>
+          <torusGeometry args={[0.055, 0.013, 8, 18]} />
           <meshStandardMaterial color="#6a2032" roughness={0.52} />
         </mesh>
       </Examinable>
       <Examinable id="bath-bin">
-        <FurnitureModel url="/lixeira.glb" position={[2.05, 0, -1.55]} targetHeight={0.58} />
+        <FurnitureModel url="/lixeira.glb" position={[2.32, 0, 0.45]} targetHeight={0.58} />
       </Examinable>
     </group>
   )

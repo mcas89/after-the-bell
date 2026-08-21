@@ -105,6 +105,22 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
       </article>
     )
   }
+  if (kind === 'guiche') {
+    return (
+      <article className="examine-sheet is-window">
+        <div className="service-window" aria-hidden>
+          <div className="service-window-frame">
+            <div className="service-window-shutters">
+              <span />
+              <span />
+            </div>
+            <span className="service-window-latch" />
+            <span className="service-window-sill" />
+          </div>
+        </div>
+      </article>
+    )
+  }
   if (kind === 'quadro') {
     return null
   }
@@ -190,6 +206,16 @@ function LockerOpened({ lockerId }: { lockerId: string }) {
     )
   }
   return <LockerInside name={locker.name} />
+}
+
+function ZelLockerInside() {
+  const hasKey = useInventoryStore((s) => s.has(ITEM_IDS.bibKey))
+  if (hasKey) return null
+  return (
+    <ExaminePhoto src={EXAMINE_IMG.ultimoArmario}>
+      <PhotoSpot id="zel-locker-key" label="Chave" box="is-locker-janitor-key" taken={hasKey} />
+    </ExaminePhoto>
+  )
 }
 
 function LockerPinPad({ lockerId }: { lockerId: string }) {
@@ -303,6 +329,9 @@ function promptLine(
   if (examiningId === 'teachers-cabinet' && !detailId) {
     return 'Clique na chave ou na lanterna · Esc ou X fechar'
   }
+  if (examiningId === 'zel-locker' && !useInventoryStore.getState().has(ITEM_IDS.bibKey) && !detailId) {
+    return 'Clique na chave · Esc ou X fechar'
+  }
   const locker = getHallLocker(examiningId)
   if (locker?.kind === 'livia' && useLockerPinStore.getState().isOpen(locker.id) && !detailId) {
     return 'Clique na foto · Esc ou X fechar'
@@ -335,6 +364,7 @@ export function ExamineHud() {
   const showEntryImage =
     Boolean(entry?.image) &&
     examiningId !== 'teachers-cabinet' &&
+    examiningId !== 'zel-locker' &&
     !isHallLockerId(examiningId ?? '')
   const inspectHint =
     interaction === 'examining-object' && examiningId
@@ -359,11 +389,12 @@ export function ExamineHud() {
     <>
       {interaction === 'examining-object' && examiningId ? (
         <>
-          {examiningId === 'lobby-switch' || examiningId === 'zel-skeleton' || examiningId === 'zel-locker'
+          {examiningId === 'lobby-switch' || examiningId === 'zel-skeleton'
             ? null
             : <div className="examine-dim" />}
           {examiningId === 'quadro-negro' ? <HangmanBoard /> : null}
           {examiningId === 'teachers-cabinet' ? <TeachersCabinet /> : null}
+          {examiningId === 'zel-locker' ? <ZelLockerInside /> : null}
           {showEntryImage && entry?.image ? <ExaminePhoto src={entry.image} /> : null}
           {entry?.sheet ? <Sheet kind={entry.sheet} /> : null}
           {isHallLockerId(examiningId) ? <LockerPinPad lockerId={examiningId} /> : null}

@@ -19,6 +19,7 @@ export type SheetKind =
   | 'ronda'
   | 'pasta'
   | 'manutencao'
+  | 'guiche'
 
 export type ExamineEntry = {
   line: string | null
@@ -188,6 +189,7 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'lobby-counter': {
     line: 'Fechado. Ninguém.',
+    sheet: 'guiche',
   },
   'lobby-bench': {
     line: 'Banco frio.',
@@ -239,6 +241,7 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'office-counter': {
     line: 'Fechado do outro lado.',
+    sheet: 'guiche',
   },
   'lib-shelf': {
     line: 'Estantes. A maior parte some no escuro.',
@@ -308,6 +311,7 @@ const SHARED: Record<string, ExamineEntry> = {
   'zel-locker': {
     line: 'Uma chave.',
     collectibleId: 'item-key-bib',
+    image: EXAMINE_IMG.ultimoArmario,
   },
   'zel-skeleton': {
     line: 'Emperrado.',
@@ -390,6 +394,10 @@ const SHARED: Record<string, ExamineEntry> = {
   'locker-janitor-key': {
     line: 'Uma chave.',
     collectibleId: 'item-key-zeladoria',
+  },
+  'zel-locker-key': {
+    line: 'Uma chave.',
+    collectibleId: 'item-key-bib',
   },
 }
 
@@ -529,8 +537,10 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     if (!game.flags.libDrawerSeen) game.addFlag('libDrawerSeen')
     return SHARED['lib-drawer']
   }
-  if (key === 'zel-locker') {
-    return hasBibKey() ? { line: 'Vazio.' } : { line: 'Uma chave.', collectibleId: ITEM_IDS.bibKey }
+  if (key === 'zel-locker' || key === 'zel-locker-key') {
+    return hasBibKey()
+      ? { line: 'Vazio.' }
+      : { line: 'Uma chave.', collectibleId: ITEM_IDS.bibKey, image: EXAMINE_IMG.ultimoArmario }
   }
   if (key === 'zel-skeleton') {
     const game = useGameStore.getState()
@@ -675,7 +685,8 @@ export function examineHoldSeconds(id: string) {
     entry.sheet === 'aviso' ||
     entry.sheet === 'ronda' ||
     entry.sheet === 'pasta' ||
-    entry.sheet === 'manutencao'
+    entry.sheet === 'manutencao' ||
+    entry.sheet === 'guiche'
   ) {
     return 6.8
   }
