@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import { isPhoneOpen, usePhoneStore, type PhoneApp } from './phoneStore'
 import {
   PHONE_CALLS,
@@ -419,6 +420,31 @@ export function PhoneOverlay() {
   const goHome = usePhoneStore((s) => s.goHome)
   const open = isPhoneOpen(ui)
   const unlocked = ui === 'unlocked'
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+
+  useLayoutEffect(() => {
+    if (!open) return
+    const stage = stageRef.current
+    if (!stage) return
+
+    const apply = () => {
+      const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      const designW = 18.2 * rem
+      const designH = designW * (19.4 / 9)
+      const next = Math.min(1, stage.clientWidth / designW, stage.clientHeight / designH)
+      setScale(Math.max(0.38, next))
+    }
+
+    apply()
+    const observer = new ResizeObserver(apply)
+    observer.observe(stage)
+    window.addEventListener('orientationchange', apply)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('orientationchange', apply)
+    }
+  }, [open])
 
   if (!open && !line) return null
 
@@ -426,10 +452,11 @@ export function PhoneOverlay() {
     <>
       {open ? <div className="phone-dim" onClick={close} /> : null}
       {open ? (
-        <div className="phone-stage" onClick={close}>
+        <div className="phone-stage" ref={stageRef} onClick={close}>
           <div
             key={shakeAt}
             className={shakeAt ? 'phone-shell is-shake' : 'phone-shell'}
+            style={{ zoom: scale }}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="phone-screen">

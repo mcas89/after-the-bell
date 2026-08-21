@@ -80,13 +80,16 @@
   z-index: 27;
   display: grid;
   place-items: center;
+  padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right))
+    max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+  box-sizing: border-box;
   pointer-events: auto;
   cursor: default;
 }
 
 .phone-shell {
   pointer-events: auto;
-  width: min(18.2rem, 72vw);
+  width: 18.2rem;
   aspect-ratio: 9 / 19.4;
   padding: 0.62rem;
   border-radius: 2.15rem;
@@ -812,7 +815,7 @@
 .phone-line {
   position: fixed;
   left: 50%;
-  bottom: 18%;
+  bottom: max(0.7rem, env(safe-area-inset-bottom));
   z-index: 28;
   margin: 0;
   transform: translateX(-50%);
