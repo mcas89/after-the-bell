@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { ITEM_IDS } from '../data/items'
 import { FLASHLIGHT_ON, toggleFlashlight } from './flashlight'
 import { useGameStore } from '../state/useGameStore'
@@ -86,16 +87,28 @@ export function InventoryGlyph({ className = 'inventory-dock-icon' }: { classNam
 export function FlashlightDock() {
   const has = useInventoryStore((s) => s.has(ITEM_IDS.flashlightLit))
   const on = useGameStore((s) => Boolean(s.flags[FLASHLIGHT_ON]))
+  const startedWith = useRef(has)
+  const [named, setNamed] = useState(false)
+
+  useEffect(() => {
+    if (!has || startedWith.current) return
+    startedWith.current = true
+    setNamed(true)
+    const id = window.setTimeout(() => setNamed(false), 2800)
+    return () => window.clearTimeout(id)
+  }, [has])
+
   if (!has) return null
 
   return (
     <button
-      className={on ? 'hud-icon flashlight-dock is-on' : 'hud-icon flashlight-dock'}
+      className={`${on ? 'hud-icon flashlight-dock is-on' : 'hud-icon flashlight-dock'}${named ? ' is-named' : ''}`}
       type="button"
       onClick={toggleFlashlight}
       title="Lanterna (L)"
     >
       <FlashlightGlyph lit={on} />
+      {named ? <span className="flashlight-dock-name">Lanterna</span> : null}
     </button>
   )
 }

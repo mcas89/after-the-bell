@@ -40,11 +40,10 @@ export function combineFlashlight() {
   useInventoryStore.setState({
     items,
     selectedId: ITEM_IDS.flashlightLit,
-    toast: { title: 'Lanterna' },
     pulseAt: Date.now(),
   })
   inv.closeInventory()
-  saveManager.save()
+  saveManager.checkpoint('Item · Lanterna')
   useHallwayStore.getState().speak('Agora sim.')
   playSfx(SFX.clickItem, 0.48)
   return true

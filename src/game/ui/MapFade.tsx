@@ -32,7 +32,7 @@ export function MapFade() {
       />
       {showCard && card ? (
         <div className="chapter-card is-fade">
-          <p className="chapter-kicker">{card.kicker}</p>
+          {card.kicker ? <p className="chapter-kicker">{card.kicker}</p> : null}
           <h2>{card.title}</h2>
         </div>
       ) : null}

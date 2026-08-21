@@ -49,7 +49,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const def = getItemDef(id)
     if (!def || get().items.includes(id)) return false
     set({ items: [...get().items, id] })
-    saveManager.save()
+    saveManager.checkpoint(`Item · ${def.title}`)
     showToast(set, { title: def.title })
     return true
   },

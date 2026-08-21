@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { CameraMode, CameraOverride } from '../data/cameras'
 import type { RoomId } from '../data/rooms'
+import { roomLabel } from '../data/rooms'
 import { saveManager } from './gameSaveManager'
 
 export type InteractionState =
@@ -55,8 +56,22 @@ export const useGameStore = create<GameState>((set) => ({
   bootScreen: 'menu',
   paused: false,
   setRoom: (currentRoom, entryPoint = null) => {
-    set({ currentRoom, entryPoint, cameraMode: 'explore', cameraOverride: null })
-    saveManager.save()
+    let firstVisit = false
+    set((state) => {
+      firstVisit = !state.flags[`visited-${currentRoom}`]
+      return {
+        currentRoom,
+        entryPoint,
+        cameraMode: 'explore' as const,
+        cameraOverride: null,
+        flags: firstVisit ? { ...state.flags, [`visited-${currentRoom}`]: true } : state.flags,
+      }
+    })
+    if (firstVisit && useGameStore.getState().prologueDone) {
+      saveManager.checkpoint(roomLabel(currentRoom))
+    } else {
+      saveManager.save()
+    }
   },
   addFlag: (flag) =>
     set((state) => ({ flags: { ...state.flags, [flag]: true } })),
@@ -72,14 +87,15 @@ export const useGameStore = create<GameState>((set) => ({
   setInteractionState: (interactionState) => set({ interactionState }),
   setLiviaVisible: (liviaVisible) => set({ liviaVisible }),
   finishPrologue: () =>
-    set({
+    set((state) => ({
       prologueDone: true,
       liviaVisible: true,
       cameraMode: 'explore',
       cameraOverride: null,
       interactionState: 'gameplay',
       paused: false,
-    }),
+      flags: { ...state.flags, 'visited-classroom1': true },
+    })),
   enterGame: () => set({ bootScreen: 'playing', paused: false }),
   openMenu: () => set({ bootScreen: 'menu', paused: false }),
   setPaused: (paused) => set({ paused }),

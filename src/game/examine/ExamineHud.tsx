@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { useFitScale } from '../ui/useFitScale'
 import { collectPromptFor, collectPromptsFor, EXAMINE_IMG, getExamineEntry } from '../data/examineContent'
 import { useDoorStore } from '../door/useDoorStore'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
@@ -200,6 +201,7 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
   const inputDigit = useLockerPinStore((s) => s.inputDigit)
   const deleteDigit = useLockerPinStore((s) => s.deleteDigit)
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+  const { stageRef, scale } = useFitScale(true, 17.5, 19)
 
   useEffect(() => {
     const store = useLockerPinStore.getState()
@@ -229,8 +231,12 @@ function LockerPinPad({ lockerId }: { lockerId: string }) {
   if (locker.kind === 'janitor' || opened) return <LockerOpened lockerId={lockerId} />
 
   return (
-    <div className="locker-pad">
-      <div key={shakeAt} className={shakeAt ? 'locker-pad-body is-shake' : 'locker-pad-body'}>
+    <div className="locker-pad" ref={stageRef}>
+      <div
+        key={shakeAt}
+        className={shakeAt ? 'locker-pad-body is-shake' : 'locker-pad-body'}
+        style={{ zoom: scale }}
+      >
         <p className="locker-pad-name">{lockerPadLabel(locker)}</p>
         {opened ? (
           <p className="locker-pad-hint">{failLine ?? 'Aberto.'}</p>

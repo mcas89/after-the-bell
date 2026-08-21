@@ -9,7 +9,8 @@ export function discoveredFragmentCount(
   let n = 0
   for (const [id, progress] of Object.entries(entries)) {
     if (!progress.discovered) continue
-    if (getClueDef(id)?.kind !== 'fragment') continue
+    const kind = getClueDef(id)?.kind
+    if (kind !== 'fragment' && kind !== 'deduction') continue
     n += 1
   }
   return n

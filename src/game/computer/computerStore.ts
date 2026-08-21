@@ -240,7 +240,7 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
       window.clearTimeout(lineTimer)
       useGameStore.getState().addFlag('computerUnlocked')
       set({ ui: 'desktop', unlocked: true, pin: '', line: null, app: 'home', nodeId: null })
-      saveManager.save()
+      saveManager.checkpoint('Computador')
       return
     }
     playPinFail()

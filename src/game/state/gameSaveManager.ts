@@ -1,12 +1,12 @@
 import type { ClueProgress } from '../data/clues'
 import type { RoomId } from '../data/rooms'
-import { migrateRoomId } from '../data/rooms'
+import { migrateRoomId, roomLabel } from '../data/rooms'
 
 export const SAVE_KEY = 'after-the-bell-save-v1'
-export const HISTORY_KEY = 'after-the-bell-history-v1'
+export const HISTORY_KEY = 'after-the-bell-history-v2'
 export const RESUME_KEY = 'after-the-bell-resume'
 export const SAVE_VERSION = 1
-const HISTORY_MAX = 8
+const HISTORY_MAX = 12
 
 export type SavedStory = {
   prologueIntroCompleted: boolean
@@ -198,23 +198,8 @@ function writeStorage(save: GameSave) {
   }
 }
 
-const ROOM_LABEL: Record<string, string> = {
-  classroom1: 'Sala 11',
-  room11: 'Sala 11',
-  hallway: 'Corredor',
-  room12: 'Sala 12',
-  room14: 'Sala 14',
-  teachers: 'Sala dos professores',
-  passage: 'Pátio',
-  library: 'Biblioteca',
-  bathroom: 'Banheiro',
-  storage: 'Zeladoria',
-  office: 'Diretoria',
-  backyard: 'Escada',
-}
-
 export function describeSave(save: GameSave) {
-  const room = ROOM_LABEL[save.scene] ?? 'Escola'
+  const room = roomLabel(save.scene)
   if (save.scene === 'hallway' && !save.story.seenMysteriousGirl) return `${room} · fundo escuro`
   if (save.scene === 'hallway' && save.story.seenMysteriousGirl) return `${room} · depois da garota`
   return room
@@ -222,7 +207,7 @@ export function describeSave(save: GameSave) {
 
 function fingerprint(save: GameSave) {
   const flags = Object.keys(save.flags)
-    .filter((key) => save.flags[key])
+    .filter((key) => save.flags[key] && !key.startsWith('visited-'))
     .sort()
     .join(',')
   return [
@@ -230,11 +215,9 @@ function fingerprint(save: GameSave) {
     save.story.seenMysteriousGirl ? '1' : '0',
     save.story.enteredCorridor ? '1' : '0',
     save.story.classroomDoorOpened ? '1' : '0',
-    save.inventory.items.join(','),
+    save.inventory.items.slice().sort().join(','),
     save.clues.discovered.slice().sort().join(','),
     flags,
-    Math.round(save.player.position.x * 2),
-    Math.round(save.player.position.z * 2),
   ].join('|')
 }
 
@@ -284,11 +267,11 @@ function clearHistory() {
   }
 }
 
-function pushHistory(save: GameSave, options?: { force?: boolean; label?: string }) {
+function pushHistory(save: GameSave, label: string) {
   if (!save.story.prologueIntroCompleted) return
   const list = readHistory()
   const next = cloneSave(save)
-  if (!options?.force && list[0] && fingerprint(list[0].save) === fingerprint(next)) {
+  if (list[0] && list[0].label === label && fingerprint(list[0].save) === fingerprint(next)) {
     list[0] = { ...list[0], save: next }
     writeHistory(list)
     return
@@ -296,7 +279,7 @@ function pushHistory(save: GameSave, options?: { force?: boolean; label?: string
   writeHistory([
     {
       id: `${next.updatedAt}-${Math.random().toString(36).slice(2, 7)}`,
-      label: options?.label ?? describeSave(next),
+      label,
       save: next,
     },
     ...list,
@@ -327,9 +310,7 @@ export const saveManager = {
   save() {
     const save = collectOrEmpty()
     if (!save.story.prologueIntroCompleted) return
-    const next = { ...save, updatedAt: Date.now() }
-    writeStorage(next)
-    pushHistory(next)
+    writeStorage({ ...save, updatedAt: Date.now() })
   },
 
   checkpoint(label: string) {
@@ -337,7 +318,7 @@ export const saveManager = {
     if (!save.story.prologueIntroCompleted) return
     const next = { ...save, updatedAt: Date.now() }
     writeStorage(next)
-    pushHistory(next, { force: true, label })
+    pushHistory(next, label)
   },
 
   listHistory(): SaveEntry[] {

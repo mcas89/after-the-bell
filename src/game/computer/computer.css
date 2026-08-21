@@ -14,12 +14,17 @@
   z-index: 27;
   display: grid;
   place-items: center;
+  padding:
+    max(0.45rem, env(safe-area-inset-top))
+    max(0.7rem, env(safe-area-inset-right))
+    max(0.45rem, env(safe-area-inset-bottom))
+    max(0.7rem, env(safe-area-inset-left));
   pointer-events: auto;
 }
 
 .pc-bezel {
-  width: min(46rem, 92vw);
-  height: min(32rem, 78vh);
+  width: 46rem;
+  height: 32rem;
   padding: 0.72rem 0.72rem 1.05rem;
   border-radius: 0.7rem;
   background: linear-gradient(180deg, #2a2622 0%, #161410 100%);
@@ -724,11 +729,4 @@
   color: rgba(236, 228, 216, 0.95);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
   pointer-events: none;
-}
-
-@media (max-width: 720px) {
-  .pc-bezel {
-    width: min(40rem, 96vw);
-    height: min(34rem, 84vh);
-  }
 }

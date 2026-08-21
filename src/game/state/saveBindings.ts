@@ -133,6 +133,7 @@ function applyGameSave(save: GameSave) {
     entryPoint: save.story.entryPoint ?? null,
     flags: {
       ...save.flags,
+      [`visited-${roomId}`]: true,
       phone0317Seen: save.story.phone0317Seen,
       doorEventTriggered: save.story.doorEventTriggered,
       doorOpened: save.story.classroomDoorOpened || save.story.doorOpened,

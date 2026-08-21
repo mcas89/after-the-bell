@@ -3,7 +3,7 @@ import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { playSfx, SFX, stopSfxSlice } from '../audio/mixer'
 import { playPinFail } from './phoneAudio'
-import { phoneCall, phonePhoto, phoneThread, type PhoneApp } from './phoneContent'
+import { isThreadLocked, phoneCall, phonePhoto, phoneThread, type PhoneApp } from './phoneContent'
 
 export type { PhoneApp } from './phoneContent'
 
@@ -141,8 +141,8 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
   openView: (id) => {
     if (get().ui !== 'unlocked') return
     const thread = phoneThread(id)
-    if (thread?.locked) {
-      hear(get, set, 'locked', thread.line ?? 'Por que só essa não abre?')
+    if (thread && isThreadLocked(thread)) {
+      hear(get, set, 'm-locked', 'A conversa não carrega.')
       return
     }
     if (thread?.line) hear(get, set, thread.id, thread.line)

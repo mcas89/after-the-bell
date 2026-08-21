@@ -1,9 +1,12 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import { useGameStore } from '../state/useGameStore'
+import { useFragmentsStore } from '../state/useFragmentsStore'
 import { isPhoneOpen, usePhoneStore, type PhoneApp } from './phoneStore'
 import {
   PHONE_CALLS,
   PHONE_PHOTOS,
   PHONE_THREADS,
+  isThreadLocked,
   phonePhoto,
   phoneThread,
 } from './phoneContent'
@@ -207,7 +210,7 @@ function HomeScreen() {
 
 function ThreadView({ id }: { id: string }) {
   const thread = phoneThread(id)
-  if (!thread) return null
+  if (!thread || isThreadLocked(thread)) return null
   return (
     <div className="phone-os is-app">
       <p className="phone-app-title">{thread.from}</p>
@@ -227,31 +230,36 @@ function MessagesScreen() {
   const hasMessages = usePhoneStore((s) => s.triggered)
   const viewId = usePhoneStore((s) => s.viewId)
   const openView = usePhoneStore((s) => s.openView)
-  if (viewId && phoneThread(viewId)) return <ThreadView id={viewId} />
+  useFragmentsStore((s) => s.entries)
+  useGameStore((s) => s.flags.patioEntered)
+  if (viewId && phoneThread(viewId) && !isThreadLocked(phoneThread(viewId)!)) return <ThreadView id={viewId} />
 
   return (
     <div className="phone-os is-app">
       <p className="phone-app-title">Mensagens</p>
       {hasMessages ? (
         <ul className="phone-inbox">
-          {PHONE_THREADS.map((thread) => (
+          {PHONE_THREADS.map((thread) => {
+            const locked = isThreadLocked(thread)
+            return (
             <li key={thread.id}>
               <button
-                className={thread.locked ? 'phone-thread is-locked' : 'phone-thread'}
+                className={locked ? 'phone-thread is-locked' : 'phone-thread'}
                 type="button"
                 onClick={() => openView(thread.id)}
               >
-                {thread.locked ? <span className="phone-thread-lock" aria-hidden /> : <span className="phone-thread-unread" aria-hidden />}
+                {locked ? <span className="phone-thread-lock" aria-hidden /> : <span className="phone-thread-unread" aria-hidden />}
                 <span className="phone-thread-copy">
                   <span className="phone-thread-top">
-                    <span className="phone-thread-from">{thread.locked ? 'Conversa' : thread.from}</span>
+                    <span className="phone-thread-from">{thread.from}</span>
                     <span className="phone-thread-time">{thread.time}</span>
                   </span>
-                  <span className="phone-thread-body">{thread.preview}</span>
+                  <span className="phone-thread-body">{locked ? thread.lockedPreview ?? 'Mensagem' : thread.preview}</span>
                 </span>
               </button>
             </li>
-          ))}
+            )
+          })}
         </ul>
       ) : (
         <p className="phone-inbox-empty">Nenhuma mensagem</p>

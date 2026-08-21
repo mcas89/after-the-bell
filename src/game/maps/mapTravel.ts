@@ -78,7 +78,7 @@ export function requestMapTravel(room: RoomId, entryPoint: string) {
     phase: 'out',
     hold: firstHall ? CHAPTER_HOLD : HOLD,
     pending: { room, entryPoint },
-    card: firstHall ? { kicker: 'Capítulo 1', title: 'no corredor' } : null,
+    card: firstHall ? { kicker: '', title: 'Corredor' } : null,
   })
 }
 

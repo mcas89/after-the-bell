@@ -1,3 +1,4 @@
+import { useFitScale } from '../ui/useFitScale'
 import {
   isComputerOpen,
   useComputerStore,
@@ -469,6 +470,7 @@ export function ComputerOverlay() {
   const line = useComputerStore((s) => s.line)
   const close = useComputerStore((s) => s.close)
   const open = isComputerOpen(ui)
+  const { stageRef, scale } = useFitScale(open, 46, 32)
 
   if (!open && !line) return null
 
@@ -476,8 +478,12 @@ export function ComputerOverlay() {
     <>
       {open ? <div className="pc-dim" onClick={close} /> : null}
       {open ? (
-        <div className="pc-stage" onClick={close}>
-          <div className="pc-bezel" onClick={(event) => event.stopPropagation()}>
+        <div className="pc-stage" ref={stageRef} onClick={close}>
+          <div
+            className="pc-bezel"
+            style={{ zoom: scale }}
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="pc-screen">{ui === 'desktop' ? <DesktopScreen /> : <LoginScreen />}</div>
           </div>
         </div>

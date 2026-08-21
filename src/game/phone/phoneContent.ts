@@ -1,4 +1,6 @@
 import { EXAMINE_IMG } from '../data/examineContent'
+import { hasDarkHallClues } from '../hallway/darkProgress'
+import { useGameStore } from '../state/useGameStore'
 
 export type PhoneApp =
   | 'home'
@@ -23,6 +25,7 @@ export type PhoneThread = {
   time: string
   preview: string
   locked?: boolean
+  lockedPreview?: string
   messages: ChatMsg[]
   line?: string
 }
@@ -33,6 +36,7 @@ export const PHONE_THREADS: PhoneThread[] = [
     from: 'M',
     time: '02:52',
     preview: 'acho que a chave está na zeladoria !',
+    lockedPreview: 'Mensagem',
     messages: [
       { who: 'me', time: '20:31', text: 'a gente fica?' },
       { who: 'them', time: '20:32', text: 'vc é louca kkkkk' },
@@ -177,6 +181,14 @@ export const PHONE_PHOTOS: PhonePhoto[] = [
     line: '03:08.',
   },
 ]
+
+export function isThreadLocked(thread: PhoneThread) {
+  if (thread.id === 'm') {
+    if (useGameStore.getState().flags.patioEntered) return false
+    return !hasDarkHallClues()
+  }
+  return Boolean(thread.locked)
+}
 
 export function phoneThread(id: string | null) {
   if (!id) return null

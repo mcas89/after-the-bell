@@ -98,6 +98,28 @@ export function migrateRoomId(id: string): RoomId {
   return id as RoomId
 }
 
+export const ROOM_LABEL: Record<RoomId, string> = {
+  classroom1: 'Sala de aula 11',
+  hallway: 'Corredor',
+  room11: 'Sala de aula 11',
+  room12: 'Sala 12',
+  room14: 'Sala de artes',
+  room201: 'Sala de aula 11',
+  room202: 'Sala de artes',
+  classroom2: 'Sala de aula',
+  library: 'Biblioteca',
+  bathroom: 'Banheiro',
+  office: 'Diretoria',
+  teachers: 'Sala dos professores',
+  storage: 'Zeladoria',
+  backyard: 'Fundos',
+  passage: 'Pátio',
+}
+
+export function roomLabel(id: string) {
+  return ROOM_LABEL[migrateRoomId(id)] ?? 'Escola'
+}
+
 export function getRoom(id: RoomId) {
   return ROOMS[migrateRoomId(id)]
 }
