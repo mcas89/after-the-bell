@@ -3,6 +3,7 @@ import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { isSkeletonScare } from '../rooms/skeletonCabinet'
 import { useGameStore } from '../state/useGameStore'
 import { isCoarsePortrait } from '../ui/landscape'
+import { needsPwaInstall } from '../ui/pwa'
 
 export function refreshControlLock() {
   const game = useGameStore.getState()
@@ -14,5 +15,6 @@ export function refreshControlLock() {
     phoneOpen ||
     game.interactionState !== 'gameplay' ||
     isSkeletonScare() ||
+    needsPwaInstall() ||
     (game.bootScreen === 'playing' && isCoarsePortrait())
 }

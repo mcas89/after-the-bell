@@ -731,6 +731,79 @@ textarea {
   }
 }
 
+.pwa-gate,
+.pwa-update {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 1.4rem;
+  background: #12151c;
+  pointer-events: auto;
+  text-align: center;
+}
+
+.pwa-update {
+  z-index: 96;
+}
+
+.pwa-kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(200, 196, 188, 0.5);
+}
+
+.pwa-gate .pwa-copy,
+.pwa-update .pwa-copy {
+  margin: 0;
+}
+
+.pwa-gate .pwa-hint,
+.pwa-update .pwa-hint {
+  max-width: 22rem;
+}
+
+.pwa-install {
+  margin-top: 0.55rem;
+  padding: 0.55rem 1.4rem;
+  border: 1px solid rgba(214, 204, 188, 0.28);
+  border-radius: 0.4rem;
+  background: rgba(232, 224, 212, 0.08);
+  color: rgba(236, 228, 216, 0.95);
+  font: inherit;
+  font-size: 0.92rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.pwa-install:hover {
+  background: rgba(232, 224, 212, 0.14);
+}
+
+.pwa-ios-steps {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(236, 228, 216, 0.82);
+}
+
+html.needs-pwa .rotate-prompt {
+  display: none !important;
+}
+
+html.needs-pwa .menu-screen {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .menu-screen {
   position: fixed;
   inset: 0;

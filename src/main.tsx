@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import App from './App'
 import { hydrateFromSave } from './game/state/saveBindings'
+import './game/ui/pwa'
 import './index.css'
 
 hydrateFromSave()
