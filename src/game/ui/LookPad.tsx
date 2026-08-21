@@ -8,6 +8,7 @@ export function LookPad() {
   const touch = useTouchUi()
   const prologueDone = useGameStore((s) => s.prologueDone)
   const interaction = useGameStore((s) => s.interactionState)
+  const paused = useGameStore((s) => s.paused)
   const phoneOpen = usePhoneStore((s) => isPhoneOpen(s.ui))
   const pointerId = useRef<number | null>(null)
   const last = useRef({ x: 0, y: 0 })
@@ -21,7 +22,7 @@ export function LookPad() {
 
   useEffect(() => stop, [stop])
 
-  if (touch || !prologueDone || phoneOpen) return null
+  if (touch || !prologueDone || phoneOpen || paused) return null
   if (
     interaction === 'using-computer' ||
     interaction === 'viewing-inventory' ||

@@ -59,17 +59,24 @@ export function InventoryGlyph({ className = 'inventory-dock-icon' }: { classNam
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden>
       <path
-        d="M7.2 8.2h9.6l.9 11.2H6.3L7.2 8.2Z"
+        d="M7.4 8.4h9.2l.75 11H6.65L7.4 8.4Z"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
       <path
-        d="M9 8.2V6.6a3 3 0 0 1 6 0v1.6"
+        d="M9.15 8.4V6.7a2.85 2.85 0 0 1 5.7 0v1.7"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M10.2 12.2h3.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.35"
         strokeLinecap="round"
       />
     </svg>

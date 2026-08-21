@@ -4,26 +4,28 @@ import { useFragmentsStore } from '../state/useFragmentsStore'
 export function FragmentGlyph({ className = 'fragments-dock-icon' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden>
-      <path
-        d="M12 3.2 19.4 12 12 20.8 4.6 12 12 3.2Z"
+      <rect
+        x="6.4"
+        y="3.7"
+        width="11.2"
+        height="16.6"
+        rx="1.25"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
-        strokeLinejoin="round"
       />
       <path
-        d="M12 3.2 9.4 12.4 12 20.8"
+        d="M9.15 3.7v16.6"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.2"
-        opacity="0.7"
+        strokeWidth="1.5"
       />
       <path
-        d="M9.4 12.4 H19.4"
+        d="M11.5 8.3h4.4M11.5 11.35h4.4M11.5 14.4h3.1"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.15"
-        opacity="0.55"
+        strokeWidth="1.35"
+        strokeLinecap="round"
       />
     </svg>
   )
@@ -40,7 +42,7 @@ export function FragmentsDock() {
       className={pulseAt ? 'hud-icon fragments-dock is-pulse' : 'hud-icon fragments-dock'}
       type="button"
       onClick={openJournal}
-      title="Fragmentos (J)"
+      title="Pistas (J)"
     >
       <FragmentGlyph />
       {unread ? <span className="fragments-unread" /> : null}

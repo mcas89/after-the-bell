@@ -32,6 +32,7 @@ function canAct() {
   const game = useGameStore.getState()
   return (
     game.prologueDone &&
+    !game.paused &&
     game.interactionState === 'gameplay' &&
     !isPhoneOpen(usePhoneStore.getState().ui) &&
     !useMapTravelStore.getState().busy &&

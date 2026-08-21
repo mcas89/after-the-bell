@@ -17,16 +17,18 @@ export function FragmentsSystem() {
   const interaction = useGameStore((s) => s.interactionState)
   const phoneUi = usePhoneStore((s) => s.ui)
   const inventoryOpen = useInventoryStore((s) => s.open)
+  const paused = useGameStore((s) => s.paused)
 
   useEffect(() => {
     refreshControlLock()
-  }, [open, prologueDone, interaction])
+  }, [open, prologueDone, interaction, paused])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.repeat) return
       const game = useGameStore.getState()
       if (!game.prologueDone) return
+      if (game.paused) return
       if (isPhoneOpen(usePhoneStore.getState().ui)) return
       if (isInventoryOpen()) return
 
@@ -52,7 +54,7 @@ export function FragmentsSystem() {
 
   if (!prologueDone) return <FragmentToast />
 
-  const showDock = !open && !inventoryOpen && !isPhoneOpen(phoneUi) && interaction !== 'using-computer'
+  const showDock = !paused && !open && !inventoryOpen && !isPhoneOpen(phoneUi) && interaction !== 'using-computer'
 
   return (
     <>

@@ -34,7 +34,7 @@ export function returnToMenu() {
 
 export function canReturnToMenu() {
   const game = useGameStore.getState()
-  if (game.bootScreen !== 'playing' || !game.prologueDone) return false
+  if (game.bootScreen !== 'playing' || !game.prologueDone || game.paused) return false
   if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel' || game.interactionState === 'using-computer') return false
   if (game.interactionState === 'examining-object') return false
   if (isPhoneOpen(usePhoneStore.getState().ui)) return false

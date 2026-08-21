@@ -13,6 +13,7 @@ export function TouchControls() {
   const follow = useSyncExternalStore(subscribePhoneFollow, () => lookInput.follow, () => false)
   const prologueDone = useGameStore((s) => s.prologueDone)
   const interaction = useGameStore((s) => s.interactionState)
+  const paused = useGameStore((s) => s.paused)
   const phoneOpen = usePhoneStore((s) => isPhoneOpen(s.ui))
   const hallPrompt = useHallwayStore((s) => s.prompt)
   const doorPhase = useDoorStore((s) => s.phase)
@@ -23,7 +24,7 @@ export function TouchControls() {
       ? 'abrir'
       : null
 
-  if (!touch || !prologueDone || phoneOpen) return null
+  if (!touch || !prologueDone || phoneOpen || paused) return null
   if (
     interaction === 'using-computer' ||
     interaction === 'viewing-inventory' ||
@@ -46,8 +47,8 @@ export function TouchControls() {
         <button
           className={follow ? 'touch-btn is-cam is-on' : 'touch-btn is-cam'}
           type="button"
-          title={follow ? 'Câmera da sala' : 'Câmera na Lívia'}
-          aria-label={follow ? 'Câmera da sala' : 'Câmera na Lívia'}
+          title={follow ? 'Câmera da sala' : 'Seguir Lívia'}
+          aria-label={follow ? 'Câmera da sala' : 'Seguir Lívia'}
           onPointerDown={(event) => {
             event.preventDefault()
             event.stopPropagation()
@@ -55,14 +56,44 @@ export function TouchControls() {
           }}
         >
           <svg viewBox="0 0 24 24" aria-hidden>
+            <circle cx="12" cy="8.6" r="2.15" fill="none" stroke="currentColor" strokeWidth="1.5" />
             <path
-              d="M4.6 8.2h3.1l1.1-1.7h6.4l1.1 1.7h3.1v9.4H4.6V8.2z"
+              d="M8.15 16.7c.65-2.15 1.95-3.25 3.85-3.25s3.2 1.1 3.85 3.25"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.6"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M4.7 10.4a7.4 7.4 0 0 1 5.15-5.55"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.45"
+              strokeLinecap="round"
+            />
+            <path
+              d="M8.7 4.55 9.05 6.8 6.85 6.15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.45"
+              strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <circle cx="12" cy="12.4" r="2.7" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path
+              d="M19.3 13.6a7.4 7.4 0 0 1-5.15 5.55"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.45"
+              strokeLinecap="round"
+            />
+            <path
+              d="M15.3 19.45 14.95 17.2 17.15 17.85"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.45"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       ) : null}

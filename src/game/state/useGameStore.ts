@@ -26,6 +26,7 @@ type GameState = {
   liviaVisible: boolean
   prologueDone: boolean
   bootScreen: 'menu' | 'playing'
+  paused: boolean
   setRoom: (room: RoomId, entryPoint?: string | null) => void
   addFlag: (flag: string) => void
   collectClue: (id: string) => void
@@ -37,6 +38,7 @@ type GameState = {
   finishPrologue: () => void
   enterGame: () => void
   openMenu: () => void
+  setPaused: (paused: boolean) => void
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -51,6 +53,7 @@ export const useGameStore = create<GameState>((set) => ({
   liviaVisible: false,
   prologueDone: false,
   bootScreen: 'menu',
+  paused: false,
   setRoom: (currentRoom, entryPoint = null) => {
     set({ currentRoom, entryPoint, cameraMode: 'explore', cameraOverride: null })
     saveManager.save()
@@ -75,7 +78,9 @@ export const useGameStore = create<GameState>((set) => ({
       cameraMode: 'explore',
       cameraOverride: null,
       interactionState: 'gameplay',
+      paused: false,
     }),
-  enterGame: () => set({ bootScreen: 'playing' }),
-  openMenu: () => set({ bootScreen: 'menu' }),
+  enterGame: () => set({ bootScreen: 'playing', paused: false }),
+  openMenu: () => set({ bootScreen: 'menu', paused: false }),
+  setPaused: (paused) => set({ paused }),
 }))

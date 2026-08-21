@@ -14,16 +14,17 @@ export function InventorySystem() {
   const open = useInventoryStore((s) => s.open)
   const prologueDone = useGameStore((s) => s.prologueDone)
   const interaction = useGameStore((s) => s.interactionState)
+  const paused = useGameStore((s) => s.paused)
 
   useEffect(() => {
     refreshControlLock()
-  }, [open, prologueDone, interaction])
+  }, [open, prologueDone, interaction, paused])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.repeat) return
       const game = useGameStore.getState()
-      if (!game.prologueDone) return
+      if (!game.prologueDone || game.paused) return
       if (isPhoneOpen(usePhoneStore.getState().ui)) return
       if (game.interactionState === 'viewing-fragments') return
       if (isSkeletonScare()) return

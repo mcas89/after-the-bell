@@ -10,6 +10,7 @@ import { useGameStore } from '../state/useGameStore'
 import { refreshControlLock } from '../systems/controlLock'
 import menuArt from '../../../menu.png'
 import menuMobile from '../../../menu_mobile.png'
+import { tryLockLandscape } from './landscape'
 import { useTouchUi } from '../input/useTouchUi'
 
 export function MenuScreen() {
@@ -27,6 +28,7 @@ export function MenuScreen() {
   const wake = () => {
     unlockAudio()
     startMenuMusic()
+    void tryLockLandscape()
   }
 
   const startNew = () => {
