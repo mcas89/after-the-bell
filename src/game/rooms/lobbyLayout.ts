@@ -126,8 +126,8 @@ export const LOBBY_PLANTER = {
 
 export const LOBBY_COUNTER = { x: 0.28, z: LOBBY.maxZ, half: 0.74 }
 export const LOBBY_BENCHES = [
-  { x: 4.32, z: 4.28, hx: 0.21, hz: 0.35, rot: 0, height: 0.48, width: 1.15 },
-  { x: 2.55, z: 0.12, hx: 0.35, hz: 0.21, rot: Math.PI / 2, height: 0.48, width: 1.15 },
+  { x: 4.28, z: 4.28, hx: 0.24, hz: 0.41, rot: Math.PI, height: 0.56, width: 1.35 },
+  { x: 2.55, z: 0.16, hx: 0.41, hz: 0.24, rot: -Math.PI / 2, height: 0.56, width: 1.35 },
 ] as const
 export const LOBBY_BIN = { x: 3.98, z: 0.48, hx: 0.22, hz: 0.22 }
 export const LOBBY_EXTINGUISHER = { x: -LOBBY.halfX + 0.14, z: 3.4 }
