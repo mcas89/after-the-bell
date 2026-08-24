@@ -7,6 +7,7 @@ import { InventorySystem } from '../inventory/InventorySystem'
 import { PhoneSystem } from '../phone/PhoneSystem'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { PrologueOverlay } from '../prologue/PrologueOverlay'
+import { EndingOverlay } from '../ending/EndingOverlay'
 import { SaveDirector } from '../state/SaveDirector'
 import { useGameStore } from '../state/useGameStore'
 import { MenuButton } from './MenuButton'
@@ -32,9 +33,11 @@ export function Hud() {
   const doorPhase = useDoorStore((s) => s.phase)
   const hallLine = useHallwayStore((s) => s.line)
   const hallPrompt = useHallwayStore((s) => s.prompt)
+  const ending = interaction === 'ending'
   const showHint =
     bootScreen === 'playing' &&
     prologueDone &&
+    !ending &&
     !isPhoneOpen(phoneUi) &&
     interaction === 'gameplay' &&
     !hovered &&
@@ -48,16 +51,21 @@ export function Hud() {
     <div className="overlay">
       <div className="vignette" />
       <PrologueOverlay />
-      {prologueDone ? <MenuButton /> : null}
-      <PhoneSystem />
-      <ComputerSystem />
-      <FragmentsSystem />
-      <InventorySystem />
-      <ExamineHud />
-      <ChapterHud />
-      <TouchControls />
-      <LookPad />
-      {doorLine && !hallLine ? <p className="spoken-line">{doorLine}</p> : null}
+      <EndingOverlay />
+      {prologueDone && !ending ? <MenuButton /> : null}
+      {ending ? null : (
+        <>
+          <PhoneSystem />
+          <ComputerSystem />
+          <FragmentsSystem />
+          <InventorySystem />
+          <ExamineHud />
+          <ChapterHud />
+          <TouchControls />
+          <LookPad />
+        </>
+      )}
+      {doorLine && !hallLine && !ending ? <p className="spoken-line">{doorLine}</p> : null}
       <SaveDirector />
       {showHint && !touch ? <p className="hud has-look">WASD para andar</p> : null}
       <MapFade />

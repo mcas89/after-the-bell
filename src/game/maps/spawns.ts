@@ -60,7 +60,7 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
     'from-patio': spawnAtRoomDoor('office'),
   },
   backyard: {
-    'from-gate': { x: 0, z: 1.65, yaw: Math.PI },
+    'from-gate': { x: 0, z: 1.7, yaw: Math.PI },
   },
 }
 

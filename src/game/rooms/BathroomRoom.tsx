@@ -5,6 +5,7 @@ import { doorCollidersAt, wallDoor } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
+import { LiviaReflection } from '../player/LiviaReflection'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import { TexturedFloor } from './TexturedFloor'
@@ -16,6 +17,86 @@ const wallT = 0.12
 const wall = { color: '#3a3836', roughness: 0.9 }
 
 const STALLS = [{ z: -0.42 }, { z: 0.72 }] as const
+
+const MIRROR_X = 0.82
+const MIRROR_Y = 1.42
+const MIRROR_GLASS_Z = depth / 2 - 0.057
+const GLASS_W = 0.843
+const GLASS_H = 1.349
+const CAVITY = 4.4
+const MIRROR_HIDE = ['metal'] as const
+
+function NorthWall() {
+  const z = depth / 2
+  const holeMinX = MIRROR_X - GLASS_W / 2
+  const holeMaxX = MIRROR_X + GLASS_W / 2
+  const holeMinY = MIRROR_Y - GLASS_H / 2
+  const holeMaxY = MIRROR_Y + GLASS_H / 2
+  const leftW = holeMinX - -width / 2
+  const rightW = width / 2 - holeMaxX
+  const midW = holeMaxX - holeMinX
+  const botH = holeMinY
+  const topH = height - holeMaxY
+  return (
+    <group>
+      <mesh position={[(-width / 2 + holeMinX) / 2, height / 2, z]} receiveShadow>
+        <boxGeometry args={[leftW, height, wallT]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[(holeMaxX + width / 2) / 2, height / 2, z]} receiveShadow>
+        <boxGeometry args={[rightW, height, wallT]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[MIRROR_X, botH / 2, z]} receiveShadow>
+        <boxGeometry args={[midW, botH, wallT]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[MIRROR_X, holeMaxY + topH / 2, z]} receiveShadow>
+        <boxGeometry args={[midW, topH, wallT]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+    </group>
+  )
+}
+
+function MirrorCavity() {
+  const zWall = depth / 2
+  const zMid = zWall + CAVITY / 2
+  const hw = GLASS_W / 2 + 0.1
+  const hh = GLASS_H / 2 + 0.1
+  const dark = { color: '#07080a', roughness: 1, metalness: 0 }
+  return (
+    <group>
+      <mesh position={[MIRROR_X, MIRROR_Y, zWall + CAVITY]} receiveShadow>
+        <boxGeometry args={[hw * 2 + 0.08, hh * 2 + 0.08, 0.08]} />
+        <meshStandardMaterial {...dark} />
+      </mesh>
+      <mesh position={[MIRROR_X - hw, MIRROR_Y, zMid]} receiveShadow>
+        <boxGeometry args={[0.08, hh * 2, CAVITY]} />
+        <meshStandardMaterial {...dark} />
+      </mesh>
+      <mesh position={[MIRROR_X + hw, MIRROR_Y, zMid]} receiveShadow>
+        <boxGeometry args={[0.08, hh * 2, CAVITY]} />
+        <meshStandardMaterial {...dark} />
+      </mesh>
+      <mesh position={[MIRROR_X, MIRROR_Y - hh, zMid]} receiveShadow>
+        <boxGeometry args={[hw * 2, 0.08, CAVITY]} />
+        <meshStandardMaterial {...dark} />
+      </mesh>
+      <mesh position={[MIRROR_X, MIRROR_Y + hh, zMid]} receiveShadow>
+        <boxGeometry args={[hw * 2, 0.08, CAVITY]} />
+        <meshStandardMaterial {...dark} />
+      </mesh>
+      <pointLight
+        position={[MIRROR_X, MIRROR_Y + 0.12, zWall + 0.62]}
+        color="#c8d0d4"
+        intensity={0.34}
+        distance={4.2}
+        decay={2}
+      />
+    </group>
+  )
+}
 
 function DoorWall() {
   const x = door.wallX
@@ -95,10 +176,9 @@ export function BathroomRoom() {
         <boxGeometry args={[wallT, height, depth]} />
         <meshStandardMaterial {...wall} />
       </mesh>
-      <mesh position={[0, height / 2, depth / 2]} receiveShadow>
-        <boxGeometry args={[width, height, wallT]} />
-        <meshStandardMaterial {...wall} />
-      </mesh>
+      <NorthWall />
+      <MirrorCavity />
+      <LiviaReflection planeZ={MIRROR_GLASS_Z} />
       <DoorWall />
 
       <HallwayPeek wallX={door.wallX} z={door.z} />
@@ -137,10 +217,22 @@ export function BathroomRoom() {
       <Examinable id="bath-mirror">
         <FurnitureModel
           url="/espelho.glb"
-          position={[0.82, 1.42, depth / 2 - 0.28]}
+          position={[MIRROR_X, MIRROR_Y, depth / 2 - 0.28]}
           targetWidth={1.12}
           anchor="center"
+          hideMaterials={MIRROR_HIDE}
         />
+        <mesh position={[MIRROR_X, MIRROR_Y, MIRROR_GLASS_Z - 0.004]} rotation={[0, Math.PI, 0]} renderOrder={2}>
+          <planeGeometry args={[GLASS_W - 0.02, GLASS_H - 0.02]} />
+          <meshStandardMaterial
+            color="#9aafb8"
+            metalness={0.72}
+            roughness={0.1}
+            transparent
+            opacity={0.2}
+            depthWrite={false}
+          />
+        </mesh>
       </Examinable>
       <Examinable id="bath-elastic">
         <mesh position={[-1.18, 0.02, STALLS[0].z + 0.16]} rotation={[-Math.PI / 2, 0.4, 0]}>

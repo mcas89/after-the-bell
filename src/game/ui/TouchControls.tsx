@@ -33,7 +33,8 @@ export function TouchControls() {
     interaction === 'opening-door' ||
     interaction === 'girl-glimpse' ||
     interaction === 'map-travel' ||
-    interaction === 'examining-object'
+    interaction === 'examining-object' ||
+    interaction === 'ending'
   ) {
     return null
   }

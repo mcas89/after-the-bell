@@ -274,9 +274,21 @@ export function stopMenuMusic() {
   stopLoop('menu')
 }
 
+export function silenceWorldAudio() {
+  wantMusic = false
+  if (music) {
+    music.pause()
+    music.volume = 0
+  }
+  musicCurrent = 0
+  musicTarget = 0
+  stopAllLoops()
+  stopSfxSlice()
+}
+
 export function tickMixer(delta: number) {
   if (!music) return
-  if (performance.now() >= duckUntil) musicTarget = audioLevels.musicVolume
+  if (performance.now() >= duckUntil) musicTarget = wantMusic ? audioLevels.musicVolume : 0
   const lambda = 2.6
   musicCurrent += (musicTarget - musicCurrent) * (1 - Math.exp(-lambda * delta))
   music.volume = Math.max(0, Math.min(1, musicCurrent))

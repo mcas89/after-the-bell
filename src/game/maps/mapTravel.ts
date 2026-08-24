@@ -95,7 +95,7 @@ export function stepMapTravel(dt: number) {
     const pending = travel.pending
     if (pending) {
       applyRoomLoad(pending.room, getSpawn(pending.room, pending.entryPoint), pending.entryPoint)
-      saveManager.save()
+      if (pending.room !== 'backyard') saveManager.save()
     }
     useMapTravelStore.setState({ fade: 1, phase: 'hold', hold: travel.hold, pending: null })
     return
@@ -119,6 +119,13 @@ export function stepMapTravel(dt: number) {
 
   useMapTravelStore.setState({ fade: 0, busy: false, phase: 'idle', pending: null, card: null })
   const game = useGameStore.getState()
-  if (game.interactionState === 'map-travel') game.setInteractionState('gameplay')
+  if (game.interactionState === 'map-travel') {
+    if (game.currentRoom === 'backyard' && !game.flags.endingDone) {
+      game.setInteractionState('ending')
+      game.setCameraMode('cutscene')
+    } else {
+      game.setInteractionState('gameplay')
+    }
+  }
   refreshControlLock()
 }

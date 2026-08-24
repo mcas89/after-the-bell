@@ -14,6 +14,7 @@ export type InteractionState =
   | 'girl-glimpse'
   | 'map-travel'
   | 'using-computer'
+  | 'ending'
 
 type GameState = {
   currentRoom: RoomId
@@ -67,10 +68,12 @@ export const useGameStore = create<GameState>((set) => ({
         flags: firstVisit ? { ...state.flags, [`visited-${currentRoom}`]: true } : state.flags,
       }
     })
-    if (firstVisit && useGameStore.getState().prologueDone) {
-      saveManager.checkpoint(roomLabel(currentRoom))
-    } else {
-      saveManager.save()
+    if (currentRoom !== 'backyard') {
+      if (firstVisit && useGameStore.getState().prologueDone) {
+        saveManager.checkpoint(roomLabel(currentRoom))
+      } else {
+        saveManager.save()
+      }
     }
   },
   addFlag: (flag) =>

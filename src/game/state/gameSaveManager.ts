@@ -310,12 +310,14 @@ export const saveManager = {
   save() {
     const save = collectOrEmpty()
     if (!save.story.prologueIntroCompleted) return
+    if (save.scene === 'backyard' || save.flags.endingPlaying) return
     writeStorage({ ...save, updatedAt: Date.now() })
   },
 
   checkpoint(label: string) {
     const save = collectOrEmpty()
     if (!save.story.prologueIntroCompleted) return
+    if (save.scene === 'backyard' || save.flags.endingPlaying) return
     const next = { ...save, updatedAt: Date.now() }
     writeStorage(next)
     pushHistory(next, label)

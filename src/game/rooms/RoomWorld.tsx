@@ -35,7 +35,7 @@ function RoomFog() {
     const hallway = room === 'hallway'
     const switched = room === 'passage' || room === 'storage'
     const patio = room === 'library' || room === 'bathroom' || room === 'office'
-    const stairs = room === 'backyard'
+    const outside = room === 'backyard'
     const beam = switched && !patioLit && flashOn
     const color =
       switched && patioLit
@@ -46,12 +46,12 @@ function RoomFog() {
             ? '#05070b'
             : patio
               ? '#0a1018'
-              : stairs
-                ? '#05070b'
+              : outside
+                ? '#070b12'
                 : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
-    gl.toneMappingExposure = switched && patioLit ? 0.94 : 0.84
+    gl.toneMappingExposure = switched && patioLit ? 0.94 : outside ? 0.72 : 0.84
     if (fog) {
       fog.color.set(color)
       fog.near =
@@ -67,8 +67,8 @@ function RoomFog() {
                   ? 2.2
                   : patio
                     ? 4.2
-                    : stairs
-                      ? 2.4
+                    : outside
+                      ? 8
                       : 6.4
       fog.far =
         hallway && hallOpen
@@ -83,8 +83,8 @@ function RoomFog() {
                   ? 8.2
                   : patio
                     ? 11
-                    : stairs
-                      ? 8.4
+                    : outside
+                      ? 36
                       : 14.2
     }
   }, [flashOn, gl, hallOpen, patioLit, room, scene])

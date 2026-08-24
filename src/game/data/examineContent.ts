@@ -19,6 +19,7 @@ export type SheetKind =
   | 'ronda'
   | 'pasta'
   | 'manutencao'
+  | 'saida'
   | 'guiche'
 
 export type ExamineEntry = {
@@ -238,6 +239,19 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'office-folder': {
     line: 'Uma pasta.',
+  },
+  'office-papers-files': {
+    line: 'Pastas. Fechadas.',
+  },
+  'office-papers-floor': {
+    line: 'Folhas no chão.',
+  },
+  'office-papers-window': {
+    line: 'Molhada. O vento.',
+  },
+  'office-exit-note': {
+    line: 'Portão do pátio. Escada descendo.',
+    sheet: 'saida',
   },
   'office-counter': {
     line: 'Fechado do outro lado.',
@@ -572,6 +586,12 @@ export function getExamineEntry(id: string): ExamineEntry | null {
   if (key === 'bath-elastic') {
     return hasDirKey() ? { line: 'O dela.' } : { line: 'Elástico. Cor de vinho.' }
   }
+  if (key === 'office-exit-note') {
+    if (useGameStore.getState().flags.officeFallSeen) {
+      return { line: 'Lá embaixo. O portão. Descer.', sheet: 'saida' }
+    }
+    return SHARED[key]
+  }
   if (key === 'office-folder') {
     const game = useGameStore.getState()
     if (!game.flags.marinaFolderSeen) game.addFlag('marinaFolderSeen')
@@ -686,6 +706,7 @@ export function examineHoldSeconds(id: string) {
     entry.sheet === 'ronda' ||
     entry.sheet === 'pasta' ||
     entry.sheet === 'manutencao' ||
+    entry.sheet === 'saida' ||
     entry.sheet === 'guiche'
   ) {
     return 6.8

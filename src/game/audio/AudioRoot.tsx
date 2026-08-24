@@ -6,6 +6,7 @@ import { preloadGameAudio, startBedMusic, tickMixer, unlockAudio } from './mixer
 export function AudioRoot() {
   const prologueDone = useGameStore((s) => s.prologueDone)
   const bootScreen = useGameStore((s) => s.bootScreen)
+  const ending = useGameStore((s) => Boolean(s.flags.endingPlaying))
 
   useLayoutEffect(() => {
     preloadGameAudio()
@@ -13,7 +14,8 @@ export function AudioRoot() {
       unlockAudio()
       if (
         useGameStore.getState().bootScreen === 'playing' &&
-        useGameStore.getState().prologueDone
+        useGameStore.getState().prologueDone &&
+        !useGameStore.getState().flags.endingPlaying
       ) {
         startBedMusic()
       }
@@ -27,9 +29,9 @@ export function AudioRoot() {
   }, [])
 
   useLayoutEffect(() => {
-    if (bootScreen !== 'playing' || !prologueDone) return
+    if (bootScreen !== 'playing' || !prologueDone || ending) return
     startBedMusic()
-  }, [bootScreen, prologueDone])
+  }, [bootScreen, ending, prologueDone])
 
   useFrame((_, delta) => {
     tickMixer(delta)

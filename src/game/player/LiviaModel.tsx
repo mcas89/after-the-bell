@@ -11,6 +11,7 @@ import { ITEM_IDS } from '../data/items'
 import { FLASHLIGHT_ON } from '../inventory/flashlight'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { HeldFlashlight } from './HeldFlashlight'
+import { setLiviaRoot } from './liviaRoot'
 import { ZEL_SKELETON_AIM, ZEL_SKELETON_OPEN } from '../rooms/skeletonCabinet'
 
 function readClip(data: unknown): PoseClipJson {
@@ -73,6 +74,8 @@ export function LiviaModel() {
 
   useLayoutEffect(() => {
     vrm.scene.visible = useGameStore.getState().liviaVisible
+    setLiviaRoot(vrm.scene)
+    return () => setLiviaRoot(null)
   }, [vrm])
 
   useFrame((_, delta) => {

@@ -84,7 +84,7 @@ export const useFragmentsStore = create<FragmentsState>((set, get) => ({
     const view = resolveClue(def, entries[id])
     set({ entries })
     syncCollected(entries)
-    saveManager.checkpoint(`Fragmento · ${view?.title ?? def.stages[0]?.title ?? 'novo'}`)
+    if (!silent) saveManager.checkpoint(`Fragmento · ${view?.title ?? def.stages[0]?.title ?? 'novo'}`)
     if (view && !silent) {
       if (useGameStore.getState().interactionState === 'examining-object') {
         set({ pendingToast: { title: view.title } })

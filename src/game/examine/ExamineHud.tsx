@@ -105,6 +105,17 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
       </article>
     )
   }
+  if (kind === 'saida') {
+    return (
+      <article className="examine-sheet is-file">
+        <h2>Escola Estadual Francis Milton</h2>
+        <p className="sheet-kicker">Saída de emergência</p>
+        <p>Pátio interno — portão</p>
+        <p>Escada para o térreo</p>
+        <p className="sheet-muted">Não usar o elevador.</p>
+      </article>
+    )
+  }
   if (kind === 'guiche') {
     return (
       <article className="examine-sheet is-window">

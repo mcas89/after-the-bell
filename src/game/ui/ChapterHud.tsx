@@ -24,7 +24,8 @@ export function ChapterHud() {
     isComputerOpen(computerUi) ||
     fragmentsOpen ||
     interaction === 'viewing-inventory' ||
-    interaction === 'viewing-fragments'
+    interaction === 'viewing-fragments' ||
+    interaction === 'ending'
   const showLocation = boot === 'playing' && prologueDone && !overlayOpen
 
   return (

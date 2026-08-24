@@ -1,9 +1,11 @@
 import { useLayoutEffect } from 'react'
+import * as THREE from 'three'
 import type { Aabb } from '../data/furniture'
 import { getRoom } from '../data/rooms'
 import { doorCollidersAt, wallDoor } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
+import { getWrittenTexture } from '../examine/paperTextures'
 import { HallwayDoor } from '../hallway/HallwayDoor'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
@@ -14,9 +16,10 @@ const { width, depth, height } = room.size
 const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#3a342e', roughness: 0.9 }
-const DESK = { x: 0, z: -0.35, hx: 1.05, hz: 0.62 }
+const DESK = { x: 0, z: -0.2, hx: 0.74, hz: 0.44 }
+const DESK_SCALE = 0.7
 const FILES = { x: -2.15, z: 1.85, hx: 0.42, hz: 0.55 }
-const CHAIR = { x: 0, z: 0.82, hx: 0.32, hz: 0.34 }
+const CHAIR = { x: 0, z: 0.56, hx: 0.32, hz: 0.34 }
 const WIN = { z: 0.18, half: 0.58, sill: 0.92, h: 1.32 }
 
 function DoorWall() {
@@ -44,6 +47,32 @@ function DoorWall() {
         <meshStandardMaterial {...wall} />
       </mesh>
     </group>
+  )
+}
+
+function Paper({
+  position,
+  rotation,
+  size,
+  kind,
+}: {
+  position: [number, number, number]
+  rotation: [number, number, number]
+  size: [number, number]
+  kind: 'chao' | 'prontuario' | 'aviso' | 'saida'
+}) {
+  return (
+    <mesh position={position} rotation={rotation} renderOrder={2}>
+      <planeGeometry args={size} />
+      <meshStandardMaterial
+        map={getWrittenTexture(kind)}
+        roughness={0.88}
+        side={THREE.DoubleSide}
+        polygonOffset
+        polygonOffsetFactor={-2}
+        polygonOffsetUnits={-2}
+      />
+    </mesh>
   )
 }
 
@@ -118,12 +147,9 @@ export function OfficeRoom() {
       </Examinable>
 
       <Examinable id="office-desk">
-        <FurnitureModel
-          url="/mesa_diretora.glb"
-          position={[DESK.x, 0, DESK.z]}
-          rotationY={Math.PI}
-          targetWidth={2.05}
-        />
+        <group position={[DESK.x, 0, DESK.z]} scale={[DESK_SCALE, 1, DESK_SCALE]}>
+          <FurnitureModel url="/mesa_diretora.glb" position={[0, 0, 0]} rotationY={Math.PI} targetWidth={2.05} />
+        </group>
       </Examinable>
       <Examinable id="office-chair">
         <FurnitureModel url="/cadeira_madeira.glb" position={[CHAIR.x, 0, CHAIR.z]} rotationY={Math.PI} targetHeight={0.92} />
@@ -137,7 +163,31 @@ export function OfficeRoom() {
         />
       </Examinable>
       <Examinable id="office-folder">
-        <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.52, 0.78, DESK.z + 0.08]} targetWidth={0.36} />
+        <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.28, 0.78, DESK.z + 0.04]} targetWidth={0.32} />
+      </Examinable>
+      <Examinable id="office-papers-files">
+        <Paper
+          kind="prontuario"
+          position={[FILES.x + 0.02, 1.44, FILES.z + 0.06]}
+          rotation={[-Math.PI / 2, 0, 0.22]}
+          size={[0.22, 0.28]}
+        />
+      </Examinable>
+      <Examinable id="office-papers-floor">
+        <Paper kind="chao" position={[1.28, 0.012, -1.48]} rotation={[-Math.PI / 2, 0, 0.62]} size={[0.42, 0.3]} />
+        <Paper kind="chao" position={[1.42, 0.014, -1.28]} rotation={[-Math.PI / 2, 0, -0.35]} size={[0.24, 0.18]} />
+      </Examinable>
+      <Examinable id="office-papers-window">
+        <Paper kind="aviso" position={[-2.48, 0.012, 0.72]} rotation={[-Math.PI / 2, 0, -0.48]} size={[0.3, 0.22]} />
+      </Examinable>
+      <Examinable id="office-exit-note">
+        <group position={[width / 2 - 0.08, 1.48, door.z + 1.18]}>
+          <mesh position={[0.004, 0, 0]}>
+            <boxGeometry args={[0.012, 0.42, 0.32]} />
+            <meshStandardMaterial color="#5a4a3a" roughness={0.9} />
+          </mesh>
+          <Paper kind="saida" position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]} size={[0.3, 0.4]} />
+        </group>
       </Examinable>
       <Examinable id="office-window">
         <group position={[-width / 2 + 0.04, WIN.sill + WIN.h / 2, WIN.z]}>

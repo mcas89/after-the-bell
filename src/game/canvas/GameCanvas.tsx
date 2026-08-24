@@ -9,6 +9,7 @@ import { TouchLook } from '../input/TouchLook'
 import { ExamineDirector } from '../examine/ExamineDirector'
 import { Player } from '../player/Player'
 import { PrologueDirector } from '../prologue/PrologueDirector'
+import { EndingDirector } from '../ending/EndingDirector'
 import { ROOM_SHOTS } from '../data/cameras'
 import { RoomWorld } from '../rooms/RoomWorld'
 
@@ -21,7 +22,7 @@ export function GameCanvas() {
     <Canvas
       shadows
       dpr={[1, 2]}
-      camera={{ position: CLASSROOM_SHOT.position, fov: CLASSROOM_SHOT.fov, near: 0.08, far: 60 }}
+      camera={{ position: CLASSROOM_SHOT.position, fov: CLASSROOM_SHOT.fov, near: 0.08, far: 90 }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       style={{
         width: '100%',
@@ -42,6 +43,7 @@ export function GameCanvas() {
       <AudioRoot />
       <Footsteps />
       <PrologueDirector />
+      <EndingDirector />
       <ExamineDirector />
       <TouchLook />
       <RoomWorld />

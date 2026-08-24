@@ -46,7 +46,7 @@ export function InventorySystem() {
 
       if (event.code === 'KeyI') {
         if (game.interactionState === 'examining-object') return
-        if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel' || game.interactionState === 'using-computer') return
+        if (game.interactionState === 'door-beat' || game.interactionState === 'opening-door' || game.interactionState === 'girl-glimpse' || game.interactionState === 'map-travel' || game.interactionState === 'using-computer' || game.interactionState === 'ending') return
         if (inventory.items.length === 0) return
         event.preventDefault()
         inventory.toggleInventory()

@@ -739,6 +739,35 @@ function noticeTexture() {
   return textureFrom(canvas)
 }
 
+function exitNoticeTexture() {
+  const { canvas, ctx } = makeCanvas(768, 1024)
+  paperFill(ctx, 768, 1024, '#f3efe4')
+  ctx.fillStyle = '#3a3228'
+  ctx.font = `20px ${SANS}`
+  ctx.textAlign = 'center'
+  ctx.fillText('ESCOLA ESTADUAL FRANCIS MILTON', 384, 88)
+  ctx.font = `bold 32px ${PRINT}`
+  ctx.fillText('SAÍDA DE EMERGÊNCIA', 384, 150)
+  ctx.fillStyle = '#6a5a48'
+  ctx.font = `22px ${SANS}`
+  ctx.fillText('Pátio interno', 384, 198)
+  ctx.textAlign = 'left'
+  ctx.fillStyle = '#2a2420'
+  ctx.font = `28px ${PRINT}`
+  ctx.fillText('Portão do pátio', 88, 320)
+  ctx.font = `26px ${PRINT}`
+  ctx.fillText('Escada para o térreo.', 88, 400)
+  ctx.fillText('Não usar o elevador.', 88, 488)
+  ctx.fillStyle = '#5a4034'
+  ctx.font = `22px ${PRINT}`
+  ctx.fillText('Manter o portão fechado', 88, 640)
+  ctx.fillText('após a ronda.', 88, 682)
+  ctx.fillStyle = 'rgba(90, 50, 40, 0.35)'
+  ctx.font = `20px ${SANS}`
+  ctx.fillText('Direção', 88, 860)
+  return textureFrom(canvas)
+}
+
 function rondaTexture() {
   const { canvas, ctx } = makeCanvas(768, 1024)
   paperFill(ctx, 768, 1024, '#f4eee2')
@@ -1122,7 +1151,7 @@ export function getHangmanChalkTexture(word: 'AMIZADE' | 'FRIENDS' | null) {
 }
 
 export function getWrittenTexture(
-  kind: 'board' | 'bloco' | 'chao' | 'prontuario' | 'mural' | 'aviso' | 'ronda' | 'teachers-board',
+  kind: 'board' | 'bloco' | 'chao' | 'prontuario' | 'mural' | 'aviso' | 'ronda' | 'teachers-board' | 'saida',
 ) {
   const cached = cache.get(kind)
   if (cached) return cached
@@ -1137,6 +1166,8 @@ export function getWrittenTexture(
             ? recordTexture()
             : kind === 'aviso'
               ? noticeTexture()
+              : kind === 'saida'
+                ? exitNoticeTexture()
               : kind === 'ronda'
                 ? rondaTexture()
                 : kind === 'teachers-board'

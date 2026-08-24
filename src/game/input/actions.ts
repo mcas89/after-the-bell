@@ -99,7 +99,6 @@ function tryLobbyDoor(px: number, pz: number) {
   const game = useGameStore.getState()
   if (door.kind === 'gate') {
     if (game.flags.officeFallSeen) {
-      playSfx(SFX.doorOpen, 0.45)
       hall.setPrompt(null)
       requestMapTravel('backyard', 'from-gate')
       return true

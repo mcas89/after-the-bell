@@ -12,6 +12,7 @@ type Props = {
   kind?: 'desk' | 'teacher'
   anchor?: 'floor' | 'center'
   pickable?: boolean
+  hideMaterials?: readonly string[]
 }
 
 const fits = new Map<
@@ -59,6 +60,7 @@ export function FurnitureModel({
   kind,
   anchor = 'floor',
   pickable = true,
+  hideMaterials,
 }: Props) {
   const gltf = useGLTF(url)
   const scene = useMemo(() => {
@@ -67,9 +69,13 @@ export function FurnitureModel({
       obj.castShadow = true
       obj.receiveShadow = true
       if (!pickable) obj.raycast = () => {}
+      const mesh = obj as THREE.Mesh
+      if (!mesh.isMesh || !hideMaterials?.length) return
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      if (mats.some((mat) => hideMaterials.includes(mat.name))) mesh.visible = false
     })
     return cloned
-  }, [gltf, pickable])
+  }, [gltf, hideMaterials, pickable])
 
   const fit = useMemo(
     () => measure(gltf.scene, targetHeight, targetWidth, url, anchor),
