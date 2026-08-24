@@ -41,7 +41,7 @@ export function LiviaReflection({ planeZ }: Props) {
       if (!mesh.isMesh) return
       const mats = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).filter(Boolean)
       mesh.material = mats.map((mat) => {
-        const copy = mat.clone()
+        const copy = mat.clone() as THREE.Material & { fog?: boolean }
         copy.side = THREE.DoubleSide
         copy.shadowSide = THREE.DoubleSide
         copy.fog = false
