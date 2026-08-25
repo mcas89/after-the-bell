@@ -60,9 +60,9 @@ function collectGameSave(): GameSave {
       classroomDoorOpened:
         useDoorStore.getState().phase === 'open' || Boolean(game.flags.classroomDoorOpened),
       enteredCorridor: hallway.enteredCorridor,
-      seenDoor203: hallway.seenDoor203,
-      door203Disappeared: hallway.door203Disappeared,
-      foundSecretary: hallway.foundSecretary,
+      seenDoor203: false,
+      door203Disappeared: false,
+      foundSecretary: false,
       seenMysteriousGirl: hallway.seenMysteriousGirl,
       currentObjective: hallway.objective,
       entryPoint: game.entryPoint,

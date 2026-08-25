@@ -21,7 +21,6 @@ export type SheetKind =
   | 'manutencao'
   | 'saida'
   | 'guiche'
-  | 'niver'
 
 export type ExamineEntry = {
   line: string | null
@@ -35,7 +34,6 @@ export const EXAMINE_IMG = {
   turmaSala: '/image/foto-turma-sala.png',
   turmaCorredor: '/image/foto-turma-corredor.png',
   achados: '/image/foto-achados.png',
-  fotoVerso: '/image/foto-armario-livia-verso.png',
   natureza: '/image/arte-natureza-morta.png',
   corredor: '/image/arte-corredor.png',
   arvore: '/image/arte-arvore.png',
@@ -130,7 +128,8 @@ const SHARED: Record<string, ExamineEntry> = {
     collectibleId: 'item-key',
   },
   'hall-clock': {
-    line: 'Outro relógio. 03:17. Não é só o da sala.',
+    line: 'O relógio marca 03:17. O ponteiro não anda.',
+    fragmentId: 'clue-0317',
   },
   'hall-window': {
     line: 'O pátio está vazio. Nenhuma luz.',
@@ -153,9 +152,6 @@ const SHARED: Record<string, ExamineEntry> = {
   'hall-door-14': {
     line: 'Sala de artes.\nTrancada.',
   },
-  'hall-mural': {
-    line: 'Cartaz de um campeonato. As faces estão apagadas.',
-  },
   'hall-mural-1': {
     line: 'Achados e perdidos. A foto está escura.',
     image: EXAMINE_IMG.achados,
@@ -169,6 +165,9 @@ const SHARED: Record<string, ExamineEntry> = {
   },
   'hall-fountain': {
     line: 'O bebedouro não funciona.',
+  },
+  'hall-bin': {
+    line: 'Vazia.',
   },
   'passage-window': {
     line: 'Lá fora ainda está vazio.',
@@ -334,76 +333,68 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Computador desligado.',
   },
   'teachers-notice': {
-    line: 'Depois das 22h as portas trancam por fora.',
+    line: 'A gente ficou. Foi escolha.',
     fragmentId: 'clue-closing-notice',
     sheet: 'aviso',
   },
   'teachers-board': {
-    line: 'Apagaram a reunião. No canto ainda tem 22h.',
+    line: 'Apagaram a reunião.',
   },
   'teachers-sofa': {
-    line: 'Capa rasgada no braço. Escola velha.',
+    line: 'Ninguém voltou aqui.',
   },
   'teachers-chair': {
-    line: 'Encostada na parede. Não vou sentar.',
+    line: 'Ninguém voltou aqui.',
   },
   'teachers-cabinet': {
-    line: 'Quatro ganchos. Uma chave. No chão, uma lanterna.',
+    line: 'BIB. EXT. DIR. Vazios. A chave está no ART. Lanterna no chão.',
     image: EXAMINE_IMG.professores,
-  },
-  'teachers-hooks': {
-    line: 'BIB. EXT. DIR. Vazios.',
   },
   'teachers-flashlight': {
     line: 'Pesada. Sem pilhas.',
     collectibleId: 'item-flashlight',
   },
   'teachers-key': {
-    line: 'Pesada. Fria.',
+    line: 'Chave da sala de artes.',
     collectibleId: 'item-key-diretoria',
   },
   'teachers-table': {
-    line: 'Ronda das 22h. Assinaram e foram embora. As chaves foram junto.',
+    line: 'Levou as chaves da externa. Foi embora.',
     sheet: 'ronda',
   },
   'teachers-window': {
     line: 'Lá fora está completamente vazio. Nem uma luz. Nem um som.',
   },
   'arts-frame-1': {
-    line: 'Natureza morta. Tinta ainda meio molhada.',
+    line: 'A tinta não secou. Foi hoje.',
     image: EXAMINE_IMG.natureza,
   },
   'arts-frame-2': {
-    line: 'Um corredor. Vazio.',
+    line: 'O corredor. Ela passou. Sumiu.',
     image: EXAMINE_IMG.corredor,
   },
   'arts-frame-3': {
-    line: 'Árvore à noite. Só isso.',
+    line: 'Ainda de noite. A gente ficou.',
     image: EXAMINE_IMG.arvore,
   },
   'arts-frame-4': {
-    line: 'Retratos. Nenhum rosto ficou direito.',
+    line: 'Dois. Nenhum rosto. Era pra ser a gente.',
     image: EXAMINE_IMG.retratos,
   },
   'arts-frame-5': {
-    line: 'Uma janela no segundo andar. O vidro está marcado.',
+    line: 'Uma janela no segundo andar. Marcada. É pra lá.',
     fragmentId: 'clue-second-floor',
     image: EXAMINE_IMG.fachada,
   },
   'arts-frame-6': {
-    line: 'Trabalho de cor. Sem nome.',
+    line: 'Sem nome. O meu é o quinto.',
     image: EXAMINE_IMG.composicao,
   },
   'arts-window': {
     line: 'Lá fora está completamente vazio. Nem uma luz. Nem um som.',
   },
-  'locker-photo': {
-    line: '14 de outubro. Não esquecer.',
-    image: EXAMINE_IMG.fotoVerso,
-  },
-  'locker-niver': {
-    line: 'Não é o meu niver.',
-    sheet: 'niver',
+  'locker-card': {
+    line: '21 de julho. Não esquecer. Não é o meu.',
   },
   'locker-batteries': {
     line: 'Pilhas. Alguém deixou.',
@@ -442,12 +433,6 @@ const ALIAS: Record<string, string> = {
   'arts-window-1': 'arts-window',
   'arts-window-2': 'arts-window',
   'arts-window-3': 'arts-window',
-  'arts-frame-7': 'arts-frame-1',
-  'arts-frame-8': 'arts-frame-2',
-  'arts-frame-9': 'arts-frame-3',
-  'arts-frame-10': 'arts-frame-4',
-  'arts-frame-11': 'arts-frame-5',
-  'arts-frame-12': 'arts-frame-6',
 }
 
 function hasFlashlight() {
@@ -505,15 +490,15 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     const takenKey = useInventoryStore.getState().has(ITEM_IDS.officeKey)
     if (takenFlash && takenKey) return { line: 'Armário está vazio.' }
     const line = takenFlash
-      ? 'A chave ainda está no gancho.'
+      ? 'A chave ainda está no ART.'
       : takenKey
         ? 'A lanterna ainda está no chão.'
-        : 'Quatro ganchos. Uma chave. No chão, uma lanterna.'
+        : 'BIB. EXT. DIR. Vazios. A chave está no ART. Lanterna no chão.'
     return { line, image: EXAMINE_IMG.professores }
   }
   if (key === 'teachers-flashlight') {
     return hasFlashlight()
-      ? { line: useInventoryStore.getState().has(ITEM_IDS.officeKey) ? 'Armário está vazio.' : 'A chave ainda está no gancho.' }
+      ? { line: useInventoryStore.getState().has(ITEM_IDS.officeKey) ? 'Armário está vazio.' : 'A chave ainda está no ART.' }
       : { line: 'Pesada. Sem pilhas.', collectibleId: ITEM_IDS.flashlight }
   }
   if (key === 'teachers-key') {
@@ -521,7 +506,7 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     if (takenKey) {
       return { line: hasFlashlight() ? 'Armário está vazio.' : 'A lanterna ainda está no chão.' }
     }
-    return { line: 'Pesada. Fria.', collectibleId: ITEM_IDS.officeKey }
+    return { line: 'Chave da sala de artes.', collectibleId: ITEM_IDS.officeKey }
   }
   if (key === 'locker-batteries') {
     return hasBatteries()
@@ -618,18 +603,32 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     const flags = useGameStore.getState().flags
     const line = flags.phone0317Seen
       ? 'É a mesma hora do celular. O ponteiro não anda.'
-      : 'O relógio marca 03:17. O ponteiro não anda.'
+      : flags.hallClock0317Seen || flags.computerClock0317Seen
+        ? 'É a mesma hora. O ponteiro não anda.'
+        : 'O relógio marca 03:17. O ponteiro não anda.'
     if (!flags.clock0317Seen) useGameStore.getState().addFlag('clock0317Seen')
+    return { line, fragmentId: 'clue-0317' }
+  }
+  if (key === 'hall-clock') {
+    const flags = useGameStore.getState().flags
+    const line = flags.clock0317Seen
+      ? 'É a mesma hora do relógio da sala.'
+      : flags.phone0317Seen
+        ? 'É a mesma hora do celular.'
+        : flags.computerClock0317Seen
+          ? 'É a mesma hora.'
+          : 'O relógio marca 03:17. O ponteiro não anda.'
+    if (!flags.hallClock0317Seen) useGameStore.getState().addFlag('hallClock0317Seen')
     return { line, fragmentId: 'clue-0317' }
   }
   if (key === 'quadro-negro' && useGameStore.getState().flags.hangmanAmizade) {
     return { ...SHARED[key], line: 'A palavra era AMIZADE.', fragmentId: 'clue-friends' }
   }
-  if (key === 'locker-niver') {
+  if (key === 'locker-card') {
     if (!useGameStore.getState().flags.liviaNiverNote) {
       useGameStore.getState().addFlag('liviaNiverNote')
     }
-    return SHARED['locker-niver']
+    return SHARED['locker-card']
   }
   const locker = getHallLocker(key)
   if (locker) {
@@ -640,7 +639,7 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     }
     if (useLockerPinStore.getState().isOpen(locker.id)) {
       if (locker.kind === 'livia') {
-        return { line: 'Cadernos. Uma foto virada. Um recado. Meu moletom.', image: EXAMINE_IMG.armario4 }
+        return { line: 'Cadernos. Um cartão. Meu moletom.', image: EXAMINE_IMG.armario4 }
       }
       if (locker.kind === 'marina') {
         return hasBatteries()
@@ -729,8 +728,7 @@ export function examineHoldSeconds(id: string) {
     entry.sheet === 'pasta' ||
     entry.sheet === 'manutencao' ||
     entry.sheet === 'saida' ||
-    entry.sheet === 'guiche' ||
-    entry.sheet === 'niver'
+    entry.sheet === 'guiche'
   ) {
     return 6.8
   }

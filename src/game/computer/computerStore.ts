@@ -131,7 +131,7 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
       historyPage: null,
       notesProps: false,
     })
-    if (!unlocked) speak(set, 'Está com meu login, mas qual é a minha senha? Eu não lembro.')
+    if (!unlocked) hear(get, set, 'login', 'Minha senha é o niver dela !!!')
   },
   close: () => {
     if (!isComputerOpen(get().ui)) return
@@ -158,7 +158,13 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
       historyPage: null,
       notesProps: false,
     })
-    if (app === 'clock') hear(get, set, 'clock', 'Nem os segundos...')
+    if (app === 'clock') {
+      const flags = useGameStore.getState().flags
+      const otherSeen =
+        Boolean(flags.clock0317Seen) || Boolean(flags.hallClock0317Seen) || Boolean(flags.phone0317Seen)
+      hear(get, set, 'clock', otherSeen ? 'É a mesma hora.' : 'Ainda 03:17.')
+      if (!flags.computerClock0317Seen) useGameStore.getState().addFlag('computerClock0317Seen')
+    }
     if (app === 'notes') hear(get, set, 'notes', 'Vazio.')
   },
   openNode: (id) => {
@@ -198,7 +204,6 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
     if (get().ui !== 'desktop' || get().app !== 'web') return
     const next = !get().historyOpen
     set({ historyOpen: next, historyPage: next ? get().historyPage : null })
-    if (next) get().readHistory()
   },
   closeHistory: () => {
     if (!get().historyOpen) return
@@ -207,7 +212,7 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
   selectHistory: (time) => {
     if (get().ui !== 'desktop' || get().app !== 'web') return
     set({ historyOpen: true, historyPage: time })
-    get().readHistory()
+    if (time === '02:51') get().readHistory()
     if (time !== '03:05') return
     const hits = get().redactHits + 1
     set({ redactHits: hits })
@@ -244,7 +249,7 @@ export const useComputerStore = create<ComputerState>((set, get) => ({
       return
     }
     playPinFail()
-    speak(set, get().pin === '0305' ? 'Não é essa.' : 'Eu não lembro da senha...')
+    speak(set, get().pin === '0305' ? 'Não é o meu niver.' : 'Eu não lembro da senha...')
     set({ pin: '', shakeAt: Date.now() })
   },
   readHistory: () => {

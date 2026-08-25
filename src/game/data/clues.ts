@@ -41,7 +41,6 @@ export const CLUE_IDS = {
   twoDrinks: 'clue-two-drinks',
   lm: 'clue-lm',
   friends: 'clue-friends',
-  door203: 'clue-door-203',
   mysteriousGirl: 'clue-mysterious-girl',
   howToLeave: 'clue-how-to-leave',
   closingNotice: 'clue-closing-notice',
@@ -126,17 +125,6 @@ export const CLUES: ClueDef[] = [
     ],
   },
   {
-    id: CLUE_IDS.door203,
-    kind: 'fragment',
-    chapter: 'hallway',
-    stages: [
-      {
-        title: 'A porta 203',
-        description: 'Tenho quase certeza de que havia uma sala 203 aqui.',
-      },
-    ],
-  },
-  {
     id: CLUE_IDS.mysteriousGirl,
     kind: 'fragment',
     chapter: 'hallway',
@@ -154,7 +142,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Como sair',
-        description: 'Amanhecer. Alarme. Porta trancada. Segundo andar. A busca das 03:05 não abre. A gente estava tentando sair daqui.',
+        description: 'Amanhecer. Alarme. Porta. Segundo andar. A gente estava tentando sair daqui.',
       },
     ],
   },
@@ -165,7 +153,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Alarme',
-        description: 'Depois das 22h as portas trancam por fora. A gente ficou aqui depois disso.',
+        description: 'Depois das 22h as portas trancam por fora. A gente ficou. Foi escolha.',
       },
     ],
   },
@@ -176,7 +164,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Segundo andar',
-        description: 'Uma janela quebrada no segundo andar foi marcada à caneta.',
+        description: 'Uma janela no segundo andar foi marcada. É pra lá.',
       },
     ],
   },

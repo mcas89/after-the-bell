@@ -1,7 +1,7 @@
 import { Component, Suspense, useLayoutEffect, type ErrorInfo, type ReactNode } from 'react'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
-import { FURNITURE, type Aabb } from '../data/furniture'
+import { type Aabb } from '../data/furniture'
 import { CLASSROOM_1 } from '../data/rooms'
 import { DOOR, doorColliders } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
@@ -18,7 +18,6 @@ const WINDOW_HALF = 0.62
 const SILL = 0.88
 const WIN_H = 1.42
 const MOON = '#c9d8ea'
-const DESKS = FURNITURE.filter((item) => item.kind === 'desk')
 const FRAME_HALF = { x: 0.32, z: 0.16 }
 const DRAWINGS = ['vases', 'hall', 'tree', 'faces', 'window', 'shapes'] as const
 const ART_IMAGES = {
@@ -30,15 +29,22 @@ const ART_IMAGES = {
   shapes: '/image/arte-composicao.png',
 } as const
 const FRAME_URLS = ['/quadro_pintura.glb', '/quadro_pintura2.glb'] as const
+const ART_ROWS = [-0.25, 1.15, 2.5] as const
+const ART_COLS = [-2.05, 2.05] as const
 
-const ARTS_FRAMES = DESKS.map((desk, index) => ({
-  id: `arts-frame-${index + 1}`,
-  url: FRAME_URLS[index % 2],
-  drawing: DRAWINGS[index % DRAWINGS.length],
-  x: desk.position[0],
-  z: desk.position[2],
-  yaw: desk.rotationY,
-}))
+const ARTS_FRAMES = ART_ROWS.flatMap((z, row) =>
+  ART_COLS.map((x, col) => {
+    const index = row * ART_COLS.length + col
+    return {
+      id: `arts-frame-${index + 1}`,
+      url: FRAME_URLS[index % 2],
+      drawing: DRAWINGS[index],
+      x,
+      z,
+      yaw: Math.PI,
+    }
+  }),
+)
 
 class ModelGuard extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
   state = { failed: false }

@@ -97,7 +97,10 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
     const unlocked = useGameStore.getState().phoneUnlocked
     set({ ui: unlocked ? 'unlocked' : 'locked', pin: '', app: 'home', viewId: null })
     saveManager.updateStoryState({ phone0317Seen: true })
-    const clockSeen = useGameStore.getState().flags.clock0317Seen
+    const clockSeen =
+      Boolean(useGameStore.getState().flags.clock0317Seen) ||
+      Boolean(useGameStore.getState().flags.hallClock0317Seen) ||
+      Boolean(useGameStore.getState().flags.computerClock0317Seen)
     hear(get, set, 'lock-time', clockSeen ? 'É a mesma hora do relógio.' : '03:17. Está parado.')
     discoverClue(CLUE_IDS.time0317)
   },

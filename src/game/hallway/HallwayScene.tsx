@@ -790,10 +790,12 @@ export function HallwayScene() {
           <meshStandardMaterial color="#6a6e72" roughness={0.45} metalness={0.2} />
         </mesh>
       </Examinable>
-      <mesh position={[HALL_PROPS.bin.x, 0.32, HALL_PROPS.bin.z]} castShadow>
-        <cylinderGeometry args={[0.16, 0.18, 0.64, 12]} />
-        <meshStandardMaterial color="#2c2a28" roughness={0.7} />
-      </mesh>
+      <Examinable id="hall-bin">
+        <mesh position={[HALL_PROPS.bin.x, 0.32, HALL_PROPS.bin.z]} castShadow>
+          <cylinderGeometry args={[0.16, 0.18, 0.64, 12]} />
+          <meshStandardMaterial color="#2c2a28" roughness={0.7} />
+        </mesh>
+      </Examinable>
     </group>
   )
 }

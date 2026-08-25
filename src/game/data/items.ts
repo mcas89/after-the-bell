@@ -23,22 +23,22 @@ export const ITEMS: Record<string, ItemDef> = {
   },
   [ITEM_IDS.officeKey]: {
     id: ITEM_IDS.officeKey,
-    title: 'Chave grande',
+    title: 'Chave da sala de artes',
     description: 'Pesada e fria ao toque.',
   },
   [ITEM_IDS.janitorKey]: {
     id: ITEM_IDS.janitorKey,
-    title: 'Chave gasta',
+    title: 'Chave da zeladoria',
     description: 'Um pouco maior. Fria.',
   },
   [ITEM_IDS.bibKey]: {
     id: ITEM_IDS.bibKey,
-    title: 'Chave média',
+    title: 'Chave da biblioteca',
     description: 'Média. Um pouco fria.',
   },
   [ITEM_IDS.dirKey]: {
     id: ITEM_IDS.dirKey,
-    title: 'Chave pesada',
+    title: 'Chave da diretoria',
     description: 'Mais pesada. Fria.',
   },
   [ITEM_IDS.batteries]: {

@@ -1,7 +1,7 @@
 import { getClueDef } from '../data/clues'
 import { useFragmentsStore } from '../state/useFragmentsStore'
 
-export const HALL_PASSAGE_FRAGMENTS = 10
+export const HALL_PASSAGE_FRAGMENTS = 9
 
 export function discoveredFragmentCount(
   entries = useFragmentsStore.getState().entries,

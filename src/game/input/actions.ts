@@ -74,7 +74,7 @@ function tryClassroomDoor(id: keyof typeof HALL_DOORS) {
     return
   }
   hall.rattleHandle()
-  hall.speak(hasOtherKey(door.key) ? 'Não é essa.' : 'Trancada.')
+  hall.speak(hasOtherKey(door.key) ? 'Essa chave não é daqui !' : 'Trancada.')
 }
 
 function tryLabDoor() {
@@ -123,7 +123,7 @@ function tryLobbyDoor(px: number, pz: number) {
       return true
     }
     hall.rattleHandle()
-    hall.speak(hasOtherKey(ITEM_IDS.janitorKey) ? 'Não é essa.' : door.lockedLine)
+    hall.speak(hasOtherKey(ITEM_IDS.janitorKey) ? 'Essa chave não é daqui !' : door.lockedLine)
     return true
   }
   if (door.id === 'library') {
@@ -134,7 +134,7 @@ function tryLobbyDoor(px: number, pz: number) {
       return true
     }
     hall.rattleHandle()
-    hall.speak(hasOtherKey(ITEM_IDS.bibKey) ? 'Não é essa.' : door.lockedLine)
+    hall.speak(hasOtherKey(ITEM_IDS.bibKey) ? 'Essa chave não é daqui !' : door.lockedLine)
     return true
   }
   if (door.id === 'office') {
@@ -145,7 +145,7 @@ function tryLobbyDoor(px: number, pz: number) {
       return true
     }
     hall.rattleHandle()
-    hall.speak(hasOtherKey(ITEM_IDS.dirKey) ? 'Não é essa.' : door.lockedLine)
+    hall.speak(hasOtherKey(ITEM_IDS.dirKey) ? 'Essa chave não é daqui !' : door.lockedLine)
     return true
   }
   if (door.open && door.dest) {

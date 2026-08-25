@@ -213,7 +213,6 @@ function MapView() {
         <span className="is-exit">saída</span>
         <span className="is-floor">2º andar</span>
       </div>
-      <div className="pc-map-cut" />
     </div>
   )
 }
@@ -258,7 +257,7 @@ function NotesBody() {
         </button>
       </div>
       {notesProps ? (
-        <p className="pc-props">Modificado em 15/10 03:09 · 0 KB · nenhum texto</p>
+        <p className="pc-props">Modificado em 18/06 03:09 · 0 KB · nenhum texto</p>
       ) : null}
     </div>
   )
@@ -268,7 +267,7 @@ function ClockBody() {
   return (
     <div className="pc-clock-app">
       <p className="pc-clock-time">03:17:00</p>
-      <p className="pc-clock-date">15 de outubro</p>
+      <p className="pc-clock-date">18 de junho</p>
     </div>
   )
 }
@@ -286,7 +285,7 @@ function ComputerBody() {
       </div>
       <div>
         <dt>Data</dt>
-        <dd>15/10</dd>
+        <dd>18/06</dd>
       </div>
       <div>
         <dt>Hora</dt>

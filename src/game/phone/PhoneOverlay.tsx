@@ -125,7 +125,7 @@ function LockedScreen() {
     <div className="phone-lock is-home">
       <LockGlyph />
       <p className="phone-time">03:17</p>
-      <p className="phone-date">Sábado, 15 de outubro</p>
+      <p className="phone-date">Quinta-feira, 18 de junho</p>
       <p className="phone-service">Sem serviço</p>
       {hasMessages ? (
         <button className="phone-note" type="button" onClick={goPin}>
@@ -349,7 +349,7 @@ function PhotosScreen() {
 function NotesScreen() {
   return (
     <div className="phone-os is-app">
-      <p className="phone-app-title">sexta</p>
+      <p className="phone-app-title">lista</p>
       <ul className="phone-note-list">
         <li>carregador</li>
         <li>moletom</li>
@@ -365,7 +365,7 @@ function ClockScreen() {
   return (
     <div className="phone-os is-app">
       <p className="phone-clock-big">03:17:00</p>
-      <p className="phone-clock-sub">Sábado, 15 de outubro</p>
+      <p className="phone-clock-sub">Quinta-feira, 18 de junho</p>
       <div className="phone-alarm">
         <span>06:00</span>
         <strong>levantar</strong>

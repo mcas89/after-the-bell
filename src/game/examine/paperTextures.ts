@@ -419,13 +419,13 @@ export function muralTexture() {
   ctx.fillRect(40, 40, 300, 220)
   ctx.fillStyle = '#6a2c2c'
   ctx.font = `bold 28px ${SANS}`
-  ctx.fillText('OUTUBRO', 110, 90)
+  ctx.fillText('JUNHO', 110, 90)
   ctx.fillStyle = '#2a2420'
   ctx.font = `22px ${SANS}`
   ctx.fillText('S  T  Q  Q  S  S  D', 70, 140)
   ctx.fillText('        1  2  3  4  5', 70, 178)
   ctx.fillStyle = '#8b1e1e'
-  ctx.fillText('               14', 70, 250)
+  ctx.fillText('               18', 70, 250)
   ctx.fillStyle = '#f7f1e4'
   ctx.fillRect(380, 50, 280, 160)
   ctx.fillStyle = '#333'
@@ -437,9 +437,9 @@ export function muralTexture() {
   ctx.fillRect(700, 50, 280, 200)
   ctx.fillStyle = '#444'
   ctx.font = `20px ${SANS}`
-  ctx.fillText('Sexta-feira', 740, 120)
+  ctx.fillText('Quinta-feira', 740, 120)
   ctx.font = `bold 26px ${PRINT}`
-  ctx.fillText('14 de outubro', 730, 170)
+  ctx.fillText('18 de junho', 730, 170)
   ctx.fillStyle = '#e8e0d0'
   ctx.fillRect(40, 300, 420, 400)
   ctx.fillStyle = '#2a3238'
@@ -661,8 +661,8 @@ function hallBoardPhotos() {
   ctx.fillRect(400, 520, 280, 140)
   ctx.fillStyle = '#444'
   ctx.font = `18px ${SANS}`
-  ctx.fillText('14 de outubro', 424, 580)
-  ctx.fillText('sexta  ·  prova', 424, 616)
+  ctx.fillText('18 de junho', 424, 580)
+  ctx.fillText('quinta  ·  prova', 424, 616)
   pin(ctx, 416, 532, '#d4a018')
   return textureFrom(canvas)
 }
@@ -778,37 +778,31 @@ function rondaTexture() {
   ctx.fillText('RONDA DE FECHAMENTO', 384, 128)
   ctx.fillStyle = '#6a5a48'
   ctx.font = `22px ${SANS}`
-  ctx.fillText('14 de outubro', 384, 168)
+  ctx.fillText('18 de junho', 384, 168)
   ctx.textAlign = 'left'
   ctx.fillStyle = '#2a2420'
-  ctx.font = `26px ${PRINT}`
-  ctx.fillText('Alarme', 88, 250)
-  ctx.fillText('22:00', 520, 250)
   ctx.font = `24px ${PRINT}`
-  ctx.fillText('Porta externa A', 88, 340)
-  ctx.fillText('ok', 560, 340)
-  ctx.fillText('Porta externa B', 88, 400)
-  ctx.fillText('ok', 560, 400)
-  ctx.fillText('Portaria — chaves', 88, 460)
-  ctx.fillText('ok', 560, 460)
+  ctx.fillText('Porta externa A', 88, 280)
+  ctx.fillText('ok', 560, 280)
+  ctx.fillText('Porta externa B', 88, 350)
+  ctx.fillText('ok', 560, 350)
+  ctx.fillText('Portaria — chaves', 88, 420)
+  ctx.fillText('ok', 560, 420)
   ctx.fillStyle = '#5a4034'
   ctx.font = `24px ${PRINT}`
-  ctx.fillText('Plantão', 88, 560)
-  ctx.fillText('H. Costa', 400, 560)
-  ctx.fillText('Saída', 88, 620)
-  ctx.fillText('22:04', 400, 620)
+  ctx.fillText('Plantão', 88, 530)
+  ctx.fillText('H. Costa', 400, 530)
+  ctx.fillText('Saída', 88, 600)
+  ctx.fillText('22:04', 400, 600)
   ctx.strokeStyle = 'rgba(40, 30, 24, 0.55)'
   ctx.lineWidth = 3
   ctx.beginPath()
-  ctx.moveTo(88, 700)
-  ctx.lineTo(680, 700)
+  ctx.moveTo(88, 680)
+  ctx.lineTo(680, 680)
   ctx.stroke()
   ctx.fillStyle = '#4a3028'
   ctx.font = `28px ${HAND}`
-  ctx.fillText('levei as chaves da externa', 88, 770)
-  ctx.fillStyle = 'rgba(90, 50, 40, 0.4)'
-  ctx.font = `20px ${SANS}`
-  ctx.fillText('Não permanecer no prédio.', 88, 920)
+  ctx.fillText('levei as chaves da externa', 88, 760)
   return textureFrom(canvas)
 }
 
@@ -822,9 +816,12 @@ function teachersBoardTexture() {
   ctx.fillStyle = 'rgba(90, 90, 90, 0.18)'
   ctx.font = `42px ${SANS}`
   ctx.fillText('reunião', 70, 120)
-  ctx.fillStyle = 'rgba(60, 70, 90, 0.38)'
-  ctx.font = `64px ${SANS}`
-  ctx.fillText('22h', 780, 430)
+  ctx.strokeStyle = 'rgba(90, 90, 90, 0.22)'
+  ctx.lineWidth = 5
+  ctx.beginPath()
+  ctx.moveTo(58, 96)
+  ctx.lineTo(268, 138)
+  ctx.stroke()
   ctx.strokeStyle = 'rgba(90, 90, 90, 0.12)'
   ctx.lineWidth = 4
   ctx.beginPath()
