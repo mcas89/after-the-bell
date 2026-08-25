@@ -148,8 +148,8 @@ export function nearLobbyEntrance(px: number, pz: number) {
 
 export function inLobbyDoorway(px: number, pz: number, door: LobbyDoorDef) {
   const h = LOBBY.doorHalf + 0.1
-  if (door.wall === 'west') return px < door.x + 0.48 && Math.abs(pz - door.z) < h
-  if (door.wall === 'east') return px > door.x - 0.48 && Math.abs(pz - door.z) < h
+  if (door.wall === 'west') return px < door.x + 0.72 && Math.abs(pz - door.z) < h
+  if (door.wall === 'east') return px > door.x - 0.72 && Math.abs(pz - door.z) < h
   return pz > door.z - 0.48 && Math.abs(px - door.x) < h
 }
 

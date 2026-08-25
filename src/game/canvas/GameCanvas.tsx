@@ -36,6 +36,7 @@ export function GameCanvas() {
         gl.toneMappingExposure = 0.84
         gl.shadowMap.enabled = true
         gl.shadowMap.type = THREE.PCFSoftShadowMap
+        gl.localClippingEnabled = true
       }}
     >
       <color attach="background" args={['#0c1016']} />

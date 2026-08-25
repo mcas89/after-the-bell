@@ -14,7 +14,7 @@ const room = getRoom('bathroom')
 const { width, depth, height } = room.size
 const door = wallDoor(width, depth)
 const wallT = 0.12
-const wall = { color: '#3a3836', roughness: 0.9 }
+const wall = { color: '#6a6864', roughness: 0.88 }
 
 const STALLS = [{ z: -0.42 }, { z: 0.72 }] as const
 
@@ -25,6 +25,7 @@ const GLASS_W = 0.843
 const GLASS_H = 1.349
 const CAVITY = 4.4
 const MIRROR_HIDE = ['metal'] as const
+const MIRROR_HIDE_NODES = ['bathroomMirror_1'] as const
 
 function NorthWall() {
   const z = depth / 2
@@ -64,7 +65,7 @@ function MirrorCavity() {
   const zMid = zWall + CAVITY / 2
   const hw = GLASS_W / 2 + 0.1
   const hh = GLASS_H / 2 + 0.1
-  const dark = { color: '#07080a', roughness: 1, metalness: 0 }
+  const dark = { color: '#161b20', roughness: 1, metalness: 0, fog: false }
   return (
     <group>
       <mesh position={[MIRROR_X, MIRROR_Y, zWall + CAVITY]} receiveShadow>
@@ -88,10 +89,17 @@ function MirrorCavity() {
         <meshStandardMaterial {...dark} />
       </mesh>
       <pointLight
-        position={[MIRROR_X, MIRROR_Y + 0.12, zWall + 0.62]}
-        color="#c8d0d4"
-        intensity={0.34}
-        distance={4.2}
+        position={[MIRROR_X, MIRROR_Y + 0.08, zWall + 0.55]}
+        color="#e8f0f4"
+        intensity={2.4}
+        distance={6.2}
+        decay={2}
+      />
+      <pointLight
+        position={[MIRROR_X, MIRROR_Y, zWall + 1.85]}
+        color="#d5dee4"
+        intensity={1.4}
+        distance={5.2}
         decay={2}
       />
     </group>
@@ -150,20 +158,23 @@ export function BathroomRoom() {
 
   return (
     <group>
-      <ambientLight intensity={0.08} color="#8a9aa4" />
-      <hemisphereLight args={['#3a4850', '#12100e', 0.16]} />
-      <pointLight position={[0.2, 2.05, 0.1]} color="#c8d0d4" intensity={0.4} distance={5.2} decay={2} />
-      <pointLight position={[-1.4, 1.62, 0.15]} color="#6a7880" intensity={0.14} distance={2.6} decay={2} />
+      <ambientLight intensity={0.2} color="#9aa8b0" />
+      <hemisphereLight args={['#4a5c66', '#12100e', 0.32]} />
+      <pointLight position={[0.72, 2.32, 1.42]} color="#e4eef2" intensity={2.6} distance={7.2} decay={2} />
+      <pointLight position={[-0.15, 2.22, -0.15]} color="#c8d4dc" intensity={1.85} distance={6.4} decay={2} />
+      <pointLight position={[-1.35, 1.78, 0.18]} color="#8a9aa4" intensity={0.42} distance={3.2} decay={2} />
 
-      <TexturedFloor
-        src="/textura/piso_banheiro.png"
-        width={width}
-        depth={depth}
-        tile={0.85}
-        color="#d4d8dc"
-        roughness={0.55}
-        metalness={0.08}
-      />
+      <Suspense fallback={null}>
+        <TexturedFloor
+          src="/textura/piso_banheiro.png"
+          width={width}
+          depth={depth}
+          tile={0.85}
+          color="#d4d8dc"
+          roughness={0.55}
+          metalness={0.08}
+        />
+      </Suspense>
       <mesh position={[0, height, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[width, depth]} />
         <meshStandardMaterial color="#1c1c1a" roughness={1} />
@@ -222,15 +233,16 @@ export function BathroomRoom() {
             targetWidth={1.12}
             anchor="center"
             hideMaterials={MIRROR_HIDE}
+            hideNodes={MIRROR_HIDE_NODES}
           />
-          <mesh position={[MIRROR_X, MIRROR_Y, MIRROR_GLASS_Z - 0.004]} rotation={[0, Math.PI, 0]} renderOrder={2}>
-            <planeGeometry args={[GLASS_W - 0.02, GLASS_H - 0.02]} />
+          <mesh position={[MIRROR_X, MIRROR_Y, MIRROR_GLASS_Z - 0.006]} rotation={[0, Math.PI, 0]} renderOrder={2}>
+            <planeGeometry args={[GLASS_W - 0.04, GLASS_H - 0.04]} />
             <meshStandardMaterial
-              color="#9aafb8"
-              metalness={0.72}
-              roughness={0.1}
+              color="#b9c8d0"
+              metalness={0.22}
+              roughness={0.06}
               transparent
-              opacity={0.2}
+              opacity={0.11}
               depthWrite={false}
             />
           </mesh>

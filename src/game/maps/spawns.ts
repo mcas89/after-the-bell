@@ -51,7 +51,7 @@ export const MAP_SPAWNS: Record<string, Record<string, SpawnPose>> = {
     'from-patio': spawnAtRoomDoor('library'),
   },
   bathroom: {
-    'from-patio': spawnAtRoomDoor('bathroom'),
+    'from-patio': { x: 0.82, z: 1.12, yaw: 0 },
   },
   storage: {
     'from-patio': spawnAtRoomDoor('storage'),

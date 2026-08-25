@@ -128,7 +128,7 @@ export const EXAMINE_ITEMS: Record<string, ExamineTuning> = {
     fov: 32,
     examineTargetOffset: [0, -0.12, 0],
   },
-  'bath-mirror': { radius: 2.35, pick: 'large', examineDistance: 0.85, fov: 36 },
+  'bath-mirror': { radius: 2.35, pick: 'large', examineDistance: 1.05, examineFacing: [0, 0, -1], fov: 38 },
   'bath-stall': { radius: 2.15, pick: 'large', pickRadius: 0.55, examineDistance: 0.9 },
   'bath-stall-empty': { radius: 2.15, pick: 'large', pickRadius: 0.55, examineDistance: 0.9 },
   'bath-sink': { radius: 2.2, pick: 'small', pickRadius: 0.42, examineDistance: 0.7 },

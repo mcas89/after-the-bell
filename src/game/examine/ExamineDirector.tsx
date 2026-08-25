@@ -15,6 +15,9 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { LAB_ON_PC_ID, useComputerStore } from '../computer/computerStore'
 import { lookInput } from '../input/lookInput'
 import { readTouchUi } from '../input/useTouchUi'
+import { requestMapTravel } from '../maps/mapTravel'
+import { interactGate } from '../input/actions'
+import { LOBBY_DOORS } from '../rooms/lobbyLayout'
 import { useGameStore } from '../state/useGameStore'
 
 const lightPos = new THREE.Vector3()
@@ -103,6 +106,14 @@ export function ExamineDirector() {
 
       if (id === 'hall-door-12' && hall.labDoor === 'ajar') {
         if (hall.beginLabOpen()) playSfx(SFX.doorOpen, 0.62)
+        return
+      }
+
+      if (id === LOBBY_DOORS.bathroom.examineId && LOBBY_DOORS.bathroom.open && LOBBY_DOORS.bathroom.dest) {
+        playSfx(SFX.doorOpen, 0.45)
+        hall.setPrompt(null)
+        interactGate.cool = 0.8
+        requestMapTravel(LOBBY_DOORS.bathroom.dest, 'from-patio')
         return
       }
 
