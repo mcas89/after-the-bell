@@ -91,14 +91,14 @@ function MirrorCavity() {
       <pointLight
         position={[MIRROR_X, MIRROR_Y + 0.08, zWall + 0.55]}
         color="#e8f0f4"
-        intensity={2.4}
-        distance={6.2}
+        intensity={0.35}
+        distance={3.4}
         decay={2}
       />
       <pointLight
         position={[MIRROR_X, MIRROR_Y, zWall + 1.85]}
         color="#d5dee4"
-        intensity={1.4}
+        intensity={0.18}
         distance={5.2}
         decay={2}
       />
@@ -158,11 +158,10 @@ export function BathroomRoom() {
 
   return (
     <group>
-      <ambientLight intensity={0.2} color="#9aa8b0" />
-      <hemisphereLight args={['#4a5c66', '#12100e', 0.32]} />
-      <pointLight position={[0.72, 2.32, 1.42]} color="#e4eef2" intensity={2.6} distance={7.2} decay={2} />
-      <pointLight position={[-0.15, 2.22, -0.15]} color="#c8d4dc" intensity={1.85} distance={6.4} decay={2} />
-      <pointLight position={[-1.35, 1.78, 0.18]} color="#8a9aa4" intensity={0.42} distance={3.2} decay={2} />
+      <ambientLight intensity={0.035} color="#6a7880" />
+      <hemisphereLight args={['#2a343c', '#08090c', 0.1]} />
+      <pointLight position={[0.72, 2.32, 1.42]} color="#c8d4dc" intensity={0.28} distance={4.2} decay={2} />
+      <pointLight position={[-0.15, 2.22, -0.15]} color="#8a9aa4" intensity={0.16} distance={3.4} decay={2} />
 
       <Suspense fallback={null}>
         <TexturedFloor

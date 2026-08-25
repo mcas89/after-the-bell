@@ -186,7 +186,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'A planta',
-        description: 'DIR circulado. Telefone. Chaves. A saída. A chave da diretoria ficou na zeladoria.',
+        description: 'DIR. Telefone. Chaves. A saída. A chave da diretoria ficou na zeladoria.',
       },
     ],
   },
@@ -208,7 +208,7 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: 'Marina Alves',
-        description: 'Marina Alves. 2º B. A gente ria tanto.',
+        description: 'Marina Alves. 2º B. Era ela.',
       },
     ],
   },

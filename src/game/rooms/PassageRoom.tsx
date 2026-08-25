@@ -5,7 +5,7 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { FurnitureModel } from '../scenes/FurnitureModel'
 import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
-import { LOBBY_LIGHTS } from '../inventory/flashlight'
+import { FLASHLIGHT_ON, speakPassageDark } from '../inventory/flashlight'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import {
   LOBBY,
@@ -220,7 +220,6 @@ function PatioCounter() {
 }
 
 export function PassageRoom() {
-  const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   useLayoutEffect(() => {
     setRoomColliders('passage', lobbyColliders())
     return () => clearRoomColliders('passage')
@@ -234,12 +233,14 @@ export function PassageRoom() {
       hall.setObjective('find-exit')
       saveManager.save()
     }
+    if (!game.flags.flashlightOn) speakPassageDark()
+    const delay = game.flags[FLASHLIGHT_ON] ? 1400 : 4200
     const timer = window.setTimeout(() => {
       if (!useGameStore.getState().flags.patioLooked) {
         useGameStore.getState().addFlag('patioLooked')
         useHallwayStore.getState().speak('Tem que ter uma saída.', 2800)
       }
-    }, 1400)
+    }, delay)
     return () => window.clearTimeout(timer)
   }, [])
 
@@ -255,28 +256,16 @@ export function PassageRoom() {
 
   return (
     <group>
-      {lightsOn ? (
-        <>
-          <ambientLight intensity={0.32} color="#b8c4bc" />
-          <hemisphereLight args={['#4a5c68', '#161410', 0.4]} />
-          <pointLight position={[0, 2.35, 2.45]} color="#f0e2c4" intensity={8.4} distance={11} decay={1.6} />
-          <pointLight position={[0, 2.35, 5.05]} color="#f0e2c4" intensity={8.4} distance={11} decay={1.6} />
-          <pointLight position={[0, 2.2, 3.55]} color="#efe6d0" intensity={6.8} distance={12} decay={1.6} />
-        </>
-      ) : (
-        <>
-          <ambientLight intensity={0.012} color="#6a7c90" />
-          <hemisphereLight args={['#15202c', '#05060a', 0.07]} />
-          <directionalLight position={[-3.4, 8.5, -2.2]} intensity={0.06} color="#8aa6bc" />
-        </>
-      )}
+      <ambientLight intensity={0.012} color="#6a7c90" />
+      <hemisphereLight args={['#15202c', '#05060a', 0.07]} />
+      <directionalLight position={[-3.4, 8.5, -2.2]} intensity={0.06} color="#8aa6bc" />
 
-      <CeilingStrip x={-1.65} z={3.4} span={4.6} on={lightsOn} />
-      <CeilingStrip x={1.65} z={3.4} span={4.6} on={lightsOn} />
-      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={NEAR_Z} on={lightsOn} />
-      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={FAR_Z} on={lightsOn} />
-      <EmergencyLamp x={halfX - 0.28} y={2.48} z={NEAR_Z} on={lightsOn} />
-      <EmergencyLamp x={DIR_X} y={2.52} z={maxZ - 0.28} on={lightsOn} />
+      <CeilingStrip x={-1.65} z={3.4} span={4.6} on={false} />
+      <CeilingStrip x={1.65} z={3.4} span={4.6} on={false} />
+      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={NEAR_Z} on={false} />
+      <EmergencyLamp x={-halfX + 0.28} y={2.48} z={FAR_Z} on={false} />
+      <EmergencyLamp x={halfX - 0.28} y={2.48} z={NEAR_Z} on={false} />
+      <EmergencyLamp x={DIR_X} y={2.52} z={maxZ - 0.28} on={false} />
 
       <TexturedFloor
         src="/textura/piso_patio_interno.png"

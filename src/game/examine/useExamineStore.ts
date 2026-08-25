@@ -60,8 +60,10 @@ export const useExamineStore = create<ExamineState>((set, get) => ({
     set({ examiningId: null, hoveredId: null, detailId: null })
     setInteraction('gameplay')
     useFragmentsStore.getState().flushPendingToast()
+    const game = useGameStore.getState()
+    if (closedId === 'lib-drawer') game.addFlag('libDrawerSeen')
+    if (closedId === 'bath-mirror') game.addFlag('bathMirrorSeen')
     if (closedId === 'office-window') {
-      const game = useGameStore.getState()
       if (game.flags.marinaFolderSeen && !game.flags.officeWindowNote) game.addFlag('officeWindowNote')
       else if (game.flags.officeWindowNote && !game.flags.officeFallSeen) game.addFlag('officeFallSeen')
     }

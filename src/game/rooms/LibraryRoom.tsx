@@ -89,10 +89,9 @@ export function LibraryRoom() {
 
   return (
     <group>
-      <ambientLight intensity={0.045} color="#7a6a58" />
-      <hemisphereLight args={['#2a2420', '#0c0a08', 0.12]} />
-      <pointLight position={[1.6, 1.85, 1.4]} color="#d8c8a0" intensity={0.55} distance={4.2} decay={2} />
-      <pointLight position={[-2.4, 1.7, -1.6]} color="#6a5848" intensity={0.18} distance={3.4} decay={2} />
+      <ambientLight intensity={0.018} color="#5a4c40" />
+      <hemisphereLight args={['#1c1814', '#080604', 0.08]} />
+      <pointLight position={[1.6, 1.85, 1.4]} color="#d8c8a0" intensity={0.18} distance={3.2} decay={2} />
 
       <TexturedFloor
         src="/textura/piso_madeira.png"

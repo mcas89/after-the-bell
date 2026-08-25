@@ -1146,8 +1146,56 @@ export function getHangmanChalkTexture(word: 'AMIZADE' | 'FRIENDS' | null) {
   return texture
 }
 
+function officeFloorTexture() {
+  const { canvas, ctx } = makeCanvas(1024, 768)
+  paperFill(ctx, 1024, 768, '#e4d6be')
+  ctx.fillStyle = 'rgba(70, 90, 120, 0.12)'
+  for (let i = 0; i < 18; i += 1) {
+    ctx.beginPath()
+    ctx.ellipse(120 + Math.random() * 780, 80 + Math.random() * 580, 40 + Math.random() * 70, 18, 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = '#2a2018'
+  ctx.font = `42px ${HAND}`
+  ctx.fillText('eu quero ir embora', 80, 220)
+  ctx.font = `36px ${HAND}`
+  ctx.fillText('não aguento mais', 80, 310)
+  ctx.fillStyle = 'rgba(40, 30, 24, 0.45)'
+  ctx.font = `28px ${HAND}`
+  ctx.fillText('mãe', 80, 430)
+  ctx.strokeStyle = 'rgba(40, 30, 24, 0.55)'
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.moveTo(70, 402)
+  ctx.lineTo(220, 448)
+  ctx.stroke()
+  ctx.fillStyle = 'rgba(40, 30, 24, 0.32)'
+  ctx.font = `26px ${HAND}`
+  ctx.fillText('por favor', 80, 560)
+  return textureFrom(canvas)
+}
+
+function officeWetTexture() {
+  const { canvas, ctx } = makeCanvas(768, 560)
+  paperFill(ctx, 768, 560, '#d8cbb4')
+  ctx.fillStyle = 'rgba(90, 120, 150, 0.16)'
+  ctx.beginPath()
+  ctx.ellipse(220, 180, 160, 90, 0.2, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.beginPath()
+  ctx.ellipse(520, 340, 130, 70, -0.3, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(40, 32, 26, 0.28)'
+  ctx.font = `32px ${HAND}`
+  ctx.fillText('eu quero ir', 90, 250)
+  ctx.fillStyle = 'rgba(40, 32, 26, 0.16)'
+  ctx.font = `28px ${HAND}`
+  ctx.fillText('embora', 90, 310)
+  return textureFrom(canvas)
+}
+
 export function getWrittenTexture(
-  kind: 'board' | 'bloco' | 'chao' | 'prontuario' | 'mural' | 'aviso' | 'ronda' | 'teachers-board' | 'saida',
+  kind: 'board' | 'bloco' | 'chao' | 'prontuario' | 'mural' | 'aviso' | 'ronda' | 'teachers-board' | 'saida' | 'office-floor' | 'office-wet',
 ) {
   const cached = cache.get(kind)
   if (cached) return cached
@@ -1168,7 +1216,11 @@ export function getWrittenTexture(
                 ? rondaTexture()
                 : kind === 'teachers-board'
                   ? teachersBoardTexture()
-                  : muralTexture()
+                  : kind === 'office-floor'
+                    ? officeFloorTexture()
+                    : kind === 'office-wet'
+                      ? officeWetTexture()
+                      : muralTexture()
   cache.set(kind, texture)
   return texture
 }

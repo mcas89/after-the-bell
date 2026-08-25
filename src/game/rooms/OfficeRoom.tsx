@@ -16,10 +16,11 @@ const { width, depth, height } = room.size
 const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#3a342e', roughness: 0.9 }
-const DESK = { x: 0, z: -0.2, hx: 0.5, hz: 0.3 }
-const DESK_SCALE = 0.48
+const DESK = { x: 0, z: -0.2, hx: 0.62, hz: 0.38 }
+const DESK_SCALE = 0.58
 const FILES = { x: -2.15, z: 1.85, hx: 0.42, hz: 0.55 }
-const CHAIR = { x: 0, z: 0.56, hx: 0.32, hz: 0.34 }
+const CHAIR = { x: 0, z: 0.78, hx: 0.32, hz: 0.34 }
+const FOLDER = { x: -3.18, z: -2.72 }
 const WIN = { z: 0.18, half: 0.58, sill: 0.92, h: 1.32 }
 
 function DoorWall() {
@@ -59,7 +60,7 @@ function Paper({
   position: [number, number, number]
   rotation: [number, number, number]
   size: [number, number]
-  kind: 'chao' | 'prontuario' | 'aviso' | 'saida'
+  kind: 'chao' | 'prontuario' | 'aviso' | 'saida' | 'office-floor' | 'office-wet'
 }) {
   return (
     <mesh position={position} rotation={rotation} renderOrder={2}>
@@ -110,9 +111,9 @@ export function OfficeRoom() {
 
   return (
     <group>
-      <ambientLight intensity={0.06} color="#8a7a68" />
-      <hemisphereLight args={['#3a342e', '#0c0a08', 0.14]} />
-      <pointLight position={[0.2, 1.95, 0.4]} color="#d8c8a0" intensity={0.48} distance={5.4} decay={2} />
+      <ambientLight intensity={0.02} color="#6a5a48" />
+      <hemisphereLight args={['#241e18', '#080604', 0.08]} />
+      <pointLight position={[0.2, 1.95, 0.4]} color="#d8c8a0" intensity={0.16} distance={4.2} decay={2} />
 
       <TexturedFloor
         src="/textura/piso_madeira.png"
@@ -163,7 +164,12 @@ export function OfficeRoom() {
         />
       </Examinable>
       <Examinable id="office-folder">
-        <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.14, 0.38, DESK.z + 0.02]} targetWidth={0.24} />
+        <FurnitureModel
+          url="/pasta_arquivos.glb"
+          position={[FOLDER.x, 0.02, FOLDER.z]}
+          rotationY={-0.55}
+          targetWidth={0.28}
+        />
       </Examinable>
       <Examinable id="office-papers-files">
         <Paper
@@ -174,11 +180,11 @@ export function OfficeRoom() {
         />
       </Examinable>
       <Examinable id="office-papers-floor">
-        <Paper kind="chao" position={[1.28, 0.012, -1.48]} rotation={[-Math.PI / 2, 0, 0.62]} size={[0.42, 0.3]} />
-        <Paper kind="chao" position={[1.42, 0.014, -1.28]} rotation={[-Math.PI / 2, 0, -0.35]} size={[0.24, 0.18]} />
+        <Paper kind="office-floor" position={[1.28, 0.012, -1.48]} rotation={[-Math.PI / 2, 0, 0.62]} size={[0.42, 0.3]} />
+        <Paper kind="office-floor" position={[1.42, 0.014, -1.28]} rotation={[-Math.PI / 2, 0, -0.35]} size={[0.24, 0.18]} />
       </Examinable>
       <Examinable id="office-papers-window">
-        <Paper kind="aviso" position={[-2.48, 0.012, 0.72]} rotation={[-Math.PI / 2, 0, -0.48]} size={[0.3, 0.22]} />
+        <Paper kind="office-wet" position={[-2.48, 0.012, 0.72]} rotation={[-Math.PI / 2, 0, -0.48]} size={[0.3, 0.22]} />
       </Examinable>
       <Examinable id="office-exit-note">
         <group position={[width / 2 - 0.08, 1.48, door.z + 1.18]}>

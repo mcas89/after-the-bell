@@ -6,11 +6,9 @@ import { doorCollidersAt, wallDoor } from '../door/doorLayout'
 import { HallwayPeek } from '../door/HallwayPeek'
 import { Examinable } from '../examine/Examinable'
 import { HallwayDoor } from '../hallway/HallwayDoor'
-import { LOBBY_LIGHTS } from '../inventory/flashlight'
 import { FurnitureModel } from '../scenes/FurnitureModel'
-import { useGameStore } from '../state/useGameStore'
 import { useInventoryStore } from '../state/useInventoryStore'
-import { ZEL_SKELETON_AIM, ZEL_SKELETON_OPEN } from './skeletonCabinet'
+import { ZEL_SKELETON_AIM } from './skeletonCabinet'
 import { clearRoomColliders, setRoomColliders } from './roomColliders'
 import { TexturedFloor } from './TexturedFloor'
 
@@ -21,6 +19,7 @@ const wallT = 0.12
 const wall = { color: '#322e2a', roughness: 0.94 }
 const LOCKER_Z = -0.92
 const SKELETON_X = ZEL_SKELETON_AIM.x
+const EMPTY_LOCKERS = [-0.35, 0.42, 1.19, 1.96] as const
 
 function DoorWall() {
   const x = door.wallX
@@ -51,9 +50,7 @@ function DoorWall() {
 }
 
 export function StorageRoom() {
-  const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   const lockerOpen = useInventoryStore((s) => s.has(ITEM_IDS.bibKey))
-  const skeletonOpen = useGameStore((s) => Boolean(s.flags[ZEL_SKELETON_OPEN]))
 
   useLayoutEffect(() => {
     const walls: Aabb[] = [
@@ -67,6 +64,12 @@ export function StorageRoom() {
       { minX: 0.45, maxX: 1.35, minZ: depth / 2 - 0.95, maxZ: depth / 2 - 0.15 },
       { minX: -width / 2, maxX: -width / 2 + 0.48, minZ: LOCKER_Z - 0.24, maxZ: LOCKER_Z + 0.24 },
       { minX: SKELETON_X - 0.3, maxX: SKELETON_X + 0.3, minZ: -depth / 2, maxZ: -depth / 2 + 0.52 },
+      ...EMPTY_LOCKERS.map((z) => ({
+        minX: width / 2 - 0.48,
+        maxX: width / 2,
+        minZ: z - 0.24,
+        maxZ: z + 0.24,
+      })),
     ]
     setRoomColliders('storage', walls)
     return () => clearRoomColliders('storage')
@@ -74,30 +77,12 @@ export function StorageRoom() {
 
   return (
     <group>
-      {lightsOn ? (
-        <>
-          <ambientLight intensity={0.34} color="#b8c4bc" />
-          <hemisphereLight args={['#4a5c68', '#161410', 0.42]} />
-          <pointLight position={[0.1, 2.15, 0]} color="#f0e2c4" intensity={9.2} distance={10} decay={1.6} />
-          <pointLight position={[-0.8, 2.05, 0.6]} color="#efe6d0" intensity={5.6} distance={8} decay={1.65} />
-        </>
-      ) : (
-        <>
-          <ambientLight intensity={0.02} color="#6a7c90" />
-          <hemisphereLight args={['#15202c', '#05060a', 0.08]} />
-          <pointLight position={[-width / 2 + 0.28, 1.22, 0.35]} color="#c8b898" intensity={0.18} distance={1.6} decay={2} />
-        </>
-      )}
+      <ambientLight intensity={0.02} color="#6a7c90" />
+      <hemisphereLight args={['#15202c', '#05060a', 0.08]} />
       <mesh position={[0.15, height - 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.28, 1.15]} />
-        <meshBasicMaterial color={lightsOn ? '#f2ead4' : '#1c1a14'} fog={false} />
+        <meshBasicMaterial color="#1c1a14" fog={false} />
       </mesh>
-      {lightsOn ? (
-        <mesh position={[0.15, height - 0.08, 0]}>
-          <boxGeometry args={[0.22, 0.08, 0.16]} />
-          <meshStandardMaterial color="#f2ead4" emissive="#f0e2c4" emissiveIntensity={2.2} roughness={0.35} />
-        </mesh>
-      ) : null}
 
       <TexturedFloor
         src="/textura/piso_patio_interno.png"
@@ -131,22 +116,6 @@ export function StorageRoom() {
         <HallwayDoor x={door.wallX} z={door.z} inward={-1} label="ZEL" subtitle="ZELADORIA" open />
       </Examinable>
 
-      <Examinable id="lobby-switch">
-        <group position={[-width / 2 + 0.06, 1.22, 0.35]}>
-          <FurnitureModel
-            url="/interruptor_zeladoria.glb"
-            position={[0, 0, 0]}
-            rotationY={Math.PI / 2}
-            targetHeight={0.22}
-            pickable={false}
-          />
-          <mesh position={[0.04, 0.02, 0]}>
-            <boxGeometry args={[0.12, 0.28, 0.18]} />
-            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          </mesh>
-        </group>
-      </Examinable>
-
       <Examinable id="zel-broom">
         <FurnitureModel url="/vassoura.glb" position={[-width / 2 + 0.28, 0, -1.85]} rotationY={0.35} targetHeight={1.22} />
       </Examinable>
@@ -178,6 +147,24 @@ export function StorageRoom() {
         </Examinable>
       </group>
 
+      {EMPTY_LOCKERS.map((z, i) => (
+        <group key={`zel-empty-${z}`} position={[width / 2, 0, z]}>
+          <Examinable id={`zel-empty-${i}`}>
+            <FurnitureModel
+              url="/armario_fechado.glb"
+              position={[0, 0, 0]}
+              rotationY={Math.PI}
+              targetHeight={1.72}
+              pickable={false}
+            />
+            <mesh position={[-0.14, 0.86, 0]}>
+              <boxGeometry args={[0.36, 1.7, 0.34]} />
+              <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+            </mesh>
+          </Examinable>
+        </group>
+      ))}
+
       <group position={[SKELETON_X, 0, -depth / 2]} rotation={[0, -Math.PI / 2, 0]}>
         <Examinable id="zel-skeleton">
           <FurnitureModel
@@ -187,15 +174,6 @@ export function StorageRoom() {
             targetHeight={1.78}
             pickable={false}
           />
-          {skeletonOpen ? (
-            <FurnitureModel
-              url="/esqueleto.glb"
-              position={[0.22, 0, 0]}
-              rotationY={Math.PI / 2}
-              targetHeight={1.58}
-              pickable={false}
-            />
-          ) : null}
           <mesh position={[0.16, 0.9, 0]}>
             <boxGeometry args={[0.42, 1.78, 0.46]} />
             <meshBasicMaterial transparent opacity={0} depthWrite={false} />

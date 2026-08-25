@@ -14,6 +14,7 @@ import { ITEM_IDS } from '../data/items'
 import type { RoomId } from '../data/rooms'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { LOBBY_DOOR_LIST, inLobbyDoorway, nearLobbyDoor, nearLobbyEntrance } from './lobbyLayout'
+import { canDescendPatio } from './patioProgress'
 import { isSkeletonScare } from './skeletonCabinet'
 
 const DARK_LINE = 'Meu corpo não quer ir.'
@@ -35,7 +36,7 @@ function lobbyPrompt(x: number, z: number) {
   if (nearLobbyEntrance(x, z)) return 'E voltar'
   const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(x, z, item))
   if (!door) return null
-  if (door.kind === 'gate') return useGameStore.getState().flags.officeFallSeen ? 'E descer' : 'E empurrar'
+  if (door.kind === 'gate') return canDescendPatio() ? 'E descer' : 'E empurrar'
   const inv = useInventoryStore.getState()
   if (
     door.open ||

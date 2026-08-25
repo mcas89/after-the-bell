@@ -29,7 +29,6 @@ function isHudInspect(id: string) {
     id === 'teachers-cabinet' ||
     id === 'mochila-fechada' ||
     id === 'mochila-aberta' ||
-    id === 'lobby-switch' ||
     id === 'zel-locker' ||
     id === 'zel-skeleton'
   )

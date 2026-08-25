@@ -1,7 +1,8 @@
 import { playSfx, SFX } from '../audio/mixer'
 import { collectPromptsFor } from '../data/examineContent'
 import { ITEM_IDS } from '../data/items'
-import { tryForceSkeletonCabinet } from '../rooms/skeletonCabinet'
+import { tryForceSkeletonCabinet, isSkeletonScare } from '../rooms/skeletonCabinet'
+import { canDescendPatio } from '../rooms/patioProgress'
 import { canOpenClassroomDoor, useDoorStore } from '../door/useDoorStore'
 import { useExamineStore } from '../examine/useExamineStore'
 import { hasDarkHallClues } from '../hallway/darkProgress'
@@ -11,7 +12,6 @@ import { useHallwayStore } from '../hallway/useHallwayStore'
 import { requestMapTravel, useMapTravelStore } from '../maps/mapTravel'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { playerMotion } from '../player/playerMotion'
-import { isSkeletonScare } from '../rooms/skeletonCabinet'
 import { LOBBY_DOOR_LIST, nearLobbyDoor, nearLobbyEntrance } from '../rooms/lobbyLayout'
 import { DOOR, roomWallDoor } from '../door/doorLayout'
 import { useGameStore } from '../state/useGameStore'
@@ -97,8 +97,8 @@ function tryLobbyDoor(px: number, pz: number) {
   const door = LOBBY_DOOR_LIST.find((item) => nearLobbyDoor(px, pz, item, 1.5))
   if (!door) return false
   const game = useGameStore.getState()
-  if (door.kind === 'gate') {
-    if (game.flags.officeFallSeen) {
+    if (door.kind === 'gate') {
+    if (canDescendPatio()) {
       hall.setPrompt(null)
       requestMapTravel('backyard', 'from-gate')
       return true
@@ -284,7 +284,7 @@ export function tryCollect(itemId?: string) {
   if (game.interactionState !== 'examining-object') return false
   const examine = useExamineStore.getState()
   if (examine.examiningId === 'zel-skeleton') {
-    if (!useGameStore.getState().flags.zelSkeletonOpen) {
+    if (!useGameStore.getState().flags.zelSkeletonScare && !useGameStore.getState().flags.zelSkeletonOpen) {
       tryForceSkeletonCabinet()
       return true
     }

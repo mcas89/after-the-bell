@@ -10,8 +10,7 @@ import { getHallLocker, isHallLockerId, lockerPadLabel } from '../hallway/locker
 import { useLockerPinStore } from '../hallway/useLockerPin'
 import { ITEM_IDS } from '../data/items'
 import { tryCollect } from '../input/actions'
-import { LOBBY_LIGHTS, tryFlipLobbySwitch } from '../inventory/flashlight'
-import { tryForceSkeletonCabinet, ZEL_SKELETON_OPEN } from '../rooms/skeletonCabinet'
+import { tryForceSkeletonCabinet, skeletonAlreadyScared } from '../rooms/skeletonCabinet'
 import { HangmanBoard } from './HangmanBoard'
 import { useExamineStore } from './useExamineStore'
 import { LAB_ON_PC_ID } from '../computer/computerStore'
@@ -88,7 +87,7 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
         <p className="sheet-muted">Nascimento: 21/07</p>
         <p className="sheet-muted">Nº 5 · 2º B</p>
         <p className="sheet-muted">Frequência · notas · ocorrência</p>
-        <p className="sheet-note">A gente ria tanto.</p>
+        <p className="sheet-note">Era ela.</p>
       </article>
     )
   }
@@ -111,6 +110,25 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
         <p>Pátio interno — portão</p>
         <p>Escada para o térreo</p>
         <p className="sheet-muted">Não usar o elevador.</p>
+      </article>
+    )
+  }
+  if (kind === 'lib-note') {
+    return (
+      <article className="examine-sheet is-bloco">
+        <p className="sheet-hand">amanhecer</p>
+        <p className="sheet-hand">segundo andar</p>
+        <p className="sheet-hand is-yell">eu quero ir embora</p>
+      </article>
+    )
+  }
+  if (kind === 'office-floor') {
+    return (
+      <article className="examine-sheet is-torn">
+        <p className="sheet-hand">eu quero ir embora</p>
+        <p className="sheet-hand">não aguento mais</p>
+        <p className="sheet-muted">mãe</p>
+        <p className="sheet-note">por favor</p>
       </article>
     )
   }
@@ -331,7 +349,7 @@ function promptLine(
     return null
   }
   if (prompt) return `F pegar ${prompt.label} · Esc ou X fechar`
-  if (examiningId === 'zel-skeleton' && !useGameStore.getState().flags[ZEL_SKELETON_OPEN]) {
+  if (examiningId === 'zel-skeleton' && !skeletonAlreadyScared()) {
     return 'F forçar · Esc ou X fechar'
   }
   if (examiningId === 'teachers-cabinet' && !detailId) {
@@ -363,8 +381,7 @@ export function ExamineHud() {
   useInventoryStore((s) => s.items)
   useLockerPinStore((s) => s.openIds)
   useGameStore((s) => s.flags)
-  const lightsOn = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
-  const skeletonOpen = useGameStore((s) => Boolean(s.flags[ZEL_SKELETON_OPEN]))
+  const skeletonScared = skeletonAlreadyScared()
   const doorPhase = useDoorStore((s) => s.phase)
   const doorNear = useDoorStore((s) => s.near)
   const canOpenDoor = doorPhase === 'ajar' && doorNear && interaction === 'gameplay'
@@ -397,9 +414,7 @@ export function ExamineHud() {
     <>
       {interaction === 'examining-object' && examiningId ? (
         <>
-          {examiningId === 'lobby-switch' || examiningId === 'zel-skeleton'
-            ? null
-            : <div className="examine-dim" />}
+          {examiningId === 'zel-skeleton' && !skeletonScared ? null : <div className="examine-dim" />}
           {examiningId === 'quadro-negro' ? <HangmanBoard /> : null}
           {examiningId === 'teachers-cabinet' ? <TeachersCabinet /> : null}
           {examiningId === 'zel-locker' ? <ZelLockerInside /> : null}
@@ -434,34 +449,7 @@ export function ExamineHud() {
             </svg>
           </button>
           {inspectHint ? <p className="prompt-hud">{inspectHint}</p> : null}
-          {examiningId === 'lobby-switch' ? (
-            <div className="examine-takes">
-              <button
-                className="examine-take"
-                type="button"
-                disabled={lightsOn}
-                onPointerDown={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  tryFlipLobbySwitch(true)
-                }}
-              >
-                ligar luzes
-              </button>
-              <button
-                className="examine-take"
-                type="button"
-                disabled={!lightsOn}
-                onPointerDown={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  tryFlipLobbySwitch(false)
-                }}
-              >
-                desligar luzes
-              </button>
-            </div>
-          ) : examiningId === 'zel-skeleton' && !skeletonOpen ? (
+          {examiningId === 'zel-skeleton' && !skeletonScared ? (
             <div className="examine-takes">
               <button
                 className="examine-take"

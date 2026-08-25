@@ -19,75 +19,33 @@ import { StorageRoom } from './StorageRoom'
 import { TeachersRoom } from './TeachersRoom'
 import { RoomTravel } from './RoomTravel'
 import { hasDarkHallClues } from '../hallway/darkProgress'
-import { FLASHLIGHT_ON, LOBBY_LIGHTS } from '../inventory/flashlight'
+import { FLASHLIGHT_ON } from '../inventory/flashlight'
 import { FlashlightBeam } from '../inventory/FlashlightBeam'
 import { useFragmentsStore } from '../state/useFragmentsStore'
 
 function RoomFog() {
   const room = useGameStore((s) => s.currentRoom)
   const hallOpen = useFragmentsStore((s) => hasDarkHallClues(s.entries))
-  const patioLit = useGameStore((s) => Boolean(s.flags[LOBBY_LIGHTS]))
   const flashOn = useGameStore((s) => Boolean(s.flags[FLASHLIGHT_ON]))
   const { scene, gl } = useThree()
 
   useLayoutEffect(() => {
     const fog = scene.fog as THREE.Fog | null
     const hallway = room === 'hallway'
-    const switched = room === 'passage' || room === 'storage'
-    const patio = room === 'library' || room === 'bathroom' || room === 'office'
+    const patioWing =
+      room === 'passage' || room === 'storage' || room === 'library' || room === 'bathroom' || room === 'office'
     const outside = room === 'backyard'
-    const beam = switched && !patioLit && flashOn
-    const color =
-      switched && patioLit
-        ? '#121820'
-        : hallway
-          ? '#0a1018'
-          : switched
-            ? '#05070b'
-            : patio
-              ? '#0a1018'
-              : outside
-                ? '#070b12'
-                : '#0b0f15'
+    const beam = patioWing && flashOn
+    const color = hallway ? '#0a1018' : patioWing ? '#05070b' : outside ? '#070b12' : '#0b0f15'
     scene.background = new THREE.Color(color)
     gl.setClearColor(color, 1)
-    gl.toneMappingExposure = switched && patioLit ? 0.94 : outside ? 0.72 : 0.84
+    gl.toneMappingExposure = outside ? 0.72 : 0.84
     if (fog) {
       fog.color.set(color)
-      fog.near =
-        hallway && hallOpen
-          ? 10
-          : hallway
-            ? 7.2
-            : switched && patioLit
-              ? 10
-              : beam
-                ? 4.2
-                : switched
-                  ? 2.2
-                  : patio
-                    ? 4.2
-                    : outside
-                      ? 8
-                      : 6.4
-      fog.far =
-        hallway && hallOpen
-          ? 26
-          : hallway
-            ? 18.4
-            : switched && patioLit
-              ? 28
-              : beam
-                ? 16
-                : switched
-                  ? 8.2
-                  : patio
-                    ? 11
-                    : outside
-                      ? 36
-                      : 14.2
+      fog.near = hallway && hallOpen ? 10 : hallway ? 7.2 : beam ? 4.2 : patioWing ? 2.2 : outside ? 8 : 6.4
+      fog.far = hallway && hallOpen ? 26 : hallway ? 18.4 : beam ? 16 : patioWing ? 8.2 : outside ? 36 : 14.2
     }
-  }, [flashOn, gl, hallOpen, patioLit, room, scene])
+  }, [flashOn, gl, hallOpen, room, scene])
 
   return null
 }

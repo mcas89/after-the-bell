@@ -5,14 +5,12 @@ import * as THREE from 'three'
 import { compileClip, mixBoneEuler, nudgeBone, sampleBlendedPose, type PoseClipJson } from './poseClip'
 import { playerMotion } from './playerMotion'
 import { useGameStore } from '../state/useGameStore'
-import { useExamineStore } from '../examine/useExamineStore'
 import { useVrm } from './useVrm'
 import { ITEM_IDS } from '../data/items'
 import { FLASHLIGHT_ON } from '../inventory/flashlight'
 import { useInventoryStore } from '../state/useInventoryStore'
 import { HeldFlashlight } from './HeldFlashlight'
 import { setLiviaRoot } from './liviaRoot'
-import { ZEL_SKELETON_AIM, ZEL_SKELETON_OPEN } from '../rooms/skeletonCabinet'
 
 function readClip(data: unknown): PoseClipJson {
   return (typeof data === 'string' ? JSON.parse(data) : data) as PoseClipJson
@@ -29,17 +27,6 @@ const FLASH_HOLD = {
   shoulder: { x: 0, y: 0, z: 0.0524 },
   upper: { x: -0.384, y: 0, z: 1.309 },
   lower: { x: -0.0873, y: 1.5708, z: 0.2967 },
-}
-
-const FORCE_HOLD = {
-  leftShoulder: { x: 0.12, y: 0.04, z: -0.1 },
-  rightShoulder: { x: 0.12, y: -0.04, z: 0.1 },
-  leftUpper: { x: -0.92, y: 0.28, z: -1.02 },
-  rightUpper: { x: -0.92, y: -0.28, z: 1.02 },
-  leftLower: { x: -0.18, y: -1.18, z: 0.16 },
-  rightLower: { x: -0.18, y: 1.18, z: -0.16 },
-  leftHand: { x: 0.22, y: 0.08, z: 0.05 },
-  rightHand: { x: 0.22, y: -0.08, z: -0.05 },
 }
 
 export function LiviaModel() {
@@ -68,9 +55,6 @@ export function LiviaModel() {
   const leanSide = useRef(0)
   const lookYaw = useRef(0)
   const holdFlash = useRef(0)
-  const holdForce = useRef(0)
-  const forceTime = useRef(0)
-  const wasForcing = useRef(false)
 
   useLayoutEffect(() => {
     vrm.scene.visible = useGameStore.getState().liviaVisible
@@ -101,27 +85,8 @@ export function LiviaModel() {
     const torchOn =
       Boolean(useGameStore.getState().flags[FLASHLIGHT_ON]) &&
       useInventoryStore.getState().has(ITEM_IDS.flashlightLit)
-    const forcingCabinet =
-      useExamineStore.getState().examiningId === 'zel-skeleton' &&
-      !useGameStore.getState().flags[ZEL_SKELETON_OPEN]
-    holdFlash.current = THREE.MathUtils.damp(holdFlash.current, torchOn && !forcingCabinet ? 1 : 0, HOLD_BLEND, delta)
-    holdForce.current = THREE.MathUtils.damp(holdForce.current, forcingCabinet ? 1 : 0, 7.4, delta)
+    holdFlash.current = THREE.MathUtils.damp(holdFlash.current, torchOn ? 1 : 0, HOLD_BLEND, delta)
     playerMotion.forcePulse = Math.max(0, playerMotion.forcePulse - delta * 3.2)
-
-    if (forcingCabinet) {
-      wasForcing.current = true
-      playerMotion.forceFacing = true
-      playerMotion.faceYaw = Math.atan2(
-        ZEL_SKELETON_AIM.x - playerMotion.x,
-        ZEL_SKELETON_AIM.z - playerMotion.z,
-      )
-    } else if (wasForcing.current) {
-      wasForcing.current = false
-      if (playerMotion.forceFacing) {
-        playerMotion.faceYaw = null
-        playerMotion.forceFacing = false
-      }
-    }
 
     if (holdFlash.current > 0.01) {
       const w = holdFlash.current
@@ -149,82 +114,6 @@ export function LiviaModel() {
         FLASH_HOLD.lower.z,
         w,
       )
-    }
-
-    if (holdForce.current > 0.01) {
-      const w = holdForce.current
-      const pulse = playerMotion.forcePulse
-      forceTime.current += delta * (2.2 + pulse * 4.5)
-      const strain = Math.sin(forceTime.current * 8.4)
-      const shove = pulse * 0.34 + strain * 0.05 * w
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.LeftShoulder,
-        FORCE_HOLD.leftShoulder.x + shove * 0.08,
-        FORCE_HOLD.leftShoulder.y,
-        FORCE_HOLD.leftShoulder.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.RightShoulder,
-        FORCE_HOLD.rightShoulder.x + shove * 0.08,
-        FORCE_HOLD.rightShoulder.y,
-        FORCE_HOLD.rightShoulder.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.LeftUpperArm,
-        FORCE_HOLD.leftUpper.x - shove * 0.22,
-        FORCE_HOLD.leftUpper.y + strain * 0.04,
-        FORCE_HOLD.leftUpper.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.RightUpperArm,
-        FORCE_HOLD.rightUpper.x - shove * 0.22,
-        FORCE_HOLD.rightUpper.y - strain * 0.04,
-        FORCE_HOLD.rightUpper.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.LeftLowerArm,
-        FORCE_HOLD.leftLower.x,
-        FORCE_HOLD.leftLower.y + shove * 0.16,
-        FORCE_HOLD.leftLower.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.RightLowerArm,
-        FORCE_HOLD.rightLower.x,
-        FORCE_HOLD.rightLower.y - shove * 0.16,
-        FORCE_HOLD.rightLower.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.LeftHand,
-        FORCE_HOLD.leftHand.x,
-        FORCE_HOLD.leftHand.y,
-        FORCE_HOLD.leftHand.z,
-        w,
-      )
-      mixBoneEuler(
-        pose,
-        VRMHumanBoneName.RightHand,
-        FORCE_HOLD.rightHand.x,
-        FORCE_HOLD.rightHand.y,
-        FORCE_HOLD.rightHand.z,
-        w,
-      )
-      nudgeBone(pose, VRMHumanBoneName.Hips, 0.04 * w + 0.06 * pulse, strain * 0.012 * w, 0)
-      nudgeBone(pose, VRMHumanBoneName.Spine, 0.14 * w + 0.18 * pulse, strain * 0.03 * w, 0)
-      nudgeBone(pose, VRMHumanBoneName.Chest, 0.1 * w + 0.12 * pulse, strain * 0.02 * w, 0)
-      nudgeBone(pose, VRMHumanBoneName.Head, 0.16 * w - 0.05 * pulse, 0, strain * 0.04 * w)
     }
 
     const fwdTarget =
