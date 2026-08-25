@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { Suspense, useLayoutEffect } from 'react'
 import type { Aabb } from '../data/furniture'
 import { getRoom } from '../data/rooms'
 import { doorCollidersAt, wallDoor } from '../door/doorLayout'
@@ -186,63 +186,65 @@ export function BathroomRoom() {
         <HallwayDoor x={door.wallX} z={door.z} inward={-1} label="WC" subtitle="BANHEIRO" open />
       </Examinable>
 
-      {STALLS.map((stall, i) => (
-        <group key={stall.z} position={[-1.62, 0, stall.z]}>
-          <mesh position={[0, 1.0, -0.48]} receiveShadow>
-            <boxGeometry args={[1.55, 2.0, 0.05]} />
-            <meshStandardMaterial color="#6a6864" roughness={0.7} />
-          </mesh>
-          <mesh position={[0, 1.0, 0.48]} receiveShadow>
-            <boxGeometry args={[1.55, 2.0, 0.05]} />
-            <meshStandardMaterial color="#6a6864" roughness={0.7} />
-          </mesh>
-          <Examinable id={i === 0 ? 'bath-stall' : 'bath-stall-empty'}>
-            <FurnitureModel
-              url="/privada.glb"
-              position={[-0.55, 0, 0]}
-              rotationY={-Math.PI / 2}
-              targetHeight={0.72}
-            />
-          </Examinable>
-        </group>
-      ))}
+      <Suspense fallback={null}>
+        {STALLS.map((stall, i) => (
+          <group key={stall.z} position={[-1.62, 0, stall.z]}>
+            <mesh position={[0, 1.0, -0.48]} receiveShadow>
+              <boxGeometry args={[1.55, 2.0, 0.05]} />
+              <meshStandardMaterial color="#6a6864" roughness={0.7} />
+            </mesh>
+            <mesh position={[0, 1.0, 0.48]} receiveShadow>
+              <boxGeometry args={[1.55, 2.0, 0.05]} />
+              <meshStandardMaterial color="#6a6864" roughness={0.7} />
+            </mesh>
+            <Examinable id={i === 0 ? 'bath-stall' : 'bath-stall-empty'}>
+              <FurnitureModel
+                url="/privada.glb"
+                position={[-0.55, 0, 0]}
+                rotationY={-Math.PI / 2}
+                targetHeight={0.72}
+              />
+            </Examinable>
+          </group>
+        ))}
 
-      <Examinable id="bath-sink">
-        <group position={[0.35, 0, 1.78]}>
-          <FurnitureModel url="/pia.glb" position={[0, 0, 0]} targetHeight={0.86} pickable={false} />
-        </group>
-      </Examinable>
-      <FurnitureModel url="/pia.glb" position={[1.28, 0, 1.78]} targetHeight={0.86} pickable={false} />
+        <Examinable id="bath-sink">
+          <group position={[0.35, 0, 1.78]}>
+            <FurnitureModel url="/pia.glb" position={[0, 0, 0]} targetHeight={0.86} pickable={false} />
+          </group>
+        </Examinable>
+        <FurnitureModel url="/pia.glb" position={[1.28, 0, 1.78]} targetHeight={0.86} pickable={false} />
 
-      <Examinable id="bath-mirror">
-        <FurnitureModel
-          url="/espelho.glb"
-          position={[MIRROR_X, MIRROR_Y, depth / 2 - 0.28]}
-          targetWidth={1.12}
-          anchor="center"
-          hideMaterials={MIRROR_HIDE}
-        />
-        <mesh position={[MIRROR_X, MIRROR_Y, MIRROR_GLASS_Z - 0.004]} rotation={[0, Math.PI, 0]} renderOrder={2}>
-          <planeGeometry args={[GLASS_W - 0.02, GLASS_H - 0.02]} />
-          <meshStandardMaterial
-            color="#9aafb8"
-            metalness={0.72}
-            roughness={0.1}
-            transparent
-            opacity={0.2}
-            depthWrite={false}
+        <Examinable id="bath-mirror">
+          <FurnitureModel
+            url="/espelho.glb"
+            position={[MIRROR_X, MIRROR_Y, depth / 2 - 0.28]}
+            targetWidth={1.12}
+            anchor="center"
+            hideMaterials={MIRROR_HIDE}
           />
-        </mesh>
-      </Examinable>
-      <Examinable id="bath-elastic">
-        <mesh position={[-1.18, 0.02, STALLS[0].z + 0.16]} rotation={[-Math.PI / 2, 0.4, 0]}>
-          <torusGeometry args={[0.055, 0.013, 8, 18]} />
-          <meshStandardMaterial color="#6a2032" roughness={0.52} />
-        </mesh>
-      </Examinable>
-      <Examinable id="bath-bin">
-        <FurnitureModel url="/lixeira.glb" position={[2.32, 0, 0.45]} targetHeight={0.58} />
-      </Examinable>
+          <mesh position={[MIRROR_X, MIRROR_Y, MIRROR_GLASS_Z - 0.004]} rotation={[0, Math.PI, 0]} renderOrder={2}>
+            <planeGeometry args={[GLASS_W - 0.02, GLASS_H - 0.02]} />
+            <meshStandardMaterial
+              color="#9aafb8"
+              metalness={0.72}
+              roughness={0.1}
+              transparent
+              opacity={0.2}
+              depthWrite={false}
+            />
+          </mesh>
+        </Examinable>
+        <Examinable id="bath-elastic">
+          <mesh position={[-1.18, 0.02, STALLS[0].z + 0.16]} rotation={[-Math.PI / 2, 0.4, 0]}>
+            <torusGeometry args={[0.055, 0.013, 8, 18]} />
+            <meshStandardMaterial color="#6a2032" roughness={0.52} />
+          </mesh>
+        </Examinable>
+        <Examinable id="bath-bin">
+          <FurnitureModel url="/lixeira.glb" position={[2.32, 0, 0.45]} targetHeight={0.58} />
+        </Examinable>
+      </Suspense>
     </group>
   )
 }

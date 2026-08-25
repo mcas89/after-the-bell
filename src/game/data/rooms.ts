@@ -57,7 +57,7 @@ export const BATHROOM: RoomDef = {
   id: 'bathroom',
   size: { width: 5.5, depth: 4.6, height: 2.85 },
   spawn: [0.4, 0, -0.35],
-  bounds: { minX: -2.55, maxX: 2.55, minZ: -2.1, maxZ: 2.1 },
+  bounds: { minX: -2.55, maxX: 2.85, minZ: -2.1, maxZ: 2.05 },
 }
 
 export const BACKYARD: RoomDef = {
