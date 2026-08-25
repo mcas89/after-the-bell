@@ -209,6 +209,7 @@ function ClassroomLights() {
   const fluoB = useRef<THREE.PointLight>(null)
   const desk = useRef<THREE.PointLight>(null)
   const bounce = useRef<THREE.PointLight>(null)
+  const doorLamp = useRef<THREE.PointLight>(null)
   const windows = useRef<(THREE.PointLight | null)[]>([])
   const warm = useRef(useGameStore.getState().flags.hangmanFriends ? 1 : 0)
 
@@ -242,6 +243,17 @@ function ClassroomLights() {
     if (fluoB.current) fluoB.current.intensity = 0.55 * lift * k
     if (desk.current) desk.current.intensity = (0.78 + 0.16 * lift) * k
     if (bounce.current) bounce.current.intensity = 1.12 * k
+    const beat =
+      useGameStore.getState().interactionState === 'door-beat' ||
+      useGameStore.getState().interactionState === 'opening-door'
+    if (doorLamp.current) {
+      doorLamp.current.intensity = THREE.MathUtils.damp(
+        doorLamp.current.intensity,
+        beat ? 2.7 : 0,
+        beat ? 11 : 4.2,
+        Math.min(delta, 0.05),
+      )
+    }
     windows.current.forEach((lamp, i) => {
       if (!lamp) return
       lamp.intensity = (WINDOW_Z[i] < -1 ? 0.95 : 0.38) * k
@@ -303,6 +315,14 @@ function ClassroomLights() {
         intensity={1.12}
         distance={2.85}
         decay={2}
+      />
+      <pointLight
+        ref={doorLamp}
+        position={[DOOR.wallX - 1.08, 1.58, DOOR.z]}
+        color="#f2e6cc"
+        intensity={0}
+        distance={4.2}
+        decay={1.75}
       />
       {WINDOW_Z.map((z, i) => (
         <group key={`wlight-${z}`}>
