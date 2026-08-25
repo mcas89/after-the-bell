@@ -16,8 +16,8 @@ const { width, depth, height } = room.size
 const door = wallDoor(width, depth)
 const wallT = 0.12
 const wall = { color: '#3a342e', roughness: 0.9 }
-const DESK = { x: 0, z: -0.2, hx: 0.74, hz: 0.44 }
-const DESK_SCALE = 0.7
+const DESK = { x: 0, z: -0.2, hx: 0.5, hz: 0.3 }
+const DESK_SCALE = 0.48
 const FILES = { x: -2.15, z: 1.85, hx: 0.42, hz: 0.55 }
 const CHAIR = { x: 0, z: 0.56, hx: 0.32, hz: 0.34 }
 const WIN = { z: 0.18, half: 0.58, sill: 0.92, h: 1.32 }
@@ -147,7 +147,7 @@ export function OfficeRoom() {
       </Examinable>
 
       <Examinable id="office-desk">
-        <group position={[DESK.x, 0, DESK.z]} scale={[DESK_SCALE, 1, DESK_SCALE]}>
+        <group position={[DESK.x, 0, DESK.z]} scale={[DESK_SCALE, DESK_SCALE, DESK_SCALE]}>
           <FurnitureModel url="/mesa_diretora.glb" position={[0, 0, 0]} rotationY={Math.PI} targetWidth={2.05} />
         </group>
       </Examinable>
@@ -163,7 +163,7 @@ export function OfficeRoom() {
         />
       </Examinable>
       <Examinable id="office-folder">
-        <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.28, 0.78, DESK.z + 0.04]} targetWidth={0.32} />
+        <FurnitureModel url="/pasta_arquivos.glb" position={[DESK.x + 0.14, 0.38, DESK.z + 0.02]} targetWidth={0.24} />
       </Examinable>
       <Examinable id="office-papers-files">
         <Paper

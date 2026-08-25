@@ -18,7 +18,8 @@ function applyPose(time: number) {
       pose.lookAt[2],
     ]
     pose.roll = (pose.roll ?? 0) + Math.sin(cry * 0.37) * 0.014
-    pose.blur += Math.max(0, Math.sin(cry * 0.55)) * 2.4
+    const sob = Math.pow(Math.max(0, Math.sin(time * 0.34)), 10)
+    pose.blur += sob * 8
   }
 
   endingView.black = pose.black
