@@ -21,11 +21,10 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
   if (kind === 'bloco') {
     return (
       <article className="examine-sheet is-bloco">
-        <p className="sheet-mark">L + M</p>
-        <p className="sheet-hand">depois de todos irem a</p>
-        <p className="sheet-hand is-yell">eu nao sei esperar !!!</p>
-        <p className="sheet-hand is-m">o meu armário é o quinto</p>
-        <p className="sheet-hand is-m">código: meu niver</p>
+        <p className="sheet-mark">Livia & M</p>
+        <p className="sheet-hand">depois de todos irem a...</p>
+        <p className="sheet-hand">eu não sei esperar...</p>
+        <p className="sheet-hand is-yell">o meu é o quinto !!!</p>
       </article>
     )
   }
@@ -132,6 +131,13 @@ function Sheet({ kind }: { kind: NonNullable<ReturnType<typeof getExamineEntry>>
       </article>
     )
   }
+  if (kind === 'niver') {
+    return (
+      <article className="examine-sheet is-bloco">
+        <p className="sheet-hand is-m">código: meu niver</p>
+      </article>
+    )
+  }
   if (kind === 'quadro') {
     return null
   }
@@ -192,10 +198,12 @@ function LockerOpened({ lockerId }: { lockerId: string }) {
   const hasJanitorKey = useInventoryStore((s) => s.has(ITEM_IDS.janitorKey))
 
   if (!locker) return null
+  if (detailId === 'locker-niver') return null
   if (detailId === 'locker-photo') return <ExaminePhoto src={EXAMINE_IMG.fotoVerso} />
   if (locker.kind === 'livia') {
     return (
       <ExaminePhoto src={EXAMINE_IMG.armario4}>
+        <PhotoSpot id="locker-niver" label="Recado" box="is-locker-niver" />
         <PhotoSpot id="locker-photo" label="Foto" box="is-locker-photo" />
       </ExaminePhoto>
     )
@@ -329,7 +337,7 @@ function promptLine(
   if (touch) {
     const locker = getHallLocker(examiningId)
     if (locker?.kind === 'livia' && useLockerPinStore.getState().isOpen(locker.id) && !detailId) {
-      return 'Toque na foto'
+      return 'Toque no recado ou na foto'
     }
     return null
   }
@@ -345,7 +353,7 @@ function promptLine(
   }
   const locker = getHallLocker(examiningId)
   if (locker?.kind === 'livia' && useLockerPinStore.getState().isOpen(locker.id) && !detailId) {
-    return 'Clique na foto · Esc ou X fechar'
+    return 'Clique no recado ou na foto · Esc ou X fechar'
   }
   if (detailId) return 'Esc ou X voltar'
   return 'Esc ou X fechar'

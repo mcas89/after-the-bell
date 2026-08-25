@@ -136,7 +136,7 @@ export function HallwayDirector() {
       if (progress?.discovered && (progress.stage ?? 0) < 1) {
         updateClue(CLUE_IDS.time0317, {
           stage: 1,
-          description: 'Não é só o relógio da sala. O corredor também está parado em 03:17.',
+          description: 'Outro relógio. Mesma hora. 03:17.',
         })
       }
     }

@@ -300,19 +300,18 @@ export function linedPaperTexture() {
   ctx.stroke()
   ctx.fillStyle = '#1d4a9c'
   ctx.font = `48px ${HAND}`
-  ctx.fillText('L + M', 130, 168)
+  ctx.fillText('Livia & M', 130, 168)
   ctx.fillStyle = '#2a3a68'
   ctx.font = `26px ${HAND}`
-  ctx.fillText('depois de todos irem a', 118, 248)
+  ctx.fillText('depois de todos irem a...', 118, 248)
   ctx.fillStyle = '#5a3060'
+  ctx.font = `28px ${HAND}`
+  ctx.fillText('eu não sei esperar...', 118, 310)
   ctx.font = `32px ${HAND}`
-  ctx.fillText('eu nao sei esperar !!!', 118, 310)
-  ctx.font = `26px ${HAND}`
-  ctx.fillText('se precisar o meu e o quinto', 118, 420)
-  ctx.fillText('codigo meu niver', 118, 466)
+  ctx.fillText('o meu é o quinto !!!', 118, 420)
   ctx.fillStyle = 'rgba(40, 55, 90, 0.32)'
   ctx.font = `22px ${HAND}`
-  ctx.fillText('L + M', 430, 900)
+  ctx.fillText('Livia & M', 400, 900)
   return textureFrom(canvas)
 }
 

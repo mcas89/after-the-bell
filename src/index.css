@@ -513,10 +513,17 @@ textarea {
   height: 24%;
 }
 
-.examine-hotspot.is-locker-photo {
-  left: 38%;
+.examine-hotspot.is-locker-niver {
+  left: 26%;
   top: 66%;
-  width: 22%;
+  width: 16%;
+  height: 18%;
+}
+
+.examine-hotspot.is-locker-photo {
+  left: 44%;
+  top: 66%;
+  width: 18%;
   height: 18%;
 }
 

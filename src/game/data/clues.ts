@@ -62,11 +62,11 @@ export const CLUES: ClueDef[] = [
     stages: [
       {
         title: '03:17',
-        description: 'Meu celular e o relógio marcam 03:17. O ponteiro não anda. Não sei há quanto tempo.',
+        description: '03:17. Parado. Não sei há quanto tempo.',
       },
       {
         title: '03:17',
-        description: 'Outro relógio. Mesma hora. 03:17. Não é só o da sala.',
+        description: 'Outro relógio. Mesma hora. 03:17.',
       },
     ],
   },
@@ -109,8 +109,8 @@ export const CLUES: ClueDef[] = [
     chapter: 'classroom1',
     stages: [
       {
-        title: 'L + M',
-        description: 'L + M. O quinto armário. O código é o niver dela. Quem é M?',
+        title: 'Livia & M',
+        description: 'Livia e M. O meu é o quinto. Quem é M?',
       },
     ],
   },
@@ -257,7 +257,7 @@ export const DEDUCTIONS: ClueDef[] = [
     stages: [
       {
         title: 'Eu não estava sozinha',
-        description: 'Outra mochila. Duas bebidas. L + M. Tinha alguém aqui comigo.',
+        description: 'Outra mochila. Duas bebidas. Livia e M. Tinha alguém aqui comigo.',
       },
     ],
   },

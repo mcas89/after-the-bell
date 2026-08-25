@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
+import { CLUE_IDS } from '../data/clues'
+import { discoverClue } from '../fragments/discoverClue'
 import { playSfx, SFX, stopSfxSlice } from '../audio/mixer'
 import { playPinFail } from './phoneAudio'
 import { isThreadLocked, phoneCall, phonePhoto, phoneThread, type PhoneApp } from './phoneContent'
@@ -95,6 +97,9 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
     const unlocked = useGameStore.getState().phoneUnlocked
     set({ ui: unlocked ? 'unlocked' : 'locked', pin: '', app: 'home', viewId: null })
     saveManager.updateStoryState({ phone0317Seen: true })
+    const clockSeen = useGameStore.getState().flags.clock0317Seen
+    hear(get, set, 'lock-time', clockSeen ? 'É a mesma hora do relógio.' : '03:17. Está parado.')
+    discoverClue(CLUE_IDS.time0317)
   },
   close: () => {
     if (!isPhoneOpen(get().ui)) return
@@ -132,7 +137,7 @@ export const usePhoneStore = create<PhoneState>((set, get) => ({
   openApp: (app) => {
     if (get().ui !== 'unlocked') return
     set({ app, viewId: null })
-    if (app === 'clock') hear(get, set, 'clock', 'Seis da manhã...?')
+    if (app === 'clock') hear(get, set, 'clock', 'Ainda 03:17.')
     if (app === 'notes') hear(get, set, 'notes', 'Eu estava preparando alguma coisa.')
     if (app === 'maps') hear(get, set, 'maps', 'Eu estava tentando ir pra casa.')
     if (app === 'camera') hear(get, set, 'camera', 'Não abre.')

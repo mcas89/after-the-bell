@@ -21,6 +21,7 @@ export type SheetKind =
   | 'manutencao'
   | 'saida'
   | 'guiche'
+  | 'niver'
 
 export type ExamineEntry = {
   line: string | null
@@ -82,51 +83,50 @@ const SHARED: Record<string, ExamineEntry> = {
     fragmentId: 'clue-two-drinks',
   },
   prontuario: {
-    line: 'Lívia Ferreira... 03 de maio. Sou eu.',
+    line: 'Lívia Ferreira... 03 de maio. Sou eu. Meu niver.',
     sheet: 'prontuario',
   },
   'livros-professor': {
-    line: 'Alguém parece que estava estudando aqui...',
+    line: 'Dois cadernos abertos. Eu só uso um.',
   },
   'canetas-professor': {
-    line: 'Algumas canetas estão vazias. Alguém escreveu muito.',
+    line: 'Tem uma roxa. Eu não uso essa cor.',
   },
   'bloco-folhas': {
-    line: 'L + M. O quinto armário. O código é o niver dela. Quem é M?',
+    line: 'Livia e M. O meu é o quinto. Quem é M?',
     fragmentId: 'clue-lm',
     sheet: 'bloco',
   },
   'canetas-carteira': {
-    line: 'Ainda tem tinta. Alguém parou de escrever no meio da frase.',
+    line: 'Ainda tem tinta. A letra não é a minha.',
   },
   'folhas-chao': {
-    line: 'Exercícios de uma prova... com nota B.',
+    line: 'Nota B. Eu não tiro B.',
     sheet: 'chao',
   },
   'armario-livros': {
-    line: 'Falta um livro no meio.',
+    line: 'Falta um livro no meio. Não fui eu.',
   },
   mural: {
-    line: 'A foto da turma. Não dá pra ver nenhum rosto.',
+    line: 'Duas na frente. Nenhum rosto.',
     image: EXAMINE_IMG.turmaSala,
   },
   'quadro-negro': {
     line: 'Um jogo da forca... Qual será a palavra?',
-    fragmentId: 'clue-friends',
     sheet: 'quadro',
   },
   relogio: {
-    line: 'Meu celular e o relógio marcam 03:17. O ponteiro não anda.',
+    line: 'O relógio marca 03:17. O ponteiro não anda.',
     fragmentId: 'clue-0317',
   },
   janela: {
     line: 'Lá fora está completamente vazio. Nem uma luz. Nem um som.',
   },
   porta: {
-    line: 'Está fechada.',
+    line: 'A porta está trancada por fora !!',
   },
   chave: {
-    line: 'Uma chave pequena.',
+    line: 'Chave da sala dos professores.',
     collectibleId: 'item-key',
   },
   'hall-clock': {
@@ -398,8 +398,12 @@ const SHARED: Record<string, ExamineEntry> = {
     line: 'Lá fora está completamente vazio. Nem uma luz. Nem um som.',
   },
   'locker-photo': {
-    line: 'O verso. Só isso.',
+    line: '14 de outubro. Não esquecer.',
     image: EXAMINE_IMG.fotoVerso,
+  },
+  'locker-niver': {
+    line: 'Não é o meu niver.',
+    sheet: 'niver',
   },
   'locker-batteries': {
     line: 'Pilhas. Alguém deixou.',
@@ -474,7 +478,7 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     const phase = useDoorStore.getState().phase
     if (phase === 'open') return { line: 'O corredor está escuro.' }
     if (phase === 'ajar' || phase === 'opening') return { line: 'Agora está entreaberta...' }
-    return { line: 'Travada. Do lado de fora.' }
+    return { line: 'A porta está trancada por fora !!' }
   }
   if (key === 'hall-door-12') {
     return useHallwayStore.getState().labDoor === 'open'
@@ -610,8 +614,22 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     }
     return { line: '03:17. Ainda agora.' }
   }
+  if (key === 'relogio') {
+    const flags = useGameStore.getState().flags
+    const line = flags.phone0317Seen
+      ? 'É a mesma hora do celular. O ponteiro não anda.'
+      : 'O relógio marca 03:17. O ponteiro não anda.'
+    if (!flags.clock0317Seen) useGameStore.getState().addFlag('clock0317Seen')
+    return { line, fragmentId: 'clue-0317' }
+  }
   if (key === 'quadro-negro' && useGameStore.getState().flags.hangmanAmizade) {
-    return { ...SHARED[key], line: 'A palavra era AMIZADE.' }
+    return { ...SHARED[key], line: 'A palavra era AMIZADE.', fragmentId: 'clue-friends' }
+  }
+  if (key === 'locker-niver') {
+    if (!useGameStore.getState().flags.liviaNiverNote) {
+      useGameStore.getState().addFlag('liviaNiverNote')
+    }
+    return SHARED['locker-niver']
   }
   const locker = getHallLocker(key)
   if (locker) {
@@ -622,7 +640,7 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     }
     if (useLockerPinStore.getState().isOpen(locker.id)) {
       if (locker.kind === 'livia') {
-        return { line: 'Cadernos. Uma foto virada. Meu moletom.', image: EXAMINE_IMG.armario4 }
+        return { line: 'Cadernos. Uma foto virada. Um recado. Meu moletom.', image: EXAMINE_IMG.armario4 }
       }
       if (locker.kind === 'marina') {
         return hasBatteries()
@@ -632,7 +650,11 @@ export function getExamineEntry(id: string): ExamineEntry | null {
       return { line: 'Quase vazio.' }
     }
     if (locker.kind === 'livia') return { line: 'Meu armário.' }
-    if (locker.kind === 'marina') return { line: 'O quinto. Sem nome. O código é o niver.' }
+    if (locker.kind === 'marina') {
+      return useGameStore.getState().flags.liviaNiverNote
+        ? { line: 'O quinto. Sem nome. O código é o niver.' }
+        : { line: 'O quinto. Sem nome.' }
+    }
     return { line: `Armário da ${locker.name}.` }
   }
   return SHARED[key] ?? null
@@ -707,7 +729,8 @@ export function examineHoldSeconds(id: string) {
     entry.sheet === 'pasta' ||
     entry.sheet === 'manutencao' ||
     entry.sheet === 'saida' ||
-    entry.sheet === 'guiche'
+    entry.sheet === 'guiche' ||
+    entry.sheet === 'niver'
   ) {
     return 6.8
   }

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { CLASSROOM_1 } from '../data/rooms'
+import { CLUE_IDS } from '../data/clues'
+import { discoverClue } from '../fragments/discoverClue'
 import { saveManager } from '../state/gameSaveManager'
 import { useGameStore } from '../state/useGameStore'
 import { getHangmanChalkTexture } from './paperTextures'
@@ -102,6 +104,7 @@ export function HangmanBoard() {
       setGuess(ANSWER.split(''))
       setFail(null)
       useGameStore.getState().addFlag(HANGMAN_FLAGS.amizade)
+      discoverClue(CLUE_IDS.friends)
       saveManager.save()
       return
     }

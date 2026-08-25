@@ -18,7 +18,7 @@ export const ITEM_IDS = {
 export const ITEMS: Record<string, ItemDef> = {
   [ITEM_IDS.key]: {
     id: ITEM_IDS.key,
-    title: 'Chave pequena',
+    title: 'Chave da sala dos professores',
     description: 'Leve, um pouco gasta. Cabe na palma da mão.',
   },
   [ITEM_IDS.officeKey]: {
