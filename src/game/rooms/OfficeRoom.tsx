@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { Suspense, useLayoutEffect } from 'react'
 import * as THREE from 'three'
 import type { Aabb } from '../data/furniture'
 import { getRoom } from '../data/rooms'
@@ -21,7 +21,86 @@ const DESK_SCALE = 0.58
 const FILES = { x: -2.15, z: 1.85, hx: 0.42, hz: 0.55 }
 const CHAIR = { x: 0, z: 0.78, hx: 0.32, hz: 0.34 }
 const FOLDER = { x: -3.18, z: -2.72 }
-const WIN = { z: 0.18, half: 0.58, sill: 0.92, h: 1.32 }
+const WIN = { z: 0.18, half: 0.7, sill: 0.9, h: 1.48 }
+const WIN_ROT = Math.PI / 2 + Math.PI + Math.PI / 4 + (55 * Math.PI) / 180
+
+function WestWallWithWindow() {
+  const x = -width / 2
+  const topH = height - WIN.sill - WIN.h
+  const openings = [-depth / 2, WIN.z - WIN.half, WIN.z + WIN.half, depth / 2]
+  return (
+    <group>
+      <mesh position={[x, WIN.sill / 2, 0]} receiveShadow>
+        <boxGeometry args={[wallT, WIN.sill, depth]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[x, WIN.sill + WIN.h + topH / 2, 0]} receiveShadow>
+        <boxGeometry args={[wallT, topH, depth]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      {Array.from({ length: openings.length / 2 }, (_, i) => {
+        const a = openings[i * 2]
+        const b = openings[i * 2 + 1]
+        const span = b - a
+        if (span < 0.08) return null
+        return (
+          <mesh key={`office-win-wall-${i}`} position={[x, WIN.sill + WIN.h / 2, (a + b) / 2]} receiveShadow>
+            <boxGeometry args={[wallT, WIN.h, span]} />
+            <meshStandardMaterial {...wall} />
+          </mesh>
+        )
+      })}
+    </group>
+  )
+}
+
+function NightOutside() {
+  return (
+    <group position={[-width / 2 - 0.9, 0, 0]}>
+      <mesh rotation={[0, Math.PI / 2, 0]} position={[0, 1.4, 0]}>
+        <planeGeometry args={[depth + 8, 8]} />
+        <meshBasicMaterial color="#070b14" />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-3.4, -9.2, 0]}>
+        <planeGeometry args={[16, 22]} />
+        <meshBasicMaterial color="#05070c" />
+      </mesh>
+      <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.12, 2.58, WIN.z - 1.05]}>
+        <circleGeometry args={[0.28, 28]} />
+        <meshBasicMaterial color="#eef4fb" />
+      </mesh>
+      <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.1, 2.58, WIN.z - 1.05]}>
+        <circleGeometry args={[0.62, 28]} />
+        <meshBasicMaterial color="#9bb4d4" transparent opacity={0.14} />
+      </mesh>
+    </group>
+  )
+}
+
+function OpenSash() {
+  const paneW = WIN.half * 0.9
+  const paneH = WIN.h - 0.22
+  return (
+    <group position={[-width / 2 + 0.05, WIN.sill + WIN.h / 2, WIN.z + WIN.half * 0.08]} rotation={[0, 0.78, 0]}>
+      <mesh position={[0, 0, paneW / 2]} castShadow>
+        <boxGeometry args={[0.045, paneH, paneW]} />
+        <meshStandardMaterial color="#3d342c" roughness={0.78} />
+      </mesh>
+      <mesh position={[0.012, 0, paneW / 2]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[paneW - 0.1, paneH - 0.12]} />
+        <meshStandardMaterial color="#b7c8d6" roughness={0.08} metalness={0.18} transparent opacity={0.16} />
+      </mesh>
+      <mesh position={[0, paneH / 2 - 0.03, paneW / 2]}>
+        <boxGeometry args={[0.055, 0.045, paneW]} />
+        <meshStandardMaterial color="#4a4036" roughness={0.7} />
+      </mesh>
+      <mesh position={[0, -paneH / 2 + 0.03, paneW / 2]}>
+        <boxGeometry args={[0.055, 0.045, paneW]} />
+        <meshStandardMaterial color="#4a4036" roughness={0.7} />
+      </mesh>
+    </group>
+  )
+}
 
 function DoorWall() {
   const x = door.wallX
@@ -114,6 +193,18 @@ export function OfficeRoom() {
       <ambientLight intensity={0.02} color="#6a5a48" />
       <hemisphereLight args={['#241e18', '#080604', 0.08]} />
       <pointLight position={[0.2, 1.95, 0.4]} color="#d8c8a0" intensity={0.16} distance={4.2} decay={2} />
+      <directionalLight position={[-6.4, 3.6, WIN.z - 0.8]} intensity={0.28} color="#9bb4d4" />
+      <spotLight
+        position={[-width / 2 - 0.4, WIN.sill + WIN.h * 0.7, WIN.z]}
+        intensity={3.4}
+        color="#c9d8ea"
+        angle={0.62}
+        penumbra={0.72}
+        distance={7.2}
+        decay={1.7}
+      />
+
+      <NightOutside />
 
       <TexturedFloor
         src="/textura/piso_madeira.png"
@@ -132,10 +223,7 @@ export function OfficeRoom() {
         <boxGeometry args={[width, height, wallT]} />
         <meshStandardMaterial {...wall} />
       </mesh>
-      <mesh position={[-width / 2, height / 2, 0]} receiveShadow>
-        <boxGeometry args={[wallT, height, depth]} />
-        <meshStandardMaterial {...wall} />
-      </mesh>
+      <WestWallWithWindow />
       <mesh position={[0, height / 2, depth / 2]} receiveShadow>
         <boxGeometry args={[width, height, wallT]} />
         <meshStandardMaterial {...wall} />
@@ -196,19 +284,21 @@ export function OfficeRoom() {
         </group>
       </Examinable>
       <Examinable id="office-window">
-        <group position={[-width / 2 + 0.04, WIN.sill + WIN.h / 2, WIN.z]}>
-          <mesh position={[0.01, 0, 0]}>
-            <boxGeometry args={[0.04, WIN.h + 0.1, WIN.half * 2 + 0.1]} />
-            <meshStandardMaterial color="#2a2622" roughness={0.88} />
+        <group>
+          <mesh position={[-width / 2 + 0.07, WIN.sill + 0.04, WIN.z]}>
+            <boxGeometry args={[0.22, 0.08, WIN.half * 2 + 0.16]} />
+            <meshStandardMaterial color="#4a4036" roughness={0.82} />
           </mesh>
-          <mesh position={[-0.02, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-            <planeGeometry args={[WIN.half * 2 - 0.1, WIN.h - 0.1]} />
-            <meshBasicMaterial color="#07090e" />
-          </mesh>
-          <mesh position={[0.12, 0.02, -0.22]} rotation={[0, 0.55, 0]}>
-            <boxGeometry args={[0.018, WIN.h - 0.18, WIN.half * 0.92]} />
-            <meshStandardMaterial color="#8aa0b0" roughness={0.18} metalness={0.22} transparent opacity={0.18} />
-          </mesh>
+          <Suspense fallback={null}>
+            <FurnitureModel
+              url="/janela.glb"
+              position={[-width / 2 + 0.02, WIN.sill + WIN.h / 2, WIN.z]}
+              rotationY={WIN_ROT}
+              targetHeight={WIN.h - 0.06}
+              anchor="center"
+            />
+          </Suspense>
+          <OpenSash />
         </group>
       </Examinable>
       <Examinable id="office-counter">

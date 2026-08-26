@@ -32,6 +32,7 @@ export type ExamineEntry = {
   collectibleId?: string
   sheet?: SheetKind
   image?: string
+  flag?: string
 }
 
 export const EXAMINE_IMG = {
@@ -467,6 +468,36 @@ function hasDirKey() {
   return useInventoryStore.getState().has(ITEM_IDS.dirKey)
 }
 
+function officeWindowPages(): ExamineEntry[] {
+  if (!useGameStore.getState().flags.marinaFolderSeen) {
+    return [{ line: 'Aberta. Sem grade.' }]
+  }
+  return [
+    { line: 'Aberta. Sem grade.' },
+    { line: 'Alguém tirou a grade.', sheet: 'manutencao', flag: 'officeWindowNote' },
+    {
+      line: 'Ela estava aqui. Comigo.\nEla caiu. 03:17.',
+      fragmentId: 'clue-fall',
+      flag: 'officeFallSeen',
+    },
+  ]
+}
+
+function bathMirrorPages(): ExamineEntry[] {
+  return [
+    { line: 'Eu pareço péssima.' },
+    { line: 'Ela queria ir embora.', fragmentId: 'clue-wanted-out', flag: 'bathMirrorSeen' },
+  ]
+}
+
+export function getExaminePages(id: string): ExamineEntry[] {
+  const key = ALIAS[id] ?? id
+  if (key === 'office-window') return officeWindowPages()
+  if (key === 'bath-mirror') return bathMirrorPages()
+  const entry = getExamineEntry(id)
+  return entry ? [entry] : []
+}
+
 export function getExamineEntry(id: string): ExamineEntry | null {
   const key = ALIAS[id] ?? id
   if (key === 'porta') {
@@ -583,10 +614,10 @@ export function getExamineEntry(id: string): ExamineEntry | null {
     return { line: 'Ainda escorrendo.' }
   }
   if (key === 'bath-mirror') {
-    if (useGameStore.getState().flags.bathMirrorSeen) {
-      return { line: 'Ela queria ir embora.', fragmentId: 'clue-wanted-out' }
-    }
-    return { line: 'Eu pareço péssima.' }
+    return bathMirrorPages()[0]
+  }
+  if (key === 'office-window') {
+    return officeWindowPages()[0]
   }
   if (key === 'bath-elastic') {
     return useGameStore.getState().flags.marinaFolderSeen
@@ -616,15 +647,6 @@ export function getExamineEntry(id: string): ExamineEntry | null {
       fragmentId: 'clue-marina',
       sheet: 'pasta',
     }
-  }
-  if (key === 'office-window') {
-    const flags = useGameStore.getState().flags
-    if (!flags.marinaFolderSeen) return { line: 'Aberta. Sem grade.' }
-    if (!flags.officeWindowNote) return { line: 'Alguém tirou a grade.', sheet: 'manutencao' }
-    if (!flags.officeFallSeen) {
-      return { line: 'Ela estava aqui. Comigo.\nEla caiu. 03:17.', fragmentId: 'clue-fall' }
-    }
-    return { line: '03:17. Ainda agora.' }
   }
   if (key === 'relogio') {
     const flags = useGameStore.getState().flags
@@ -731,6 +753,7 @@ export function collectPromptFor(
 }
 
 export function examineHoldSeconds(id: string) {
+  if (getExaminePages(id).length > 1) return 0
   if (
     isHallLockerId(id) ||
     id === 'quadro-negro' ||

@@ -180,11 +180,25 @@ export function ExamineDirector() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.repeat || event.code !== 'Escape') return
+      if (event.repeat) return
       if (useGameStore.getState().interactionState !== 'examining-object') return
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      useExamineStore.getState().stopInspect()
+      if (event.code === 'Escape') {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        useExamineStore.getState().stopInspect()
+        return
+      }
+      if (event.code === 'ArrowRight' || event.code === 'KeyD') {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        useExamineStore.getState().shiftPage(1)
+        return
+      }
+      if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        useExamineStore.getState().shiftPage(-1)
+      }
     }
 
     window.addEventListener('keydown', onKey, true)

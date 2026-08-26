@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import { useFitScale } from '../ui/useFitScale'
-import { collectPromptFor, collectPromptsFor, EXAMINE_IMG, getExamineEntry } from '../data/examineContent'
+import { collectPromptFor, collectPromptsFor, EXAMINE_IMG, getExamineEntry, getExaminePages } from '../data/examineContent'
 import { useDoorStore } from '../door/useDoorStore'
 import { isPhoneOpen, usePhoneStore } from '../phone/phoneStore'
 import { useGameStore } from '../state/useGameStore'
@@ -352,6 +352,11 @@ function promptLine(
   if (examiningId === 'zel-skeleton' && !skeletonAlreadyScared()) {
     return 'F forçar · Esc ou X fechar'
   }
+  const pages = getExaminePages(examiningId)
+  if (pages.length > 1) {
+    const page = useExamineStore.getState().pageIndex
+    if (page < pages.length - 1) return '→ continuar · Esc ou X fechar'
+  }
   if (examiningId === 'teachers-cabinet' && !detailId) {
     return 'Clique na chave ou na lanterna · Esc ou X fechar'
   }
@@ -371,10 +376,17 @@ export function ExamineHud() {
   const hoveredId = useExamineStore((s) => s.hoveredId)
   const examiningId = useExamineStore((s) => s.examiningId)
   const detailId = useExamineStore((s) => s.detailId)
+  const pageIndex = useExamineStore((s) => s.pageIndex)
   const interaction = useGameStore((s) => s.interactionState)
   const prologueDone = useGameStore((s) => s.prologueDone)
   const phoneOpen = usePhoneStore((s) => isPhoneOpen(s.ui))
-  const entry = examiningId ? getExamineEntry(detailId ?? examiningId) : null
+  const pages = examiningId && !detailId ? getExaminePages(examiningId) : []
+  const paged = pages.length > 1
+  const entry = examiningId
+    ? paged
+      ? (pages[pageIndex] ?? null)
+      : getExamineEntry(detailId ?? examiningId)
+    : null
   const prompt = collectPromptFor(examiningId, detailId)
   const takes = collectPromptsFor(examiningId, detailId)
 
@@ -421,8 +433,59 @@ export function ExamineHud() {
           {showEntryImage && entry?.image ? <ExaminePhoto src={entry.image} /> : null}
           {entry?.sheet ? <Sheet kind={entry.sheet} /> : null}
           {isHallLockerId(examiningId) ? <LockerPinPad lockerId={examiningId} /> : null}
-          {entry?.line ? (
-            <p className="examine-line">
+          {paged ? (
+            <div className="examine-caption">
+              <button
+                className="examine-page"
+                type="button"
+                disabled={pageIndex <= 0}
+                aria-label="Frase anterior"
+                onClick={() => useExamineStore.getState().shiftPage(-1)}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    d="M14.8 5.2L8.2 12l6.6 6.8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              {entry?.line ? (
+                <p className="examine-line">
+                  {entry.line.split('\n').map((part) => (
+                    <span key={part}>
+                      {part}
+                      <br />
+                    </span>
+                  ))}
+                </p>
+              ) : (
+                <p className="examine-line" />
+              )}
+              <button
+                className="examine-page"
+                type="button"
+                disabled={pageIndex >= pages.length - 1}
+                aria-label="Próxima frase"
+                onClick={() => useExamineStore.getState().shiftPage(1)}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    d="M9.2 5.2L15.8 12l-6.6 6.8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : entry?.line ? (
+            <p className="examine-line is-solo">
               {entry.line.split('\n').map((part) => (
                 <span key={part}>
                   {part}
